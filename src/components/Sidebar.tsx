@@ -5,19 +5,19 @@ import { Separator } from "./ui/separator";
 import {
   Calendar,
   Users,
-  GraduationCap,
   CalendarRange,
   Filter,
   User,
   School,
   DoorOpen,
+  BookOpen,
 } from "lucide-react";
 import { cn } from "../lib/utils";
 
 interface SidebarProps {
-  activeView?: "timetable" | "teachers" | "students" | "builder";
+  activeView?: "timetable" | "teachers" | "subjects" | "builder";
   onViewChange?: (
-    view: "timetable" | "teachers" | "students" | "builder",
+    view: "timetable" | "teachers" | "subjects" | "builder",
   ) => void;
   selectedFilter?: "teacher" | "class" | "room";
   onFilterChange?: (filter: "teacher" | "class" | "room") => void;
@@ -32,7 +32,7 @@ const Sidebar = ({
   const navigationItems = [
     { id: "timetable", label: "Daily Schedule", icon: Calendar },
     { id: "teachers", label: "Teachers", icon: Users },
-    { id: "students", label: "Students", icon: GraduationCap },
+    { id: "subjects", label: "Subjects", icon: BookOpen },
     { id: "builder", label: "Schedule Builder", icon: CalendarRange },
   ];
 

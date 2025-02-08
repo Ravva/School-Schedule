@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import Sidebar from "./Sidebar";
 import DailyScheduleGrid from "./DailyScheduleGrid";
 import TeacherManagement from "./TeacherManagement";
-import StudentRoster from "./StudentRoster";
-import TimetableBuilder from "./TimetableBuilder";
 
-type ViewMode = "timetable" | "teachers" | "students" | "builder";
+import TimetableBuilder from "./TimetableBuilder";
+import SubjectManagement from "./SubjectManagement";
+import ClassManagement from "./ClassManagement";
+
+type ViewMode = "timetable" | "teachers" | "subjects" | "classes" | "builder";
 type FilterMode = "teacher" | "class" | "room";
 
 interface HomeProps {
@@ -27,8 +29,11 @@ const Home = ({
         return <DailyScheduleGrid />;
       case "teachers":
         return <TeacherManagement />;
-      case "students":
-        return <StudentRoster />;
+      case "subjects":
+        return <SubjectManagement />;
+      case "classes":
+        return <ClassManagement />;
+
       case "builder":
         return <TimetableBuilder />;
       default:
