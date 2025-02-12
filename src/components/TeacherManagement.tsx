@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { supabase, type TeacherRow, type SubjectRow } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import {
   Table,
@@ -22,19 +22,44 @@ import { Label } from "./ui/label";
 import { Badge } from "./ui/badge";
 import { Edit, Plus, Trash2, X } from "lucide-react";
 import { ScrollArea } from "./ui/scroll-area";
+import { Switch } from "./ui/switch";
+import { Checkbox } from "./ui/checkbox";
+import { Separator } from "./ui/separator";
+
+interface Teacher {
+  id: string;
+  name: string;
+  subjects: string[];
+  supervised_classes: string[];
+  is_part_time: boolean;
+  work_days: string[];
+}
+
+interface TeacherFormProps {
+  mode: "add" | "edit";
+  data: {
+    name: string;
+    subjects: string[];
+    supervised_classes: string[];
+    is_part_time: boolean;
+    work_days: string[];
+  };
+  onSubmit: () => void;
+  onChange: (data: TeacherFormProps["data"]) => void;
+}
 
 const TeacherManagement = () => {
-  const [teachers, setTeachers] = useState<TeacherRow[]>([]);
-  const [subjects, setSubjects] = useState<SubjectRow[]>([]);
+  const [teachers, setTeachers] = useState<Teacher[]>([]);
+  const [subjects, setSubjects] = useState<{ id: string; name: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [newTeacher, setNewTeacher] = useState({
     name: "",
     subjects: [] as string[],
     supervised_classes: [] as string[],
+    is_part_time: false,
+    work_days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
   });
-  const [editingTeacher, setEditingTeacher] = useState<TeacherRow | null>(null);
-  const [showSubjectDropdown, setShowSubjectDropdown] = useState(false);
-  const [showClassDropdown, setShowClassDropdown] = useState(false);
+  const [editingTeacher, setEditingTeacher] = useState<Teacher | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -66,12 +91,20 @@ const TeacherManagement = () => {
           name: newTeacher.name,
           subjects: newTeacher.subjects,
           supervised_classes: newTeacher.supervised_classes,
+          is_part_time: newTeacher.is_part_time,
+          work_days: newTeacher.work_days,
         },
       ]);
 
       if (error) throw error;
       fetchData();
-      setNewTeacher({ name: "", subjects: [], supervised_classes: [] });
+      setNewTeacher({
+        name: "",
+        subjects: [],
+        supervised_classes: [],
+        is_part_time: false,
+        work_days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+      });
     } catch (error) {
       console.error("Error adding teacher:", error);
     }
@@ -87,6 +120,8 @@ const TeacherManagement = () => {
           name: editingTeacher.name,
           subjects: editingTeacher.subjects,
           supervised_classes: editingTeacher.supervised_classes,
+          is_part_time: editingTeacher.is_part_time,
+          work_days: editingTeacher.work_days,
         })
         .eq("id", editingTeacher.id);
 
@@ -110,12 +145,16 @@ const TeacherManagement = () => {
   };
 
   const availableClasses = ["10A", "10B", "11A", "11B", "12A", "12B"];
+  const weekDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
-  const TeacherForm = ({ mode }: { mode: "add" | "edit" }) => {
-    const teacher = mode === "add" ? newTeacher : editingTeacher;
-    const setTeacher = mode === "add" ? setNewTeacher : setEditingTeacher;
-
-    if (!teacher) return null;
+  const TeacherForm = ({
+    mode,
+    data,
+    onChange,
+    onSubmit,
+  }: TeacherFormProps) => {
+    const [showSubjectDropdown, setShowSubjectDropdown] = useState(false);
+    const [showClassDropdown, setShowClassDropdown] = useState(false);
 
     return (
       <div className="space-y-4">
@@ -123,8 +162,8 @@ const TeacherManagement = () => {
           <Label htmlFor="name">Name</Label>
           <Input
             id="name"
-            value={teacher.name}
-            onChange={(e) => setTeacher({ ...teacher, name: e.target.value })}
+            value={data.name}
+            onChange={(e) => onChange({ ...data, name: e.target.value })}
             placeholder="Enter teacher name"
           />
         </div>
@@ -133,14 +172,14 @@ const TeacherManagement = () => {
           <Label>Subjects</Label>
           <div className="relative">
             <div className="flex flex-wrap gap-1 p-2 border rounded-md min-h-[38px]">
-              {teacher.subjects.map((subject) => (
+              {data.subjects.map((subject) => (
                 <Badge key={subject} variant="secondary" className="gap-1">
                   {subject}
                   <button
                     onClick={() =>
-                      setTeacher({
-                        ...teacher,
-                        subjects: teacher.subjects.filter((s) => s !== subject),
+                      onChange({
+                        ...data,
+                        subjects: data.subjects.filter((s) => s !== subject),
                       })
                     }
                   >
@@ -159,17 +198,15 @@ const TeacherManagement = () => {
               <div className="absolute z-10 w-full mt-1 bg-white border rounded-md shadow-lg">
                 <ScrollArea className="h-[200px]">
                   {subjects
-                    .filter(
-                      (subject) => !teacher.subjects.includes(subject.name),
-                    )
+                    .filter((subject) => !data.subjects.includes(subject.name))
                     .map((subject) => (
                       <button
                         key={subject.id}
                         className="w-full px-3 py-2 text-left hover:bg-slate-100"
                         onClick={() => {
-                          setTeacher({
-                            ...teacher,
-                            subjects: [...teacher.subjects, subject.name],
+                          onChange({
+                            ...data,
+                            subjects: [...data.subjects, subject.name],
                           });
                           setShowSubjectDropdown(false);
                         }}
@@ -187,14 +224,14 @@ const TeacherManagement = () => {
           <Label>Supervised Classes</Label>
           <div className="relative">
             <div className="flex flex-wrap gap-1 p-2 border rounded-md min-h-[38px]">
-              {teacher.supervised_classes.map((className) => (
+              {data.supervised_classes.map((className) => (
                 <Badge key={className} variant="outline" className="gap-1">
                   {className}
                   <button
                     onClick={() =>
-                      setTeacher({
-                        ...teacher,
-                        supervised_classes: teacher.supervised_classes.filter(
+                      onChange({
+                        ...data,
+                        supervised_classes: data.supervised_classes.filter(
                           (c) => c !== className,
                         ),
                       })
@@ -217,17 +254,17 @@ const TeacherManagement = () => {
                   {availableClasses
                     .filter(
                       (className) =>
-                        !teacher.supervised_classes.includes(className),
+                        !data.supervised_classes.includes(className),
                     )
                     .map((className) => (
                       <button
                         key={className}
                         className="w-full px-3 py-2 text-left hover:bg-slate-100"
                         onClick={() => {
-                          setTeacher({
-                            ...teacher,
+                          onChange({
+                            ...data,
                             supervised_classes: [
-                              ...teacher.supervised_classes,
+                              ...data.supervised_classes,
                               className,
                             ],
                           });
@@ -243,11 +280,53 @@ const TeacherManagement = () => {
           </div>
         </div>
 
-        <Button
-          className="w-full"
-          onClick={mode === "add" ? handleAddTeacher : handleUpdateTeacher}
-        >
-          {mode === "add" ? "Save Teacher" : "Update Teacher"}
+        <Separator />
+
+        <div className="space-y-4">
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="is_part_time"
+              checked={data.is_part_time}
+              onCheckedChange={(checked) =>
+                onChange({
+                  ...data,
+                  is_part_time: checked,
+                  work_days: checked ? [] : weekDays,
+                })
+              }
+            />
+            <Label htmlFor="is_part_time">Part-time Teacher</Label>
+          </div>
+
+          {data.is_part_time && (
+            <div className="space-y-2">
+              <Label>Work Days</Label>
+              <div className="grid grid-cols-2 gap-2">
+                {weekDays.map((day) => (
+                  <div key={day} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`day-${day}`}
+                      checked={data.work_days.includes(day)}
+                      onCheckedChange={(checked) => {
+                        const newDays = checked
+                          ? [...data.work_days, day]
+                          : data.work_days.filter((d) => d !== day);
+                        onChange({
+                          ...data,
+                          work_days: newDays,
+                        });
+                      }}
+                    />
+                    <Label htmlFor={`day-${day}`}>{day}</Label>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <Button className="w-full" onClick={onSubmit}>
+          {mode === "add" ? "Add Teacher" : "Update Teacher"}
         </Button>
       </div>
     );
@@ -269,7 +348,12 @@ const TeacherManagement = () => {
               <DialogHeader>
                 <DialogTitle>Add New Teacher</DialogTitle>
               </DialogHeader>
-              <TeacherForm mode="add" />
+              <TeacherForm
+                mode="add"
+                data={newTeacher}
+                onChange={setNewTeacher}
+                onSubmit={handleAddTeacher}
+              />
             </DialogContent>
           </Dialog>
         </CardHeader>
@@ -280,13 +364,23 @@ const TeacherManagement = () => {
                 <TableHead>Name</TableHead>
                 <TableHead>Subjects</TableHead>
                 <TableHead>Supervised Classes</TableHead>
+                <TableHead>Schedule</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {teachers.map((teacher) => (
                 <TableRow key={teacher.id}>
-                  <TableCell>{teacher.name}</TableCell>
+                  <TableCell>
+                    <div className="flex flex-col gap-1">
+                      <span>{teacher.name}</span>
+                      {teacher.is_part_time && (
+                        <Badge variant="secondary" className="w-fit">
+                          Part-time
+                        </Badge>
+                      )}
+                    </div>
+                  </TableCell>
                   <TableCell>
                     <div className="flex flex-wrap gap-1">
                       {teacher.subjects.map((subject) => (
@@ -301,6 +395,15 @@ const TeacherManagement = () => {
                       {teacher.supervised_classes.map((className) => (
                         <Badge key={className} variant="outline">
                           {className}
+                        </Badge>
+                      ))}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap gap-1">
+                      {teacher.work_days.map((day) => (
+                        <Badge key={day} variant="outline">
+                          {day.slice(0, 3)}
                         </Badge>
                       ))}
                     </div>
@@ -321,7 +424,14 @@ const TeacherManagement = () => {
                           <DialogHeader>
                             <DialogTitle>Edit Teacher</DialogTitle>
                           </DialogHeader>
-                          <TeacherForm mode="edit" />
+                          {editingTeacher && (
+                            <TeacherForm
+                              mode="edit"
+                              data={editingTeacher}
+                              onChange={setEditingTeacher}
+                              onSubmit={handleUpdateTeacher}
+                            />
+                          )}
                         </DialogContent>
                       </Dialog>
                       <Button

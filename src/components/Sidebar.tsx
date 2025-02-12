@@ -11,6 +11,7 @@ import {
   School,
   DoorOpen,
   BookOpen,
+  Clock,
 } from "lucide-react";
 import { cn } from "../lib/utils";
 
@@ -33,6 +34,8 @@ const Sidebar = ({
     { id: "timetable", label: "Daily Schedule", icon: Calendar },
     { id: "teachers", label: "Teachers", icon: Users },
     { id: "subjects", label: "Subjects", icon: BookOpen },
+    { id: "lessons", label: "Lessons", icon: Clock },
+    { id: "rooms", label: "Rooms", icon: DoorOpen },
     { id: "builder", label: "Schedule Builder", icon: CalendarRange },
   ];
 

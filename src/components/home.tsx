@@ -4,10 +4,19 @@ import DailyScheduleGrid from "./DailyScheduleGrid";
 import TeacherManagement from "./TeacherManagement";
 
 import TimetableBuilder from "./TimetableBuilder";
+import LessonManagement from "./LessonManagement";
+import RoomManagement from "./RoomManagement";
 import SubjectManagement from "./SubjectManagement";
 import ClassManagement from "./ClassManagement";
 
-type ViewMode = "timetable" | "teachers" | "subjects" | "classes" | "builder";
+type ViewMode =
+  | "timetable"
+  | "teachers"
+  | "subjects"
+  | "classes"
+  | "lessons"
+  | "rooms"
+  | "builder";
 type FilterMode = "teacher" | "class" | "room";
 
 interface HomeProps {
@@ -34,6 +43,10 @@ const Home = ({
       case "classes":
         return <ClassManagement />;
 
+      case "lessons":
+        return <LessonManagement />;
+      case "rooms":
+        return <RoomManagement />;
       case "builder":
         return <TimetableBuilder />;
       default:
