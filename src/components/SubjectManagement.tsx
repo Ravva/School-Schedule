@@ -124,7 +124,7 @@ const SubjectManagement = () => {
           <Input
             id="name"
             value={subject.name}
-            onChange={(e) => setSubject({ ...subject, name: e.target.value })}
+            onChange={(e) => setSubject(prev => ({...prev, name: e.target.value}))}
             placeholder="Enter subject name"
           />
         </div>
@@ -134,9 +134,7 @@ const SubjectManagement = () => {
           <Textarea
             id="description"
             value={subject.description}
-            onChange={(e) =>
-              setSubject({ ...subject, description: e.target.value })
-            }
+            onChange={(e) => setSubject(prev => ({...prev, description: e.target.value}))}
             placeholder="Enter subject description"
           />
         </div>
@@ -145,9 +143,7 @@ const SubjectManagement = () => {
           <Switch
             id="is_extracurricular"
             checked={subject.is_extracurricular}
-            onCheckedChange={(checked) =>
-              setSubject({ ...subject, is_extracurricular: checked })
-            }
+            onCheckedChange={(checked) => setSubject(prev => ({...prev, is_extracurricular: checked}))}
           />
           <Label htmlFor="is_extracurricular">Extracurricular</Label>
         </div>
@@ -209,7 +205,9 @@ const SubjectManagement = () => {
                         Extracurricular
                       </Badge>
                     ) : (
-                      <Badge variant="secondary">Regular</Badge>
+                      <Badge variant="secondary">
+                        Regular
+                      </Badge>
                     )}
                   </TableCell>
                   <TableCell className="text-right">

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import {
@@ -27,43 +27,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
+import { Database } from "@/lib/database.types";
 
-interface Room {
-  id: string;
-  room_number: string;
-  subject_id: string | null;
-  teacher_id: string | null;
-  class_id: string | null;
-}
+type TimeSlot = Database['public']['Tables']['time_slots']['Row']
+type Subject = Database['public']['Tables']['subjects']['Row']
+type Teacher = Database['public']['Tables']['teachers']['Row']
+type Class = Database['public']['Tables']['classes']['Row']
 
-interface Subject {
-  id: string;
-  name: string;
-}
-
-interface Teacher {
-  id: string;
-  name: string;
-}
-
-interface Class {
-  id: string;
-  name: string;
-}
 
 const RoomManagement = () => {
-  const [rooms, setRooms] = useState<Room[]>([]);
+  const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [classes, setClasses] = useState<Class[]>([]);
   const [loading, setLoading] = useState(true);
-  const [newRoom, setNewRoom] = useState({
-    room_number: "",
-    subject_id: "",
-    teacher_id: "",
-    class_id: "",
-  });
-  const [editingRoom, setEditingRoom] = useState<Room | null>(null);
+  const [newTimeSlot, setNewTimeSlot] = useState<Partial<TimeSlot>>({});
+  const [editingTimeSlot, setEditingTimeSlot] = useState<TimeSlot | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -71,30 +50,20 @@ const RoomManagement = () => {
 
   const fetchData = async () => {
     try {
-      const [roomsData, subjectsData, teachersData, classesData] =
+      const [timeSlotsData, subjectsData, teachersData, classesData] =
         await Promise.all([
-          supabase
-            .from("rooms")
-            .select(
-              `
-            *,
-            subject:subject_id(name),
-            teacher:teacher_id(name),
-            class:class_id(name)
-          `,
-            )
-            .order("room_number"),
+          supabase.from("time_slots").select("*").order("room"),
           supabase.from("subjects").select("*").order("name"),
           supabase.from("teachers").select("*").order("name"),
           supabase.from("classes").select("*").order("name"),
         ]);
 
-      if (roomsData.error) throw roomsData.error;
+      if (timeSlotsData.error) throw timeSlotsData.error;
       if (subjectsData.error) throw subjectsData.error;
       if (teachersData.error) throw teachersData.error;
       if (classesData.error) throw classesData.error;
 
-      setRooms(roomsData.data || []);
+      setTimeSlots(timeSlotsData.data || []);
       setSubjects(subjectsData.data || []);
       setTeachers(teachersData.data || []);
       setClasses(classesData.data || []);
@@ -105,95 +74,96 @@ const RoomManagement = () => {
     }
   };
 
-  const handleAddRoom = async () => {
+  const handleAddTimeSlot = async () => {
     try {
-      const { error } = await supabase.from("rooms").insert([
+      const { error } = await supabase.from("time_slots").insert([
         {
-          room_number: newRoom.room_number,
-          subject_id: newRoom.subject_id || null,
-          teacher_id: newRoom.teacher_id || null,
-          class_id: newRoom.class_id || null,
+          room: newTimeSlot.room,
+          teacher_id: newTimeSlot.teacher_id,
+          subject: newTimeSlot.subject,
+          day: newTimeSlot.day,
+          start_time: newTimeSlot.start_time,
+          end_time: newTimeSlot.end_time,
+          is_extracurricular: newTimeSlot.is_extracurricular
         },
       ]);
 
       if (error) throw error;
       fetchData();
-      setNewRoom({
-        room_number: "",
-        subject_id: "",
-        teacher_id: "",
-        class_id: "",
-      });
+      setNewTimeSlot({}); // Reset form
     } catch (error) {
-      console.error("Error adding room:", error);
+      console.error("Error adding time slot:", error);
     }
   };
 
-  const handleUpdateRoom = async () => {
-    if (!editingRoom) return;
+  const handleUpdateTimeSlot = async () => {
+    if (!editingTimeSlot) return;
 
     try {
       const { error } = await supabase
-        .from("rooms")
+        .from("time_slots")
         .update({
-          room_number: editingRoom.room_number,
-          subject_id: editingRoom.subject_id || null,
-          teacher_id: editingRoom.teacher_id || null,
-          class_id: editingRoom.class_id || null,
+          room: editingTimeSlot.room,
+          teacher_id: editingTimeSlot.teacher_id,
+          subject: editingTimeSlot.subject,
+          day: editingTimeSlot.day,
+          start_time: editingTimeSlot.start_time,
+          end_time: editingTimeSlot.end_time,
+          is_extracurricular: editingTimeSlot.is_extracurricular
         })
-        .eq("id", editingRoom.id);
+        .eq("id", editingTimeSlot.id);
 
       if (error) throw error;
       fetchData();
-      setEditingRoom(null);
+      setEditingTimeSlot(null); // Close dialog
     } catch (error) {
-      console.error("Error updating room:", error);
+      console.error("Error updating time slot:", error);
     }
   };
 
-  const handleDeleteRoom = async (id: string) => {
+  const handleDeleteTimeSlot = async (id: string) => {
     try {
-      const { error } = await supabase.from("rooms").delete().eq("id", id);
+      const { error } = await supabase.from("time_slots").delete().eq("id", id);
 
       if (error) throw error;
       fetchData();
     } catch (error) {
-      console.error("Error deleting room:", error);
+      console.error("Error deleting time slot:", error);
     }
   };
 
-  const RoomForm = ({ mode }: { mode: "add" | "edit" }) => {
-    const room = mode === "add" ? newRoom : editingRoom;
-    const setRoom = mode === "add" ? setNewRoom : setEditingRoom;
+  const TimeSlotForm = ({ mode }: { mode: "add" | "edit" }) => {
+    const timeSlot = mode === "add" ? newTimeSlot : editingTimeSlot;
+    const setTimeSlot = mode === "add" ? setNewTimeSlot : setEditingTimeSlot;
 
-    if (!room) return null;
+    if (!timeSlot) return null;
 
     return (
       <div className="space-y-4">
         <div>
-          <Label htmlFor="room_number">Room Number</Label>
+          <Label htmlFor="room">Room Number</Label>
           <Input
-            id="room_number"
+            id="room"
             maxLength={3}
-            value={room.room_number}
+            value={timeSlot.room || ""}
             onChange={(e) => {
-              const value = e.target.value.replace(/\D/g, "");
-              if (value.length <= 3) {
-                setRoom({ ...room, room_number: value });
-              }
+              const updatedRoomNumber = e.target.value.replace(/\D/g, "").slice(0, 3);
+              setTimeSlot(prevTimeSlot => ({ ...prevTimeSlot, room: updatedRoomNumber }))
+
             }}
-            placeholder="Enter 3-digit room number"
+            placeholder="Enter room number"
           />
         </div>
-
         <div>
           <Label htmlFor="subject">Subject</Label>
           <Select
-            value={room.subject_id}
-            onValueChange={(value) => setRoom({ ...room, subject_id: value })}
+            onValueChange={(value) => {
+              setTimeSlot((prevTimeSlot) => ({ ...prevTimeSlot, subject: value }));
+            }}
+            value={timeSlot.subject || ""}
           >
-            <SelectTrigger>
-              <SelectValue placeholder="Select subject" />
+            <SelectTrigger id="subject">
+              <SelectValue placeholder="Select a subject" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="">None</SelectItem>
@@ -205,15 +175,16 @@ const RoomManagement = () => {
             </SelectContent>
           </Select>
         </div>
-
         <div>
           <Label htmlFor="teacher">Teacher</Label>
           <Select
-            value={room.teacher_id}
-            onValueChange={(value) => setRoom({ ...room, teacher_id: value })}
+            onValueChange={(value) => {
+              setTimeSlot((prevTimeSlot) => ({ ...prevTimeSlot, teacher_id: value }));
+            }}
+            value={timeSlot.teacher_id || ""}
           >
-            <SelectTrigger>
-              <SelectValue placeholder="Select teacher" />
+            <SelectTrigger id="teacher">
+              <SelectValue placeholder="Select a teacher" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="">None</SelectItem>
@@ -225,111 +196,142 @@ const RoomManagement = () => {
             </SelectContent>
           </Select>
         </div>
-
         <div>
           <Label htmlFor="class">Class</Label>
           <Select
-            value={room.class_id}
-            onValueChange={(value) => setRoom({ ...room, class_id: value })}
+            onValueChange={(value) => {
+              setTimeSlot((prevTimeSlot) => ({ ...prevTimeSlot, day: value }));
+            }}
+            value={timeSlot.day || ""}
           >
-            <SelectTrigger>
-              <SelectValue placeholder="Select class" />
+            <SelectTrigger id="class">
+              <SelectValue placeholder="Select a class" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="">None</SelectItem>
-              {classes.map((cls) => (
-                <SelectItem key={cls.id} value={cls.id}>
-                  {cls.name}
+              {/* Replace with actual days if you have a days array */}
+              {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((day) => (
+                <SelectItem key={day} value={day}>
+                  {day}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
+        <div>
+          <Label htmlFor="start_time">Start Time</Label>
+          <Input
+            id="start_time"
+            type="time"
+            value={timeSlot.start_time || ""}
+            onChange={(e) => setTimeSlot(prevTimeSlot => ({ ...prevTimeSlot, start_time: e.target.value }))}
+          />
+        </div>
+        <div>
+          <Label htmlFor="end_time">End Time</Label>
+          <Input
+            id="end_time"
+            type="time"
+            value={timeSlot.end_time || ""}
+            onChange={(e) => setTimeSlot(prevTimeSlot => ({ ...prevTimeSlot, end_time: e.target.value }))}
+          />
+        </div>
+        <div className="flex items-center">
+          <Label htmlFor="is_extracurricular" className="mr-2">Extracurricular</Label>
+          <input
+            type="checkbox"
+            id="is_extracurricular"
+            checked={timeSlot.is_extracurricular || false}
+            onChange={(e) => setTimeSlot(prevTimeSlot => ({ ...prevTimeSlot, is_extracurricular: e.target.checked }))}
+          />
+        </div>
 
         <Button
-          className="w-full"
-          onClick={mode === "add" ? handleAddRoom : handleUpdateRoom}
+          onClick={mode === "edit" ? handleUpdateTimeSlot : handleAddTimeSlot}
+          className="w-full mt-4"
         >
-          {mode === "add" ? "Add Room" : "Update Room"}
+          {mode === "edit" ? "Save Changes" : "Add Time Slot"}
         </Button>
       </div>
     );
   };
 
   return (
-    <div className="p-6 bg-white">
+    <div>
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Room Management</CardTitle>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-2xl font-bold">Room Management</CardTitle>
           <Dialog>
             <DialogTrigger asChild>
-              <Button>
-                <Plus className="w-4 h-4 mr-2" />
-                Add Room
+              <Button variant="outline">
+                <Plus className="mr-2 h-4 w-4" /> Add Time Slot
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
-                <DialogTitle>Add New Room</DialogTitle>
+                <DialogTitle>Add New Time Slot</DialogTitle>
               </DialogHeader>
-              <RoomForm mode="add" />
+              <TimeSlotForm mode="add" />
             </DialogContent>
           </Dialog>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Room Number</TableHead>
-                <TableHead>Subject</TableHead>
-                <TableHead>Teacher</TableHead>
-                <TableHead>Class</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {rooms.map((room) => (
-                <TableRow key={room.id}>
-                  <TableCell>{room.room_number}</TableCell>
-                  <TableCell>{room.subject?.name || "-"}</TableCell>
-                  <TableCell>{room.teacher?.name || "-"}</TableCell>
-                  <TableCell>{room.class?.name || "-"}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setEditingRoom(room)}
-                          >
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>Edit Room</DialogTitle>
-                          </DialogHeader>
-                          <RoomForm mode="edit" />
-                        </DialogContent>
-                      </Dialog>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDeleteRoom(room.id)}
-                      >
-                        <Trash2 className="w-4 h-4 text-red-500" />
-                      </Button>
-                    </div>
-                  </TableCell>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Room Number</TableHead>
+                  <TableHead>Subject</TableHead>
+                  <TableHead>Teacher</TableHead>
+                  <TableHead>Class</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {timeSlots.map((timeSlot) => (
+                  <TableRow key={timeSlot.id}>
+                    <TableCell>{timeSlot.room}</TableCell>
+                    <TableCell>{timeSlot.subject || "-"}</TableCell>
+                    <TableCell>{timeSlot.teacher_id || "-"}</TableCell>
+                    {/* Assuming you have a way to get class name from class ID */}
+                    <TableCell>{timeSlot.day || "-"}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => setEditingTimeSlot(timeSlot)}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Edit Time Slot</DialogTitle>
+                            </DialogHeader>
+                            <TimeSlotForm mode="edit" />
+                          </DialogContent>
+                        </Dialog>
+                        <Button
+                          onClick={() => handleDeleteTimeSlot(timeSlot.id)}
+                          variant="ghost"
+                          size="icon"
+                        >
+                          <Trash2 className="w-4 h-4 text-red-500" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
     </div>
-  );
+);
 };
 
 export default RoomManagement;
