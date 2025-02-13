@@ -15,6 +15,7 @@ interface DailyScheduleGridProps {
 }
 
 const DailyScheduleGrid = ({ date = new Date() }: DailyScheduleGridProps) => {
+  console.log("DailyScheduleGrid rendering"); // Log at the beginning of render
   const [timeSlots, setTimeSlots] = useState<TimeSlotRow[]>([]);
   const [teachers, setTeachers] = useState<TeacherRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -23,23 +24,17 @@ const DailyScheduleGrid = ({ date = new Date() }: DailyScheduleGridProps) => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [date]);
 
   const fetchData = async () => {
+    console.log("fetchData called"); // Log at the beginning of fetchData
     try {
+      console.log("Date:", date, "Formatted Day:", date.toLocaleDateString("en-US", { weekday: "long" }).toLowerCase());
       const [timeSlotsData, teachersData] = await Promise.all([
         supabase
           .from("time_slots")
-          .select(
-            `
-            *,
-            teacher:teacher_id(name)
-          `,
-          )
-          .eq(
-            "day",
-            date.toLocaleDateString("en-US", { weekday: "long" }).toLowerCase(),
-          )
+          .select("*")
+          .eq("day", date.toLocaleDateString("en-US", { weekday: "long" }).toLowerCase())
           .order("start_time"),
         supabase.from("teachers").select("*").order("name"),
       ]);
@@ -47,7 +42,28 @@ const DailyScheduleGrid = ({ date = new Date() }: DailyScheduleGridProps) => {
       if (timeSlotsData.error) throw timeSlotsData.error;
       if (teachersData.error) throw teachersData.error;
 
-      setTimeSlots(timeSlotsData.data || []);
+      console.log("timeSlotsData:", timeSlotsData.data);
+      console.log("teachersData:", teachersData.data);
+
+      const timeSlotsWithTeachers = await Promise.all(
+        timeSlotsData.data?.map(async (slot) => {
+          const { data: teacherData, error: teacherError } = await supabase
+            .from("teachers")
+            .select("name")
+            .eq("id", slot.teacher_id)
+            .single();
+
+          if (teacherError) {
+            console.error("Error fetching teacher:", teacherError);
+            return { ...slot, teacher: null };
+          }
+
+          return { ...slot, teacher: teacherData ? { name: teacherData.name } : null };
+        }) || []
+      );
+
+      setTimeSlots(timeSlotsWithTeachers);
+      console.log("timeSlots:", timeSlotsWithTeachers); // Log the timeSlots data
       setTeachers(teachersData.data || []);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -56,9 +72,8 @@ const DailyScheduleGrid = ({ date = new Date() }: DailyScheduleGridProps) => {
     }
   };
 
-  const filteredTimeSlots = timeSlots.filter((slot) => {
-    if (selectedTeacher !== "all" && slot.teacher_id !== selectedTeacher)
-      return false;
+    const filteredTimeSlots = timeSlots.filter((slot) => {
+    if (selectedTeacher !== "all" && slot.teacher_id !== selectedTeacher) return false;
     if (selectedRoom !== "all" && slot.room !== selectedRoom) return false;
     return true;
   });
@@ -95,13 +110,11 @@ const DailyScheduleGrid = ({ date = new Date() }: DailyScheduleGridProps) => {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Rooms</SelectItem>
-              {Array.from(new Set(timeSlots.map((slot) => slot.room))).map(
-                (room) => (
-                  <SelectItem key={room} value={room}>
-                    Room {room}
-                  </SelectItem>
-                ),
-              )}
+              {Array.from(new Set(timeSlots.map((slot) => slot.room))).map((room) => (
+                <SelectItem key={room} value={room}>
+                  Room {room}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -118,7 +131,7 @@ const DailyScheduleGrid = ({ date = new Date() }: DailyScheduleGridProps) => {
                 startTime={slot.start_time}
                 endTime={slot.end_time}
                 subject={slot.subject}
-                teacher={slot.teacher?.name}
+                teacher={slot.teacher?.name ?? "No Teacher"}
                 room={slot.room}
                 isExtracurricular={slot.is_extracurricular}
               />
