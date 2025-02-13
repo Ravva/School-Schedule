@@ -4,134 +4,414 @@ export type Json =
   | boolean
   | null
   | { [key: string]: Json | undefined }
-  | Json[];
+  | Json[]
 
-export interface Database {
+export type Database = {
   public: {
     Tables: {
       classes: {
         Row: {
-          id: string;
-          name: string;
-          grade: number;
-          section: string;
-          capacity: number;
-          created_at: string;
-        };
+          capacity: number | null
+          created_at: string
+          grade: number
+          id: string
+          name: string
+          section: string
+        }
         Insert: {
-          id?: string;
-          name: string;
-          grade: number;
-          section: string;
-          capacity?: number;
-          created_at?: string;
-        };
+          capacity?: number | null
+          created_at?: string
+          grade: number
+          id?: string
+          name: string
+          section: string
+        }
         Update: {
-          id?: string;
-          name?: string;
-          grade?: number;
-          section?: string;
-          capacity?: number;
-          created_at?: string;
-        };
-      };
+          capacity?: number | null
+          created_at?: string
+          grade?: number
+          id?: string
+          name?: string
+          section?: string
+        }
+        Relationships: []
+      }
+      lessons: {
+        Row: {
+          created_at: string
+          end_time: string
+          id: string
+          lesson_number: number
+          start_time: string
+        }
+        Insert: {
+          created_at?: string
+          end_time: string
+          id?: string
+          lesson_number: number
+          start_time: string
+        }
+        Update: {
+          created_at?: string
+          end_time?: string
+          id?: string
+          lesson_number?: number
+          start_time?: string
+        }
+        Relationships: []
+      }
+      room_subjects: {
+        Row: {
+          room_id: string
+          subject_id: string
+        }
+        Insert: {
+          room_id: string
+          subject_id: string
+        }
+        Update: {
+          room_id?: string
+          subject_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "room_subjects_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "room_subjects_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rooms: {
+        Row: {
+          class_id: string | null
+          created_at: string
+          id: string
+          room_number: string
+          subject_id: string | null
+          teacher_id: string | null
+        }
+        Insert: {
+          class_id?: string | null
+          created_at?: string
+          id?: string
+          room_number: string
+          subject_id?: string | null
+          teacher_id?: string | null
+        }
+        Update: {
+          class_id?: string | null
+          created_at?: string
+          id?: string
+          room_number?: string
+          subject_id?: string | null
+          teacher_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rooms_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rooms_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rooms_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "teachers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      students: {
+        Row: {
+          created_at: string
+          grade: string
+          id: string
+          name: string
+          subgroup: string | null
+        }
+        Insert: {
+          created_at?: string
+          grade: string
+          id?: string
+          name: string
+          subgroup?: string | null
+        }
+        Update: {
+          created_at?: string
+          grade?: string
+          id?: string
+          name?: string
+          subgroup?: string | null
+        }
+        Relationships: []
+      }
       subjects: {
         Row: {
-          id: string;
-          name: string;
-          description: string | null;
-          created_at: string;
-          is_extracurricular: boolean;
-        };
+          created_at: string
+          id: string
+          is_extracurricular: boolean | null
+          is_subgroup: boolean | null
+          name: string
+        }
         Insert: {
-          id?: string;
-          name: string;
-          description?: string | null;
-          created_at?: string;
-          is_extracurricular?: boolean;
-        };
+          created_at?: string
+          id?: string
+          is_extracurricular?: boolean | null
+          is_subgroup?: boolean | null
+          name: string
+        }
         Update: {
-          id?: string;
-          name?: string;
-          description?: string | null;
-          created_at?: string;
-          is_extracurricular?: boolean;
-        };
-      };
+          created_at?: string
+          id?: string
+          is_extracurricular?: boolean | null
+          is_subgroup?: boolean | null
+          name?: string
+        }
+        Relationships: []
+      }
       teachers: {
         Row: {
-          id: string;
-          name: string;
-          subjects: string[];
-          supervised_classes: string[];
-          created_at: string;
-          is_part_time: boolean;
-          work_days: string[];
-        };
+          created_at: string
+          id: string
+          is_part_time: boolean | null
+          name: string
+          subjects: string[] | null
+          supervised_classes: string[] | null
+          work_days: string[] | null
+        }
         Insert: {
-          id?: string;
-          name: string;
-          subjects?: string[];
-          supervised_classes?: string[];
-          created_at?: string;
-          is_part_time?: boolean;
-          work_days?: string[];
-        };
+          created_at?: string
+          id?: string
+          is_part_time?: boolean | null
+          name: string
+          subjects?: string[] | null
+          supervised_classes?: string[] | null
+          work_days?: string[] | null
+        }
         Update: {
-          id?: string;
-          name?: string;
-          subjects?: string[];
-          supervised_classes?: string[];
-          created_at?: string;
-          is_part_time?: boolean;
-          work_days?: string[];
-        };
-      };
-
+          created_at?: string
+          id?: string
+          is_part_time?: boolean | null
+          name?: string
+          subjects?: string[] | null
+          supervised_classes?: string[] | null
+          work_days?: string[] | null
+        }
+        Relationships: []
+      }
       time_slots: {
         Row: {
-          id: string;
-          day: string;
-          start_time: string;
-          end_time: string;
-          subject: string;
-          teacher_id: string;
-          room: string;
-          is_extracurricular: boolean;
-          created_at: string;
-        };
+          class_id: string | null
+          created_at: string
+          day: string
+          end_time: string
+          id: string
+          is_extracurricular: boolean | null
+          room: string
+          start_time: string
+          subject: string
+          teacher_id: string | null
+        }
         Insert: {
-          id?: string;
-          day: string;
-          start_time: string;
-          end_time: string;
-          subject: string;
-          teacher_id: string;
-          room: string;
-          is_extracurricular?: boolean;
-          created_at?: string;
-        };
+          class_id?: string | null
+          created_at?: string
+          day: string
+          end_time: string
+          id?: string
+          is_extracurricular?: boolean | null
+          room: string
+          start_time: string
+          subject: string
+          teacher_id?: string | null
+        }
         Update: {
-          id?: string;
-          day?: string;
-          start_time?: string;
-          end_time?: string;
-          subject?: string;
-          teacher_id?: string;
-          room?: string;
-          is_extracurricular?: boolean;
-          created_at?: string;
-        };
-      };
-    };
+          class_id?: string | null
+          created_at?: string
+          day?: string
+          end_time?: string
+          id?: string
+          is_extracurricular?: boolean | null
+          room?: string
+          start_time?: string
+          subject?: string
+          teacher_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "time_slots_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "time_slots_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "teachers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      timetable: {
+        Row: {
+          created_at: string
+          end: string | null
+          id: number
+          number: number | null
+          start: string | null
+        }
+        Insert: {
+          created_at?: string
+          end?: string | null
+          id?: number
+          number?: number | null
+          start?: string | null
+        }
+        Update: {
+          created_at?: string
+          end?: string | null
+          id?: number
+          number?: number | null
+          start?: string | null
+        }
+        Relationships: []
+      }
+    }
     Views: {
-      [_ in never]: never;
-    };
+      [_ in never]: never
+    }
     Functions: {
-      [_ in never]: never;
-    };
+      get_table_structure: {
+        Args: {
+          table_name: string
+        }
+        Returns: {
+          column_name: string
+          data_type: string
+        }[]
+      }
+    }
     Enums: {
-      [_ in never]: never;
-    };
-  };
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
 }
+
+type PublicSchema = Database[Extract<keyof Database, "public">]
+
+export type Tables<
+  PublicTableNameOrOptions extends
+    | keyof (PublicSchema["Tables"] & PublicSchema["Views"])
+    | { schema: keyof Database },
+  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
+    ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
+        Database[PublicTableNameOrOptions["schema"]]["Views"])
+    : never = never,
+> = PublicTableNameOrOptions extends { schema: keyof Database }
+  ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
+      Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : PublicTableNameOrOptions extends keyof (PublicSchema["Tables"] &
+        PublicSchema["Views"])
+    ? (PublicSchema["Tables"] &
+        PublicSchema["Views"])[PublicTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
+
+export type TablesInsert<
+  PublicTableNameOrOptions extends
+    | keyof PublicSchema["Tables"]
+    | { schema: keyof Database },
+  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
+    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = PublicTableNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
+    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
+
+export type TablesUpdate<
+  PublicTableNameOrOptions extends
+    | keyof PublicSchema["Tables"]
+    | { schema: keyof Database },
+  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
+    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = PublicTableNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
+    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
+
+export type Enums<
+  PublicEnumNameOrOptions extends
+    | keyof PublicSchema["Enums"]
+    | { schema: keyof Database },
+  EnumName extends PublicEnumNameOrOptions extends { schema: keyof Database }
+    ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]
+    : never = never,
+> = PublicEnumNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
+    ? PublicSchema["Enums"][PublicEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof PublicSchema["CompositeTypes"]
+    | { schema: keyof Database },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
+    ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never

@@ -31,12 +31,17 @@ interface Lesson {
 const LessonManagement = () => {
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [loading, setLoading] = useState(true);
-  const [newLesson, setNewLesson] = useState({
-    lesson_number: "",
+  const [newLesson, setNewLesson] = useState<Partial<Lesson>>({
+    lesson_number: 0,
     start_time: "",
     end_time: "",
   });
-  const [editingLesson, setEditingLesson] = useState<Lesson | null>(null);
+  const [editingLesson, setEditingLesson] = useState<Lesson>({
+    id: "",
+    lesson_number: 0,
+    start_time: "",
+    end_time: "",
+  });
 
   useEffect(() => {
     fetchLessons();
@@ -62,7 +67,7 @@ const LessonManagement = () => {
     try {
       const { error } = await supabase.from("lessons").insert([
         {
-          lesson_number: parseInt(newLesson.lesson_number),
+          lesson_number: newLesson.lesson_number,
           start_time: newLesson.start_time,
           end_time: newLesson.end_time,
         },
@@ -70,7 +75,7 @@ const LessonManagement = () => {
 
       if (error) throw error;
       fetchLessons();
-      setNewLesson({ lesson_number: "", start_time: "", end_time: "" });
+      setNewLesson({ lesson_number: 0, start_time: "", end_time: "" });
     } catch (error) {
       console.error("Error adding lesson:", error);
     }
@@ -115,7 +120,7 @@ const LessonManagement = () => {
     onSubmit,
   }: {
     mode: "add" | "edit";
-    formData: typeof newLesson;
+    formData: Partial<Lesson>;
     onChange: (field: string, value: string) => void;
     onSubmit: () => void;
   }) => {
@@ -126,7 +131,7 @@ const LessonManagement = () => {
           <Input
             id="lesson_number"
             type="number"
-            value={formData.lesson_number}
+            value={formData.lesson_number ?? ""}
             onChange={(e) => onChange("lesson_number", e.target.value)}
             placeholder="Enter lesson number"
           />
@@ -178,9 +183,20 @@ const LessonManagement = () => {
               <LessonForm
                 mode="add"
                 formData={newLesson}
-                onChange={(field, value) =>
-                  setNewLesson((prev) => ({ ...prev, [field]: value }))
-                }
+                onChange={(field, value) => {
+                  setNewLesson((prev) => {
+                    const parsedValue = parseInt(value, 10);
+                    return {
+                      ...prev,
+                      [field]:
+                        field === "lesson_number"
+                          ? isNaN(parsedValue)
+                            ? 0
+                            : parsedValue
+                          : value,
+                    };
+                  });
+                }}
                 onSubmit={handleAddLesson}
               />
             </DialogContent>
@@ -220,18 +236,17 @@ const LessonManagement = () => {
                           </DialogHeader>
                           <LessonForm
                             mode="edit"
-                            formData={
-                              editingLesson || {
-                                lesson_number: "",
-                                start_time: "",
-                                end_time: "",
-                              }
-                            }
-                            onChange={(field, value) =>
+                            formData={editingLesson}
+                            onChange={(field, value) => {
                               setEditingLesson((prev) =>
-                                prev ? { ...prev, [field]: value } : null,
-                              )
-                            }
+                                prev
+                                  ? {
+                                      ...prev,
+                                      [field]: value,
+                                    }
+                                  : null,
+                              );
+                            }}
                             onSubmit={handleUpdateLesson}
                           />
                         </DialogContent>

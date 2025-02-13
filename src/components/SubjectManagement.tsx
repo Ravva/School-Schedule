@@ -19,8 +19,6 @@ import {
 } from "./ui/dialog";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
-import { Textarea } from "./ui/textarea";
-import { FocusEvent } from "react";
 import { Edit, Plus, Trash2 } from "lucide-react";
 import { Switch } from "./ui/switch";
 import { Badge } from "./ui/badge";
@@ -28,21 +26,15 @@ import { Badge } from "./ui/badge";
 interface Subject {
   id: string;
   name: string;
-  description: string | null;
   created_at: string;
   is_extracurricular: boolean;
+  is_subgroup: boolean;
 }
 
 const SubjectManagement = () => {
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [loading, setLoading] = useState(true);
-  const [newSubject, setNewSubject] = useState({
-    name: "",
-    description: "",
-    is_extracurricular: false,
-  });
   const [editingSubject, setEditingSubject] = useState<Subject | null>(null);
-  const [isInputFocused, setIsInputFocused] = useState(false);
 
   useEffect(() => {
     fetchSubjects();
@@ -64,24 +56,6 @@ const SubjectManagement = () => {
     }
   };
 
-  const handleAddSubject = async () => {
-    try {
-      const { error } = await supabase.from("subjects").insert([
-        {
-          name: newSubject.name,
-          description: newSubject.description,
-          is_extracurricular: newSubject.is_extracurricular,
-        },
-      ]);
-
-      if (error) throw error;
-      fetchSubjects();
-      setNewSubject({ name: "", description: "", is_extracurricular: false });
-    } catch (error) {
-      console.error("Error adding subject:", error);
-    }
-  };
-
   const handleUpdateSubject = async () => {
     if (!editingSubject) return;
 
@@ -90,8 +64,8 @@ const SubjectManagement = () => {
         .from("subjects")
         .update({
           name: editingSubject.name,
-          description: editingSubject.description,
           is_extracurricular: editingSubject.is_extracurricular,
+          is_subgroup: editingSubject.is_subgroup,
         })
         .eq("id", editingSubject.id);
 
@@ -114,18 +88,37 @@ const SubjectManagement = () => {
     }
   };
 
-  const SubjectForm = ({ mode }: { mode: "add" | "edit" }) => {
-    const subject = mode === "add" ? newSubject : editingSubject;
-    const setSubject = mode === "add" ? setNewSubject : setEditingSubject;
+  const SubjectForm = ({
+    mode,
+    initialSubject,
+    onAdd,
+  }: {
+    mode: "add" | "edit";
+    initialSubject?: Subject;
+    onAdd?: (subject: {
+      name: string;
+      is_extracurricular: boolean;
+      is_subgroup: boolean;
+    }) => void;
+  }) => {
+    const [subject, setSubject] = useState(
+      mode === "add"
+        ? { name: "", is_extracurricular: false, is_subgroup: false }
+        : initialSubject || {
+            name: "",
+            is_extracurricular: false,
+            is_subgroup: false,
+          },
+    );
 
     if (!subject) return null;
 
-    const handleInputFocus = () => {
-      setIsInputFocused(true);
-    };
-
-    const handleInputBlur = (e: FocusEvent<HTMLInputElement>) => {
-      setIsInputFocused(false);
+    const handleAddOrUpdate = () => {
+      if (mode === "add" && onAdd) {
+        onAdd(subject);
+      } else if (mode === "edit" && editingSubject) {
+        handleUpdateSubject();
+      }
     };
 
     return (
@@ -135,20 +128,8 @@ const SubjectManagement = () => {
           <Input
             id="name"
             value={subject.name}
-            onChange={(e) => setSubject(prev => ({...prev, name: e.target.value}))}
+            onChange={(e) => setSubject({ ...subject, name: e.target.value })}
             placeholder="Enter subject name"
-            onFocus={handleInputFocus}
-            onBlur={handleInputBlur}
-          />
-        </div>
-
-        <div>
-          <Label htmlFor="description">Description</Label>
-          <Textarea
-            id="description"
-            value={subject.description}
-            onChange={(e) => setSubject(prev => ({...prev, description: e.target.value}))}
-            placeholder="Enter subject description"
           />
         </div>
 
@@ -156,15 +137,46 @@ const SubjectManagement = () => {
           <Switch
             id="is_extracurricular"
             checked={subject.is_extracurricular}
-            onCheckedChange={(checked) => setSubject(prev => ({...prev, is_extracurricular: checked}))}
+            onCheckedChange={(checked) =>
+              setSubject((prev) => ({ ...prev, is_extracurricular: checked }))
+            }
           />
           <Label htmlFor="is_extracurricular">Extracurricular</Label>
         </div>
 
-        <Button
-          className="w-full"
-          onClick={mode === "add" ? handleAddSubject : handleUpdateSubject}
-        >
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="is_subgroup"
+            checked={subject.is_subgroup}
+            onCheckedChange={(checked) =>
+              setSubject((prev) => ({ ...prev, is_subgroup: checked }))
+            }
+          />
+          <Label htmlFor="is_subgroup">Subgroup</Label>
+        </div>
+
+        {subject.is_subgroup && (
+          <>
+            <div>
+              <Label>Teacher 1</Label>
+              <Input placeholder="Select teacher 1" />
+            </div>
+            <div>
+              <Label>Teacher 2</Label>
+              <Input placeholder="Select teacher 2" />
+            </div>
+            <div>
+              <Label>Room 1</Label>
+              <Input placeholder="Select room 1" />
+            </div>
+            <div>
+              <Label>Room 2</Label>
+              <Input placeholder="Select room 2" />
+            </div>
+          </>
+        )}
+
+        <Button className="w-full" onClick={handleAddOrUpdate}>
           {mode === "add" ? "Add Subject" : "Update Subject"}
         </Button>
       </div>
@@ -187,7 +199,25 @@ const SubjectManagement = () => {
               <DialogHeader>
                 <DialogTitle>Add New Subject</DialogTitle>
               </DialogHeader>
-              <SubjectForm mode="add" />
+              <SubjectForm
+                mode="add"
+                onAdd={async (newSubject) => {
+                  try {
+                    const { error } = await supabase.from("subjects").insert([
+                      {
+                        name: newSubject.name,
+                        is_extracurricular: newSubject.is_extracurricular,
+                        is_subgroup: newSubject.is_subgroup,
+                      },
+                    ]);
+
+                    if (error) throw error;
+                    fetchSubjects();
+                  } catch (error) {
+                    console.error("Error adding subject:", error);
+                  }
+                }}
+              />
             </DialogContent>
           </Dialog>
         </CardHeader>
@@ -196,8 +226,8 @@ const SubjectManagement = () => {
             <TableHeader>
               <TableRow>
                 <TableHead>Name</TableHead>
-                <TableHead>Description</TableHead>
                 <TableHead>Type</TableHead>
+                <TableHead>Subgroup</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -208,7 +238,6 @@ const SubjectManagement = () => {
                   className={subject.is_extracurricular ? "bg-purple-50" : ""}
                 >
                   <TableCell className="font-medium">{subject.name}</TableCell>
-                  <TableCell>{subject.description}</TableCell>
                   <TableCell>
                     {subject.is_extracurricular ? (
                       <Badge
@@ -218,9 +247,19 @@ const SubjectManagement = () => {
                         Extracurricular
                       </Badge>
                     ) : (
-                      <Badge variant="secondary">
-                        Regular
+                      <Badge variant="secondary">Regular</Badge>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {subject.is_subgroup ? (
+                      <Badge
+                        variant="secondary"
+                        className="bg-green-100 text-green-800"
+                      >
+                        Yes
                       </Badge>
+                    ) : (
+                      <Badge variant="secondary">No</Badge>
                     )}
                   </TableCell>
                   <TableCell className="text-right">
@@ -239,7 +278,10 @@ const SubjectManagement = () => {
                           <DialogHeader>
                             <DialogTitle>Edit Subject</DialogTitle>
                           </DialogHeader>
-                          <SubjectForm mode="edit" />
+                          <SubjectForm
+                            mode="edit"
+                            initialSubject={editingSubject}
+                          />
                         </DialogContent>
                       </Dialog>
                       <Button
