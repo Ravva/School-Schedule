@@ -41,18 +41,21 @@ export interface Database {
           name: string;
           description: string | null;
           created_at: string;
+          is_extracurricular: boolean;
         };
         Insert: {
           id?: string;
           name: string;
           description?: string | null;
           created_at?: string;
+          is_extracurricular?: boolean;
         };
         Update: {
           id?: string;
           name?: string;
           description?: string | null;
           created_at?: string;
+          is_extracurricular?: boolean;
         };
       };
       teachers: {
@@ -62,6 +65,8 @@ export interface Database {
           subjects: string[];
           supervised_classes: string[];
           created_at: string;
+          is_part_time: boolean;
+          work_days: string[];
         };
         Insert: {
           id?: string;
@@ -69,6 +74,8 @@ export interface Database {
           subjects?: string[];
           supervised_classes?: string[];
           created_at?: string;
+          is_part_time?: boolean;
+          work_days?: string[];
         };
         Update: {
           id?: string;
@@ -76,6 +83,8 @@ export interface Database {
           subjects?: string[];
           supervised_classes?: string[];
           created_at?: string;
+          is_part_time?: boolean;
+          work_days?: string[];
         };
       };
 

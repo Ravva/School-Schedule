@@ -15,11 +15,11 @@ import {
 } from "lucide-react";
 import { cn } from "../lib/utils";
 
+import type { ViewMode } from "./home";
+
 interface SidebarProps {
-  activeView?: "timetable" | "teachers" | "subjects" | "builder";
-  onViewChange?: (
-    view: "timetable" | "teachers" | "subjects" | "builder",
-  ) => void;
+  activeView?: ViewMode;
+  onViewChange?: (view: ViewMode) => void;
   selectedFilter?: "teacher" | "class" | "room";
   onFilterChange?: (filter: "teacher" | "class" | "room") => void;
 }

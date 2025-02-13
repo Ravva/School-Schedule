@@ -20,6 +20,7 @@ import {
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
+import { FocusEvent } from "react";
 import { Edit, Plus, Trash2 } from "lucide-react";
 import { Switch } from "./ui/switch";
 import { Badge } from "./ui/badge";
@@ -27,7 +28,8 @@ import { Badge } from "./ui/badge";
 interface Subject {
   id: string;
   name: string;
-  description: string;
+  description: string | null;
+  created_at: string;
   is_extracurricular: boolean;
 }
 
@@ -40,6 +42,7 @@ const SubjectManagement = () => {
     is_extracurricular: false,
   });
   const [editingSubject, setEditingSubject] = useState<Subject | null>(null);
+  const [isInputFocused, setIsInputFocused] = useState(false);
 
   useEffect(() => {
     fetchSubjects();
@@ -117,6 +120,14 @@ const SubjectManagement = () => {
 
     if (!subject) return null;
 
+    const handleInputFocus = () => {
+      setIsInputFocused(true);
+    };
+
+    const handleInputBlur = (e: FocusEvent<HTMLInputElement>) => {
+      setIsInputFocused(false);
+    };
+
     return (
       <div className="space-y-4">
         <div>
@@ -126,6 +137,8 @@ const SubjectManagement = () => {
             value={subject.name}
             onChange={(e) => setSubject(prev => ({...prev, name: e.target.value}))}
             placeholder="Enter subject name"
+            onFocus={handleInputFocus}
+            onBlur={handleInputBlur}
           />
         </div>
 

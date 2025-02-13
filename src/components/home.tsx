@@ -9,7 +9,7 @@ import RoomManagement from "./RoomManagement";
 import SubjectManagement from "./SubjectManagement";
 import ClassManagement from "./ClassManagement";
 
-type ViewMode =
+export type ViewMode =
   | "timetable"
   | "teachers"
   | "subjects"
@@ -17,15 +17,15 @@ type ViewMode =
   | "lessons"
   | "rooms"
   | "builder";
-type FilterMode = "teacher" | "class" | "room";
+export type FilterMode = "teacher" | "class" | "room";
 
-interface HomeProps {
+export interface HomeProps {
   initialView?: ViewMode;
   initialFilter?: FilterMode;
 }
 
 const Home = ({
-  initialView = "timetable",
+  initialView = "teachers",
   initialFilter = "teacher",
 }: HomeProps) => {
   const [activeView, setActiveView] = useState<ViewMode>(initialView);
@@ -33,6 +33,7 @@ const Home = ({
     useState<FilterMode>(initialFilter);
 
   const renderMainContent = () => {
+    console.log("renderMainContent called, activeView:", activeView);
     switch (activeView) {
       case "timetable":
         return <DailyScheduleGrid />;

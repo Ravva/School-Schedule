@@ -270,7 +270,14 @@ const TeacherManagement = () => {
       if (teachersData.error) throw teachersData.error;
       if (subjectsData.error) throw subjectsData.error;
 
-      setTeachers(teachersData.data || []);
+      const teachersWithCorrectTypes = teachersData.data ? teachersData.data.map(teacher => ({
+        ...teacher,
+        subjects: teacher.subjects || [],
+        supervised_classes: teacher.supervised_classes || [],
+        is_part_time: teacher.is_part_time !== null ? teacher.is_part_time : false,
+        work_days: teacher.work_days || [],
+      })) : [];
+      setTeachers(teachersWithCorrectTypes);
       setSubjects(subjectsData.data || []);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -281,7 +288,8 @@ const TeacherManagement = () => {
 
   const handleAddTeacher = async () => {
     try {
-      const { error } = await supabase.from("teachers").insert([
+      console.log("newTeacher:", newTeacher);
+      const { data, error } = await supabase.from("teachers").insert([
         {
           name: newTeacher.name,
           subjects: newTeacher.subjects,
@@ -289,10 +297,14 @@ const TeacherManagement = () => {
           is_part_time: newTeacher.is_part_time,
           work_days: newTeacher.work_days,
         },
-      ]);
+      ]).select();
+
+      console.log("supabase insert result:", data);
 
       if (error) throw error;
+      console.log("fetchData after insert");
       fetchData();
+      console.log("resetting newTeacher");
       setNewTeacher({
         name: "",
         subjects: [],
@@ -358,7 +370,7 @@ const TeacherManagement = () => {
               <TeacherForm
                 mode="add"
                 data={newTeacher}
-                onChange={setNewTeacher}
+                onChange={(data) => setNewTeacher({...newTeacher, ...data})}
                 onSubmit={handleAddTeacher}
                 subjects={subjects}
                 availableClasses={availableClasses}
