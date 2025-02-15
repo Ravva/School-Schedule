@@ -11,30 +11,48 @@ export type Database = {
     Tables: {
       classes: {
         Row: {
-          capacity: number | null
           created_at: string
           grade: number
           id: string
+          literal: string
           name: string
-          section: string
+          room_id: string | null
+          supervisor_teacher_id: string
         }
         Insert: {
-          capacity?: number | null
           created_at?: string
           grade: number
           id?: string
+          literal: string
           name: string
-          section: string
+          room_id?: string | null
+          supervisor_teacher_id: string
         }
         Update: {
-          capacity?: number | null
           created_at?: string
           grade?: number
           id?: string
+          literal?: string
           name?: string
-          section?: string
+          room_id?: string | null
+          supervisor_teacher_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "classes_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "classes_supervisor_teacher_id_fkey"
+            columns: ["supervisor_teacher_id"]
+            isOneToOne: false
+            referencedRelation: "teachers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       lessons: {
         Row: {
@@ -138,30 +156,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      students: {
-        Row: {
-          created_at: string
-          grade: string
-          id: string
-          name: string
-          subgroup: string | null
-        }
-        Insert: {
-          created_at?: string
-          grade: string
-          id?: string
-          name: string
-          subgroup?: string | null
-        }
-        Update: {
-          created_at?: string
-          grade?: string
-          id?: string
-          name?: string
-          subgroup?: string | null
-        }
-        Relationships: []
       }
       subjects: {
         Row: {

@@ -24,8 +24,8 @@ type RoomAssignment = Room & {
   teachers: Teacher | null;
   subjects: Subject[] | null;
   classes: Class | null;
-
 };
+
 interface RoomAssignmentFormProps {
   mode: "add" | "edit";
   initialRoom?: (RoomAssignment & { subject_ids?: string[] }) | null;
@@ -50,23 +50,24 @@ const RoomAssignmentForm: React.FC<RoomAssignmentFormProps> = ({
   onClose,
 }) => {
   type RoomState = RoomAssignment & { subject_ids: string[] };
-  const initialRoomState: RoomState = mode === "add"
-    ? {
-      id: "",
-      created_at: "",
-      room_number: "",
-      teacher_id: null,
-      subject_id: null,
-      class_id: null,
-      teachers: null,
-      subjects: null,
-      classes: null,
-      subject_ids: initialRoom?.subjects?.map((s) => s.id) || [],
-    }
-    : {
-      ...initialRoom,
-      subject_ids: initialRoom?.subjects?.map((s) => s.id) || [],
-    } as RoomState;
+  const initialRoomState: RoomState =
+    mode === "add"
+      ? {
+          id: "",
+          created_at: "",
+          room_number: "",
+          teacher_id: null,
+          subject_id: null,
+          class_id: null,
+          teachers: null,
+          subjects: null,
+          classes: null,
+          subject_ids: initialRoom?.subjects?.map((s) => s.id) || [],
+        }
+      : {
+          ...initialRoom,
+          subject_ids: initialRoom?.subjects?.map((s) => s.id) || [],
+        } as RoomState;
 
   const [room, setRoom] = useState<RoomState>(initialRoomState);
 
@@ -243,61 +244,58 @@ const RoomAssignments = () => {
                 .from("subjects")
                 .select("*")
                 .order("name");
-            if (subjectsError) throw subjectsError;
-            setSubjects(subjectsData || []);
+     if (subjectsError) throw subjectsError;
+     setSubjects(subjectsData || []);
 
-            // Fetch rooms with related teachers, subjects, and classes
-            const { data: roomsData, error: roomsError } = await supabase
-                .from("rooms")
-                .select("*, teachers(*), subjects!subject_id(*), classes(*)")
-                .order("room_number");
+      const { data: teachersData, error: teachersError } = await supabase
+        .from("teachers")
+        .select("*")
+        .order("name");
+      if (teachersError) throw teachersError;
+      setTeachers(teachersData || []);
 
-            if (roomsError) throw roomsError;
+      // Fetch rooms with related teachers, subjects, and classes
+      const { data: roomsData, error: roomsError } = await supabase
+        .from("rooms")
+        .select(
+          `
+        *,
+        teachers(*),
+        room_subjects(
+          subjects(*)
+        )
+        `
+        )
+        .order("room_number");
 
-            const fetchedRooms = (roomsData as RoomAssignment[]) || [];
+      if (roomsError) throw roomsError;
 
-            // Populate the `subjects` array for each room
-            const roomsWithSubjects = await Promise.all(
-                fetchedRooms.map(async (room) => {
-                    const { data: roomSubjects, error: roomSubjectsError } = await supabase
-                        .from("room_subjects")
-                        .select("subject_id")
-                        .eq("room_id", room.id);
+      const combinedRooms: RoomAssignment[] = (roomsData || []).map((room) => {
+        const relatedSubjects = room.room_subjects.map(
+          (rs: any) => rs.subjects
+        );
 
-                    if (roomSubjectsError) throw roomSubjectsError;
+        return {
+          ...room,
+          teachers: room.teachers,
+          subjects: relatedSubjects,
+          classes: null,
+        };
+      });
+      setRooms(combinedRooms);
 
-                    const subjectIds = roomSubjects?.map((rs) => rs.subject_id) || [];
-                    // Use the fetched subjectsData here
-                    const subjects = subjectsData.filter((subject) => subjectIds.includes(subject.id));
-
-                    return {
-                        ...room,
-                        subjects,
-                    };
-                })
-            );
-
-            setRooms(roomsWithSubjects);
-
-            const { data: teachersData, error: teachersError } = await supabase
-                .from("teachers")
-                .select("*")
-                .order("name");
-            if (teachersError) throw teachersError;
-            setTeachers(teachersData || []);
-
-            const { data: classesData, error: classesError } = await supabase
-                .from("classes")
-                .select("*")
-                .order("name");
-            if (classesError) throw classesError;
-            setClasses(classesData || []);
-        } catch (error) {
-            console.error("Error fetching data:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
+      const { data: classesData, error: classesError } = await supabase
+        .from("classes")
+        .select("*")
+        .order("name");
+      if (classesError) throw classesError;
+      setClasses(classesData || []);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
     useEffect(() => {
         fetchData();
@@ -451,8 +449,7 @@ const handleAddRoom = async (
             <Dialog>
               <DialogTrigger asChild>
                 <Button>
-                  <Plus className="mr-2" />
-                  Add Room
+                  <Plus className="mr-2" />Add Room
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-lg">

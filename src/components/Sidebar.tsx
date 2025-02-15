@@ -36,6 +36,7 @@ const Sidebar = ({
     { id: "subjects", label: "Subjects", icon: BookOpen },
     { id: "lessons", label: "Lessons", icon: Clock },
     { id: "rooms", label: "Rooms", icon: DoorOpen },
+    { id: "classes", label: "Classes", icon: School },
     { id: "builder", label: "Schedule Builder", icon: CalendarRange },
   ];
 
