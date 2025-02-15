@@ -271,7 +271,6 @@ const RoomAssignmentForm: React.FC<RoomAssignmentFormProps> = ({
   );
 };
 
-
 const RoomAssignments = () => {
   const [rooms, setRooms] = useState<RoomAssignment[]>([]);
   const [subjects, setSubjects] = useState<Subject[]>([]);
@@ -283,16 +282,16 @@ const RoomAssignments = () => {
   >(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-    const fetchData = async () => {
-        setLoading(true);
-        try {
-            // Fetch subjects first
-            const { data: subjectsData, error: subjectsError } = await supabase
-                .from("subjects")
-                .select("*")
-                .order("name");
-     if (subjectsError) throw subjectsError;
-     setSubjects(subjectsData || []);
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      // Fetch subjects first
+      const { data: subjectsData, error: subjectsError } = await supabase
+        .from("subjects")
+        .select("*")
+        .order("name");
+      if (subjectsError) throw subjectsError;
+      setSubjects(subjectsData || []);
 
       const { data: teachersData, error: teachersError } = await supabase
         .from("teachers")
@@ -354,7 +353,7 @@ const RoomAssignments = () => {
   }, []);
 
   // Function to handle adding a new room
-const handleAddRoom = async (
+  const handleAddRoom = async (
     newRoom: Omit<RoomAssignment, "id" | "created_at"> & {
       subject_ids: string[];
     }
@@ -470,115 +469,107 @@ const handleAddRoom = async (
   };
 
   return (
-    <>
-      <Dialog
-        open={editingRoom !== null}
-        onOpenChange={(open) => {
-          if (!open) {
-            setEditingRoom(null);
-          }
-        }}
-      >
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Edit Room</DialogTitle>
-          </DialogHeader>
-          <RoomAssignmentForm
-            mode="edit"
-            initialRoom={editingRoom}
-            subjects={subjects}
-            teachers={teachers}
-            classes={classes}
-            onUpdate={handleUpdateRoom}
-            onClose={() => setEditingRoom(null)}
-          />
-        </DialogContent>
-      </Dialog>
-      <div className="p-6 bg-white">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Rooms</CardTitle>
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button>
-                  <Plus className="mr-2" />Add Room
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-lg">
-                <DialogHeader>
-                  <DialogTitle>Add New Room</DialogTitle>
-                </DialogHeader>
-                <RoomAssignmentForm
-                  mode="add"
-                  initialRoom={null}
-                  subjects={subjects}
-                  teachers={teachers}
-                  classes={classes}
-                  onAdd={handleAddRoom}
-                  onUpdate={handleUpdateRoom}
-                  onClose={() => setEditingRoom(null)}
-                />
-              </DialogContent>
-            </Dialog>
-          </CardHeader>
-          <CardContent>
-            <ScrollArea className="h-[500px] w-full space-y-4">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Room</TableHead>
-                    <TableHead>Teacher</TableHead>
-                    <TableHead>Classes</TableHead>
-                    <TableHead>Subjects</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {rooms.map((room) => (
-                    <TableRow key={room.id}>
-                      <TableCell>{room.room_number}</TableCell>
-                      <TableCell>
-                        {room.teachers ? room.teachers.name : ""}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex flex-wrap">
-                          {Array.isArray(room.classes)
-                            ? room.classes.map((cls) => cls.name).join(", ")
-                            : room.classes?.name ?? ""}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex flex-wrap">
-                          {(room.subjects || []).map((subject) => subject.name).join(", ") || ""}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-2">
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle>Rooms</CardTitle>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="mr-2" />
+              Add Room
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Add New Room</DialogTitle>
+            </DialogHeader>
+            <RoomAssignmentForm
+              mode="add"
+              initialRoom={null}
+              subjects={subjects}
+              teachers={teachers}
+              classes={classes}
+              onAdd={handleAddRoom}
+              onUpdate={handleUpdateRoom}
+              onClose={() => setEditingRoom(null)}
+            />
+          </DialogContent>
+        </Dialog>
+      </CardHeader>
+      <CardContent>
+        <ScrollArea className="h-[500px] w-full space-y-4">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Room</TableHead>
+                <TableHead>Teacher</TableHead>
+                <TableHead>Classes</TableHead>
+                <TableHead>Subjects</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rooms.map((room) => (
+                <TableRow key={room.id}>
+                  <TableCell>{room.room_number}</TableCell>
+                  <TableCell>
+                    {room.teachers ? room.teachers.name : ""}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap">
+                      {Array.isArray(room.classes)
+                        ? room.classes.map((cls) => cls.name).join(", ")
+                        : room.classes?.name ?? ""}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap">
+                      {(room.subjects || []).map((subject) => subject.name).join(", ") || ""}
+                    </div>
+</TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <Dialog>
+                        <DialogTrigger asChild>
                           <Button
-                            variant="outline"
+                            variant="ghost"
                             size="icon"
                             onClick={() => openEditDialog(room)}
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
-                          <Button
-                            variant="destructive"
-                            size="icon"
-                            onClick={() => handleDeleteRoom(room.id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </ScrollArea>
-          </CardContent>
-        </Card>
-      </div>
-    </>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Edit Room Assignment</DialogTitle>
+                          </DialogHeader>
+                          <RoomAssignmentForm
+                            mode="edit"
+                            initialRoom={editingRoom}
+                            subjects={subjects}
+                            teachers={teachers}
+                            classes={classes}
+                            onUpdate={handleUpdateRoom}
+                            onClose={() => setEditingRoom(null)}
+                          />
+                        </DialogContent>
+                      </Dialog>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDeleteRoom(room.id)}
+                      >
+                        <Trash2 className="h-4 w-4 text-red-500" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </ScrollArea>
+      </CardContent>
+    </Card>
   );
 };
 

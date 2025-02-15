@@ -436,6 +436,8 @@ const TeacherManagement = () => {
                       <Dialog>
                         <DialogTrigger asChild>
                           <Button
+                            variant="ghost"
+                            size="icon"
                             onClick={() => setEditingTeacher(teacher)}
                           >
                             <Edit className="w-4 h-4" />
@@ -452,7 +454,7 @@ const TeacherManagement = () => {
                               onChange={(data) => {
                                 setEditingTeacher({
                                   ...editingTeacher,
-                                  ...data
+                                  ...data,
                                 });
                               }}
                               onSubmit={handleUpdateTeacher}
@@ -464,6 +466,8 @@ const TeacherManagement = () => {
                         </DialogContent>
                       </Dialog>
                       <Button
+                        variant="ghost"
+                        size="icon"
                         onClick={() => handleDeleteTeacher(teacher.id)}
                       >
                         <Trash2 className="w-4 h-4 text-red-500" />

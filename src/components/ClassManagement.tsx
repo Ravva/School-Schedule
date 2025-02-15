@@ -119,11 +119,15 @@ const handleAddClass = async () => {
     alert("Please select a class literal.");
     return;
   }
-  const className = `${newClass.grade}${newClass.literal}`;
   if (newClass.grade < 1 || newClass.grade > 11) {
     alert("Grade must be between 1 and 11.");
     return;
   }
+  if (newClass.literal.length !== 1) {
+    alert("Literal must be a single character.");
+    return;
+  }
+  const className = `${newClass.grade}${newClass.literal}`;
 
   try {
     const { error } = await supabase.from("classes").insert([
@@ -154,15 +158,18 @@ const handleUpdateClass = async () => {
   if (!editingClass) return;
 
   if (!editingClass.literal) {
-      alert("Please select a class literal.");
-      return;
+    alert("Please select a class literal.");
+    return;
   }
-    const className = `${editingClass.grade}${editingClass.literal}`;
-
-    if(editingClass.grade < 1 || editingClass.grade > 11) {
-        alert("Grade must be between 1 and 11.");
-        return;
-    }
+  if (editingClass.grade < 1 || editingClass.grade > 11) {
+    alert("Grade must be between 1 and 11.");
+    return;
+  }
+  if (editingClass.literal.length !== 1) {
+    alert("Literal must be a single character.");
+    return;
+  }
+  const className = `${editingClass.grade}${editingClass.literal}`;
 
   try {
     const { error } = await supabase
@@ -408,7 +415,8 @@ const handleDeleteClass = async (id: string) => {
                           <DialogHeader>
                             <DialogTitle>Edit Class</DialogTitle>
                           </DialogHeader>
-                          <ClassForm mode="edit"
+                          <ClassForm
+                            mode="edit"
                             classData={editingClass}
                             setClassData={setEditingClass}
                             teachers={teachers}
