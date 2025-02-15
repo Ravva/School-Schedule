@@ -26,7 +26,7 @@ export type Database = {
           literal: string
           name: string
           room_id?: string | null
-          supervisor_teacher_id: string
+          supervisor_teacher_id?: string | null
         }
         Update: {
           created_at?: string

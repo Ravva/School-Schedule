@@ -49,7 +49,7 @@ const RoomAssignmentForm: React.FC<RoomAssignmentFormProps> = ({
   onUpdate,
   onClose,
 }) => {
-  type RoomState = RoomAssignment & { subject_ids: string[] };
+  type RoomState = RoomAssignment & { subject_ids: string[]; class_ids?: string[] };
   const initialRoomState: RoomState =
     mode === "add"
       ? {
@@ -63,10 +63,22 @@ const RoomAssignmentForm: React.FC<RoomAssignmentFormProps> = ({
           subjects: null,
           classes: null,
           subject_ids: initialRoom?.subjects?.map((s) => s.id) || [],
+          class_ids:
+            initialRoom &&
+            initialRoom.classes &&
+            Array.isArray(initialRoom.classes)
+              ? initialRoom.classes.map((c) => c.id)
+              : [],
         }
       : {
           ...initialRoom,
           subject_ids: initialRoom?.subjects?.map((s) => s.id) || [],
+          class_ids:
+            initialRoom &&
+            initialRoom.classes &&
+            Array.isArray(initialRoom.classes)
+              ? initialRoom.classes.map((c) => c.id)
+              : [],
         } as RoomState;
 
   const [room, setRoom] = useState<RoomState>(initialRoomState);
@@ -270,25 +282,30 @@ const RoomAssignments = () => {
 
       if (roomsError) throw roomsError;
 
+      const { data: classesData, error: classesError } = await supabase
+        .from("classes")
+        .select("*")
+        .order("grade");
+
+      if (classesError) throw classesError;
+
       const combinedRooms: RoomAssignment[] = (roomsData || []).map((room) => {
         const relatedSubjects = room.room_subjects.map(
           (rs: any) => rs.subjects
+        );
+        const relatedClass = classesData.find(
+          (cls) => cls.id === room.class_id
         );
 
         return {
           ...room,
           teachers: room.teachers,
           subjects: relatedSubjects,
-          classes: null,
+          classes: relatedClass || null,
         };
       });
-      setRooms(combinedRooms);
 
-      const { data: classesData, error: classesError } = await supabase
-        .from("classes")
-        .select("*")
-        .order("name");
-      if (classesError) throw classesError;
+      setRooms(combinedRooms);
       setClasses(classesData || []);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -297,9 +314,9 @@ const RoomAssignments = () => {
     }
   };
 
-    useEffect(() => {
-        fetchData();
-    }, []);
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   // Function to handle adding a new room
 const handleAddRoom = async (
@@ -476,7 +493,7 @@ const handleAddRoom = async (
                   <TableRow>
                     <TableHead>Room</TableHead>
                     <TableHead>Teacher</TableHead>
-                    <TableHead>Class</TableHead>
+                    <TableHead>Classes</TableHead>
                     <TableHead>Subjects</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
@@ -486,16 +503,18 @@ const handleAddRoom = async (
                     <TableRow key={room.id}>
                       <TableCell>{room.room_number}</TableCell>
                       <TableCell>
-                        {room.teachers ? room.teachers.name : "N/A"}
-                      </TableCell>
-                      <TableCell>
-                        {room.classes ? room.classes.name : "N/A"}
+                        {room.teachers ? room.teachers.name : ""}
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-wrap">
-                          {(room.subjects || [])
-                            .map((subject) => subject.name)
-                            .join(", ") || "N/A"}
+                          {Array.isArray(room.classes)
+                            ? room.classes.map((cls) => cls.name).join(", ")
+                            : room.classes?.name ?? ""}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap">
+                          {(room.subjects || []).map((subject) => subject.name).join(", ") || ""}
                         </div>
                       </TableCell>
                       <TableCell>

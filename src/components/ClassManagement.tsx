@@ -27,7 +27,7 @@ const generateClassName = (grade: number, literal?: string | null) => {
   if (!grade || grade < 1 || grade > 11) {
     return ""; // Or throw an error, or return a default value
   }
-  if (literal && (literal.length !== 1 || !/^[a-zA-Z]$/.test(literal))) {
+  if (literal && literal.length !== 1) {
     return ""; // Or throw an error, or return a default value
   }
   return literal ? `${grade}${literal}` : `${grade}`;
@@ -67,27 +67,28 @@ const [newClass, setNewClass] = useState<NewClass>({
 });
 const [editingClass, setEditingClass] = useState<Class | null>(null);
 
-useEffect(() => {
-  fetchClasses();
-  fetchTeachers();
- fetchRooms();
-}, []);
+  useEffect(() => {
+    fetchClasses();
+    fetchTeachers();
+    fetchRooms();
+  }, []);
 
 const fetchClasses = async () => {
- setLoading(true);
- try {
-  const { data, error } = await supabase
-   .from("classes")
-   .select("*")
-   .order("grade");
+  setLoading(true);
+  try {
+    const { data, error } = await supabase
+      .from("classes")
+      .select("*")
+      .order("grade")
+      // TODO: Disable caching for this query
 
-  if (error) throw error;
-  setClasses(data || []);
- } catch (error) {
-  console.error("Error fetching classes:", error);
- } finally {
-  setLoading(false);
- }
+    if (error) throw error;
+    setClasses(data || []);
+  } catch (error) {
+    console.error("Error fetching classes:", error);
+  } finally {
+    setLoading(false);
+  }
 };
 
 const fetchTeachers = async () => {
@@ -124,7 +125,7 @@ const handleAddClass = async () => {
   try {
     const { error } = await supabase.from("classes").insert([
       {
-        name: generatedName,
+        name: generatedName, // Use generatedName
         grade: newClass.grade,
         literal: newClass.literal,
         supervisor_teacher_id: newClass.supervisor_teacher_id,
@@ -163,7 +164,7 @@ const handleUpdateClass = async () => {
     const { error } = await supabase
       .from("classes")
       .update({
-        name: generatedName,
+        name: generatedName, // Use generatedName
         grade: editingClass.grade,
         literal: editingClass.literal,
         supervisor_teacher_id: editingClass.supervisor_teacher_id,
@@ -190,211 +191,246 @@ const handleDeleteClass = async (id: string) => {
  }
 };
 
-const ClassForm = ({ mode }: { mode: "add" | "edit" }) => {
- const classData: ClassWithOptionalFields | null = mode === "add" ? newClass : editingClass;
- const setClassData = mode === "add" ? setNewClass : setEditingClass;
+  const ClassForm = ({
+    mode,
+    classData,
+    setClassData,
+    teachers,
+    rooms,
+    handleAddClass,
+    handleUpdateClass,
+  }: {
+    mode: "add" | "edit";
+    classData: ClassWithOptionalFields | null;
+    setClassData: React.Dispatch<React.SetStateAction<any>>;
+    teachers: Teacher[];
+    rooms: Room[];
+    handleAddClass: () => Promise<void>;
+    handleUpdateClass: () => Promise<void>;
+  }) => {
+    if (!classData && mode === "edit") return null;
 
- if (!classData && mode === "edit") return null;
+  const handleGradeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (/^\d*$/.test(value)) {
+      const grade = parseInt(value, 10);
+      setClassData((prev: any) => {
+        const updated = { ...prev, grade: grade };
+        updated.name = generateClassName(updated.grade, updated.literal);
+        return updated;
+      });
+    }
+  };
 
-const handleGradeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  const value = e.target.value;
-  if (/^\d*$/.test(value)) {
-    const grade = parseInt(value, 10);
+  const handleLiteralChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const literal = e.target.value;
     setClassData((prev: any) => {
-      const updated = { ...prev, grade: grade };
-      updated.name = generateClassName(updated.grade, updated.literal);
+      const updated = { ...prev, literal: literal };
+      updated.name = generateClassName(prev.grade, updated.literal);
       return updated;
     });
-  }
-};
+  };
 
-const handleLiteralChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  const literal = e.target.value;
-  setClassData((prev: any) => {
-    const updated = { ...prev, literal: literal };
-    updated.name = generateClassName(prev.grade, updated.literal);
-    return updated;
-  });
-};
+  const handleSupervisorTeacherChange = (value: string) => {
+    setClassData((prev: any) => ({ ...prev, supervisor_teacher_id: value }));
+  };
 
-const handleSectionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  setClassData((prev: any) => ({ ...prev, section: e.target.value }));
-};
+  const handleRoomChange = (value: string) => {
+    setClassData((prev: any) => ({ ...prev, room_id: value }));
+  };
 
- const handleSupervisorTeacherChange = (value: string) => {
-  setClassData((prev: any) => ({ ...prev, supervisor_teacher_id: value }));
- };
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="grade">Grade</Label>
+          <Input
+            id="grade"
+            type="number"
+            min="1"
+            max="11"
+            value={classData ? classData.grade || "" : ""}
+            onChange={handleGradeChange}
+            placeholder="Enter grade"
+          />
+        </div>
+        <div>
+          <Label htmlFor="literal">Literal</Label>
+          <Input
+            id="literal"
+            value={classData ? classData.literal || "" : ""}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (value.length <= 1) {
+                handleLiteralChange(e);
+              }
+            }}
+            placeholder="Enter literal"
+            maxLength={1}
+          />
+        </div>
+      </div>
 
- const handleRoomChange = (value: string) => {
-  setClassData((prev: any) => ({ ...prev, room_id: value }));
- };
+      <div>
+        <Label htmlFor="supervisor_teacher">Supervisor Teacher</Label>
+        <Select
+          onValueChange={handleSupervisorTeacherChange}
+          value={
+            classData ? classData.supervisor_teacher_id || undefined : undefined
+          }
+        >
+          <SelectTrigger id="supervisor_teacher">
+            <SelectValue placeholder="Select a teacher" />
+          </SelectTrigger>
+          <SelectContent>
+            {teachers.map((teacher) => (
+              <SelectItem key={teacher.id} value={teacher.id}>
+                {teacher.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
- return (
-  <div className="space-y-4">
-   <div className="grid grid-cols-2 gap-4">
-    <div>
-     <Label htmlFor="grade">Grade</Label>
-     <Input
-      id="grade"
-      type="number"
-      min="1"
-      max="11"
-      value={classData ? classData.grade || "" : ""}
-      onChange={handleGradeChange}
-      placeholder="Enter grade"
-     />
+      <div>
+        <Label htmlFor="room">Room</Label>
+        <Select
+          onValueChange={handleRoomChange}
+          value={classData ? classData.room_id || undefined : undefined}
+        >
+          <SelectTrigger id="room">
+            <SelectValue placeholder="Select a room" />
+          </SelectTrigger>
+          <SelectContent>
+            {rooms.map((room) => (
+              <SelectItem key={room.id} value={room.id}>
+                {room.room_number}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <Button
+        className="w-full"
+        onClick={mode === "add" ? handleAddClass : handleUpdateClass}
+      >
+        {mode === "add" ? "Add Class" : "Update Class"}
+      </Button>
     </div>
-    <div>
-     <Label htmlFor="literal">Literal</Label>
-     <Input
-      id="literal"
-      value={classData ? classData.literal || "" : ""}
-      onChange={(e) => {
-        const value = e.target.value;
-        if (value.length <= 1 && /^[a-zA-Z]*$/.test(value)) {
-          handleLiteralChange(e)
-        }
-      }}
-      placeholder="Enter literal"
-      maxLength={1}
-     />
-   </div>
-   </div>
+  );
+  };
 
-   <div>
-    <Label htmlFor="supervisor_teacher">Supervisor Teacher</Label>
-    <Select
-     onValueChange={handleSupervisorTeacherChange}
-     value={classData ? classData.supervisor_teacher_id || undefined : undefined}
-    >
-     <SelectTrigger id="supervisor_teacher">
-      <SelectValue placeholder="Select a teacher" />
-     </SelectTrigger>
-     <SelectContent>
-      {teachers.map((teacher) => (
-       <SelectItem key={teacher.id} value={teacher.id}>
-        {teacher.name}
-       </SelectItem>
-      ))}
-     </SelectContent>
-    </Select>
-   </div>
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Class Management</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="flex justify-end">
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="mr-2" />
+                Add Class
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add New Class</DialogTitle>
+              </DialogHeader>
+              {/* Pass the necessary props to ClassForm */}
+              <ClassForm
+                mode="add"
+                classData={newClass}
+                setClassData={setNewClass}
+                teachers={teachers}
+                rooms={rooms}
+                handleAddClass={handleAddClass}
+                handleUpdateClass={handleUpdateClass}
+              />
+            </DialogContent>
+          </Dialog>
+        </div>
 
-   <div>
-    <Label htmlFor="room">Room</Label>
-    <Select
-     onValueChange={handleRoomChange}
-     value={classData ? classData.room_id || undefined : undefined}
-    >
-     <SelectTrigger id="room">
-      <SelectValue placeholder="Select a room" />
-     </SelectTrigger>
-     <SelectContent>
-      {rooms.map((room) => (
-       <SelectItem key={room.id} value={room.id}>
-        {room.room_number}
-       </SelectItem>
-      ))}
-     </SelectContent>
-    </Select>
-   </div>
-
-   <Button
-    className="w-full"
-    onClick={mode === "add" ? handleAddClass : handleUpdateClass}
-   >
-    {mode === "add" ? "Add Class" : "Update Class"}
-   </Button>
-  </div>
- );
-};
-
- return (
-   <div className="p-6 bg-white">
-     <Card>
-       <CardHeader className="flex flex-row items-center justify-between">
-         <CardTitle>Class Management</CardTitle>
-         <Dialog>
-           <DialogTrigger asChild>
-             <Button>
-               <Plus className="w-4 h-4 mr-2" />
-               Add Class
-             </Button>
-           </DialogTrigger>
-           <DialogContent>
-             <DialogHeader>
-               <DialogTitle>Add New Class</DialogTitle>
-             </DialogHeader>
-             <ClassForm mode="add" />
-           </DialogContent>
-         </Dialog>
-       </CardHeader>
-       <CardContent>
-         <Table>
-           <TableHeader>
-             <TableRow>
-               <TableHead>Name</TableHead>
-               <TableHead>Grade</TableHead>
-             <TableHead>Literal</TableHead>
-             
-             <TableHead>Supervisor Teacher</TableHead>
-             <TableHead>Room</TableHead>
-             <TableHead className="text-right">Actions</TableHead>
-             </TableRow>
-           </TableHeader>
-           <TableBody>
-             {classes.map((cls) => (
-               <TableRow key={cls.id}>
-                <TableCell className="font-medium">{cls.name}</TableCell>
-                <TableCell>{cls.grade}</TableCell>
-                <TableCell>{cls.literal}</TableCell>
-                <TableCell>
-                  {
-                    teachers.find(
-                      (teacher) => teacher.id === cls.supervisor_teacher_id
-                    )?.name || "N/A"
-                  }
-                </TableCell>
-                <TableCell>
-                  {rooms.find((room) => room.id === cls.room_id)?.room_number ||
-                    "N/A"}
-                </TableCell>
-                <TableCell className="text-right">
-                  <div className="flex justify-end gap-2">
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setEditingClass(cls)}
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Edit Class</DialogTitle>
-                        </DialogHeader>
-                        <ClassForm mode="edit" />
-                      </DialogContent>
-                    </Dialog>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleDeleteClass(cls.id)}
-                    >
-                      <Trash2 className="w-4 h-4 text-red-500" />
-                    </Button>
-                  </div>
+        <Table className="mt-4">
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Grade</TableHead>
+              <TableHead>Literal</TableHead>
+              <TableHead>Supervisor Teacher</TableHead>
+              <TableHead>Room</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center">
+                  Loading...
                 </TableCell>
               </TableRow>
-            ))}
+            ) : (
+              classes.map((cls) => (
+                <TableRow key={cls.id}>
+                  <TableCell>{cls.name}</TableCell>
+                  <TableCell>{cls.grade}</TableCell>
+                  <TableCell>{cls.literal}</TableCell>
+                  <TableCell>
+                    {
+                      teachers.find(
+                        (teacher) => teacher.id === cls.supervisor_teacher_id
+                      )?.name || "N/A"
+                    }
+                  </TableCell>
+                  <TableCell>
+                    {rooms.find((room) => room.id === cls.room_id)?.room_number ||
+                      "N/A"}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setEditingClass(cls)}
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Edit Class</DialogTitle>
+                          </DialogHeader>
+                          <ClassForm mode="edit"
+                            classData={editingClass}
+                            setClassData={setEditingClass}
+                            teachers={teachers}
+                            rooms={rooms}
+                            handleAddClass={handleAddClass}
+                            handleUpdateClass={handleUpdateClass}
+                          />
+                        </DialogContent>
+                      </Dialog>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDeleteClass(cls.id)}
+                      >
+                        <Trash2 className="w-4 h-4 text-red-500" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </CardContent>
     </Card>
-  </div>
-);
+  );
 };
 
 export default ClassManagement;
