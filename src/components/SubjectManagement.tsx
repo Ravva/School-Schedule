@@ -155,33 +155,12 @@ const SubjectManagement = () => {
           <Label htmlFor="is_subgroup">Subgroup</Label>
         </div>
 
-        {subject.is_subgroup && (
-          <>
-            <div>
-              <Label>Teacher 1</Label>
-              <Input placeholder="Select teacher 1" />
-            </div>
-            <div>
-              <Label>Teacher 2</Label>
-              <Input placeholder="Select teacher 2" />
-            </div>
-            <div>
-              <Label>Room 1</Label>
-              <Input placeholder="Select room 1" />
-            </div>
-            <div>
-              <Label>Room 2</Label>
-              <Input placeholder="Select room 2" />
-            </div>
-          </>
-        )}
-
         <Button className="w-full" onClick={handleAddOrUpdate}>
           {mode === "add" ? "Add Subject" : "Update Subject"}
         </Button>
       </div>
     );
-  };
+};
 
   return (
     <div className="p-6 bg-white">
@@ -235,7 +214,9 @@ const SubjectManagement = () => {
               {subjects.map((subject) => (
                 <TableRow
                   key={subject.id}
-                  className={subject.is_extracurricular ? "bg-purple-50" : ""}
+                  className={`${
+                    subject.is_extracurricular ? "bg-purple-50" : ""
+                  } ${subject.is_subgroup ? "bg-green-50" : ""}`}
                 >
                   <TableCell className="font-medium">{subject.name}</TableCell>
                   <TableCell>
