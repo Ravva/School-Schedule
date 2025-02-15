@@ -28,6 +28,11 @@ interface Lesson {
   end_time: string;
 }
 
+const formatTime = (time: string) => {
+    const [hours, minutes] = time.split(':');
+    return `${hours}:${minutes}`;
+}
+
 const LessonManagement = () => {
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [loading, setLoading] = useState(true);
@@ -216,8 +221,8 @@ const LessonManagement = () => {
               {lessons.map((lesson) => (
                 <TableRow key={lesson.id}>
                   <TableCell>{lesson.lesson_number}</TableCell>
-                  <TableCell>{lesson.start_time}</TableCell>
-                  <TableCell>{lesson.end_time}</TableCell>
+                  <TableCell>{formatTime(lesson.start_time)}</TableCell>
+                  <TableCell>{formatTime(lesson.end_time)}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
                       <Dialog>

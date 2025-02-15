@@ -259,40 +259,37 @@ export type Database = {
       }
       time_slots: {
         Row: {
-          class_id: string | null
-          created_at: string
-          day: string
-          end_time: string
-          id: string
-          is_extracurricular: boolean | null
-          room: string
-          start_time: string
-          subject: string
-          teacher_id: string | null
+          id: string;
+          day: string;
+          lesson_id: string;
+          subject: string;
+          room_id: string;
+          teacher_id: string | null;
+          class_id: string | null;
+          is_extracurricular: boolean | null;
+          created_at: string;
         }
         Insert: {
-          class_id?: string | null
-          created_at?: string
-          day: string
-          end_time: string
-          id?: string
-          is_extracurricular?: boolean | null
-          room: string
-          start_time: string
-          subject: string
-          teacher_id?: string | null
+          id?: string;
+          day: string;
+          lesson_id: string;
+          subject: string;
+          room_id: string;
+          teacher_id?: string | null;
+          class_id?: string | null;
+          is_extracurricular?: boolean | null;
+          created_at?: string;
         }
         Update: {
-          class_id?: string | null
-          created_at?: string
-          day?: string
-          end_time?: string
-          id?: string
-          is_extracurricular?: boolean | null
-          room?: string
-          start_time?: string
-          subject?: string
-          teacher_id?: string | null
+          id?: string;
+          day?: string;
+          lesson_id?: string;
+          subject?: string;
+          room_id?: string;
+          teacher_id?: string | null;
+          class_id?: string | null;
+          is_extracurricular?: boolean | null;
+          created_at?: string;
         }
         Relationships: [
           {
@@ -301,6 +298,27 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "classes"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "time_slots_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "time_slots_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "time_slots_subject_fkey"
+            columns: ["subject"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["name"]
           },
           {
             foreignKeyName: "time_slots_teacher_id_fkey"
