@@ -211,6 +211,52 @@ export type Database = {
         }
         Relationships: []
       }
+      syllabus: {
+        Row: {
+          id: string;
+          class_id: string;
+          subject_id: string;
+          amount_of_academic_hours_per_week: number;
+          teacher_id: string;
+        }
+        Insert: {
+          id?: string;
+          class_id: string;
+          subject_id: string;
+          amount_of_academic_hours_per_week: number;
+          teacher_id: string;
+        }
+        Update: {
+          id?: string;
+          class_id?: string;
+          subject_id?: string;
+          amount_of_academic_hours_per_week?: number;
+          teacher_id?: string;
+        }
+        Relationships: [
+          {
+            foreignKeyName: "syllabus_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "syllabus_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "syllabus_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "teachers"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       time_slots: {
         Row: {
           class_id: string | null

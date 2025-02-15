@@ -8,6 +8,7 @@ import LessonManagement from "./LessonManagement";
 import RoomManagement from "./RoomManagement";
 import SubjectManagement from "./SubjectManagement";
 import ClassManagement from "./ClassManagement";
+import SyllabusManagement from "./SyllabusManagement";
 
 export type ViewMode =
   | "timetable"
@@ -16,7 +17,8 @@ export type ViewMode =
   | "classes"
   | "lessons"
   | "rooms"
-  | "builder";
+  | "builder"
+  | "syllabus";
 export type FilterMode = "teacher" | "class" | "room";
 
 export interface HomeProps {
@@ -50,6 +52,8 @@ const Home = ({
         return <RoomManagement />;
       case "builder":
         return <TimetableBuilder />;
+      case "syllabus":
+        return <SyllabusManagement />;
       default:
         return <DailyScheduleGrid />;
     }
