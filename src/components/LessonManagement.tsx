@@ -29,9 +29,9 @@ interface Lesson {
 }
 
 const formatTime = (time: string) => {
-    const [hours, minutes] = time.split(':');
-    return `${hours}:${minutes}`;
-}
+  const [hours, minutes] = time.split(":");
+  return `${hours}:${minutes}`;
+};
 
 const LessonManagement = () => {
   const [lessons, setLessons] = useState<Lesson[]>([]);
@@ -41,18 +41,14 @@ const LessonManagement = () => {
     start_time: "",
     end_time: "",
   });
-  const [editingLesson, setEditingLesson] = useState<Lesson>({
-    id: "",
-    lesson_number: 0,
-    start_time: "",
-    end_time: "",
-  });
+  const [editingLesson, setEditingLesson] = useState<Lesson | null>(null);
 
   useEffect(() => {
     fetchLessons();
   }, []);
 
   const fetchLessons = async () => {
+    setLoading(true); // Set loading to true before fetching
     try {
       const { data, error } = await supabase
         .from("lessons")
@@ -79,7 +75,7 @@ const LessonManagement = () => {
       ]);
 
       if (error) throw error;
-      fetchLessons();
+      await fetchLessons(); // Await fetchLessons to ensure lessons are updated
       setNewLesson({ lesson_number: 0, start_time: "", end_time: "" });
     } catch (error) {
       console.error("Error adding lesson:", error);
@@ -87,20 +83,25 @@ const LessonManagement = () => {
   };
 
   const handleUpdateLesson = async () => {
+    console.log("handleUpdateLesson called, editingLesson:", editingLesson); // Debug log 1
     if (!editingLesson) return;
 
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from("lessons")
         .update({
           lesson_number: editingLesson.lesson_number,
           start_time: editingLesson.start_time,
           end_time: editingLesson.end_time,
         })
-        .eq("id", editingLesson.id);
+        .eq("id", editingLesson.id)
+        .select(); // Add .select() to get updated data
 
+      console.log("Supabase update result:", data, error); // Debug log 2
       if (error) throw error;
-      fetchLessons();
+
+      await fetchLessons(); // Await fetchLessons to ensure lessons are updated *before* resetting editingLesson
+      console.log("fetchLessons completed"); // Debug log 3
       setEditingLesson(null);
     } catch (error) {
       console.error("Error updating lesson:", error);
@@ -112,7 +113,7 @@ const LessonManagement = () => {
       const { error } = await supabase.from("lessons").delete().eq("id", id);
 
       if (error) throw error;
-      fetchLessons();
+      await fetchLessons(); // Await fetchLessons
     } catch (error) {
       console.error("Error deleting lesson:", error);
     }
@@ -243,16 +244,25 @@ const LessonManagement = () => {
                             mode="edit"
                             formData={editingLesson}
                             onChange={(field, value) => {
-                              setEditingLesson((prev) =>
-                                prev
-                                  ? {
-                                      ...prev,
-                                      [field]: value,
-                                    }
-                                  : null,
-                              );
+                              setEditingLesson((prev) => {
+                                  if (!prev) return prev;
+                                const parsedValue = parseInt(value, 10);
+                                return {
+                                  ...prev,
+                                  [field]:
+                                    field === "lesson_number"
+                                      ? isNaN(parsedValue)
+                                        ? 0
+                                        : parsedValue
+                                      : value,
+                                };
+                              });
+                            console.log("setEditingLesson called in onChange:", editingLesson);
                             }}
-                            onSubmit={handleUpdateLesson}
+                            onSubmit={() => {
+                                console.log("onSubmit called in LessonForm, editingLesson:", editingLesson); // Debug log 4
+                                handleUpdateLesson();
+                            }}
                           />
                         </DialogContent>
                       </Dialog>
