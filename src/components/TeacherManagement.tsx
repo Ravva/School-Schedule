@@ -24,29 +24,21 @@ import { Edit, Plus, Trash2, X } from "lucide-react";
 import { ScrollArea } from "./ui/scroll-area";
 import { Switch } from "./ui/switch";
 import { Checkbox } from "./ui/checkbox";
+import { Database } from "@/lib/database.types";
 import { Separator } from "./ui/separator";
+
+type Teacher = Database["public"]["Tables"]["teachers"]["Row"];
+type Class = Database["public"]["Tables"]["classes"]["Row"];
 
 interface TeacherFormProps {
   mode: "add" | "edit";
-  data: {
-    name: string;
-    subjects: string[];
-    supervised_classes: string[];
-    is_part_time: boolean;
-    work_days: string[];
-  };
+  data: Omit<Teacher, "id" | "created_at">;
   onSubmit: () => void;
   onChange: (data: TeacherFormProps["data"]) => void;
+  subjects: { id: string; name: string }[];
+  availableClasses: Class[];
+  weekDays: string[];
 }
-
-interface Teacher {
-  id: string;
-  name: string;
-  subjects: string[];
-  supervised_classes: string[];
-  is_part_time: boolean;
-  work_days: string[];
-};
 
 const TeacherForm = ({
   mode,
@@ -56,13 +48,14 @@ const TeacherForm = ({
   subjects,
   availableClasses,
   weekDays,
-}: TeacherFormProps & {
-  subjects: { id: string; name: string }[];
-  availableClasses: string[];
-  weekDays: string[];
-}) => {
+}: TeacherFormProps) => {
   const [showSubjectDropdown, setShowSubjectDropdown] = useState(false);
   const [showClassDropdown, setShowClassDropdown] = useState(false);
+
+  const getClassName = (classId: string) => {
+    const foundClass = availableClasses.find((c) => c.id === classId);
+    return foundClass ? foundClass.name : "";
+  };
 
   return (
     <div className="space-y-4">
@@ -80,21 +73,24 @@ const TeacherForm = ({
         <Label>Subjects</Label>
         <div className="relative">
           <div className="flex flex-wrap gap-1 p-2 border rounded-md min-h-[38px]">
-            {data.subjects.map((subject) => (
-              <Badge key={subject} className="gap-1">
-                {subject}
-                <button
-                  onClick={() =>
-                    onChange({
-                      ...data,
-                      subjects: data.subjects.filter((s) => s !== subject),
-                    })
-                  }
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </Badge>
-            ))}
+            {data.subjects &&
+              data.subjects.map((subject) => (
+                <Badge key={subject} className="gap-1">
+                  {subject}
+                  <button
+                    onClick={() =>
+                      onChange({
+                        ...data,
+                        subjects: data.subjects
+                          ? data.subjects.filter((s) => s !== subject)
+                          : [],
+                      })
+                    }
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              ))}
             <button
               className="text-sm text-slate-500 hover:text-slate-700"
               onClick={() => setShowSubjectDropdown(!showSubjectDropdown)}
@@ -106,7 +102,9 @@ const TeacherForm = ({
             <div className="absolute z-10 w-full mt-1 bg-white border rounded-md shadow-lg">
               <ScrollArea className="h-[200px]">
                 {subjects
-                  .filter((subject) => !data.subjects.includes(subject.name))
+                  .filter(
+                    (subject) => !data.subjects?.includes(subject.name),
+                  )
                   .map((subject) => (
                     <button
                       key={subject.id}
@@ -114,7 +112,9 @@ const TeacherForm = ({
                       onClick={() => {
                         onChange({
                           ...data,
-                          subjects: [...data.subjects, subject.name],
+                          subjects: data.subjects
+                            ? [...data.subjects, subject.name]
+                            : [subject.name],
                         });
                         setShowSubjectDropdown(false);
                       }}
@@ -132,23 +132,24 @@ const TeacherForm = ({
         <Label>Supervised Classes</Label>
         <div className="relative">
           <div className="flex flex-wrap gap-1 p-2 border rounded-md min-h-[38px]">
-            {data.supervised_classes.map((className) => (
-              <Badge key={className} className="gap-1">
-                {className}
-                <button
-                  onClick={() =>
-                    onChange({
-                      ...data,
-                      supervised_classes: data.supervised_classes.filter(
-                        (c) => c !== className,
-                      ),
-                    })
-                  }
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </Badge>
-            ))}
+            {data.supervised_classes &&
+              data.supervised_classes.map((classId) => (
+                <Badge key={classId} className="gap-1">
+                  {getClassName(classId)}
+                  <button
+                    onClick={() =>
+                      onChange({
+                        ...data,
+                        supervised_classes: data.supervised_classes
+                          ? data.supervised_classes.filter((c) => c !== classId)
+                          : [],
+                      })
+                    }
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              ))}
             <button
               className="text-sm text-slate-500 hover:text-slate-700"
               onClick={() => setShowClassDropdown(!showClassDropdown)}
@@ -161,25 +162,23 @@ const TeacherForm = ({
               <ScrollArea className="h-[200px]">
                 {availableClasses
                   .filter(
-                    (className) =>
-                      !data.supervised_classes.includes(className),
+                    (cls) => !data.supervised_classes?.includes(cls.id),
                   )
-                  .map((className) => (
+                  .map((cls) => (
                     <button
-                      key={className}
+                      key={cls.id}
                       className="w-full px-3 py-2 text-left hover:bg-slate-100"
                       onClick={() => {
                         onChange({
                           ...data,
-                          supervised_classes: [
-                            ...data.supervised_classes,
-                            className,
-                          ],
+                          supervised_classes: data.supervised_classes
+                            ? [...data.supervised_classes, cls.id]
+                            : [cls.id],
                         });
                         setShowClassDropdown(false);
                       }}
                     >
-                      {className}
+                      {cls.name}
                     </button>
                   ))}
               </ScrollArea>
@@ -194,7 +193,7 @@ const TeacherForm = ({
         <div className="flex items-center space-x-2">
           <Switch
             id="is_part_time"
-            checked={data.is_part_time}
+            checked={data.is_part_time || false}
             onCheckedChange={(checked) =>
               onChange({
                 ...data,
@@ -214,11 +213,15 @@ const TeacherForm = ({
                 <div key={day} className="flex items-center space-x-2">
                   <Checkbox
                     id={`day-${day}`}
-                    checked={data.work_days.includes(day)}
+                    checked={data.work_days ? data.work_days.includes(day) : false}
                     onCheckedChange={(checked) => {
                       const newDays = checked
-                        ? [...data.work_days, day]
-                        : data.work_days.filter((d) => d !== day);
+                        ? data.work_days
+                          ? [...data.work_days, day]
+                          : [day]
+                        : data.work_days
+                          ? data.work_days.filter((d) => d !== day)
+                          : [];
                       onChange({
                         ...data,
                         work_days: newDays,
@@ -243,18 +246,20 @@ const TeacherForm = ({
 const TeacherManagement = () => {
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [subjects, setSubjects] = useState<{ id: string; name: string }[]>([]);
+  const [classes, setClasses] = useState<Class[]>([]);
   const [loading, setLoading] = useState(true);
-  const [newTeacher, setNewTeacher] = useState({
+  const [newTeacher, setNewTeacher] = useState<
+    Omit<Teacher, "id" | "created_at">
+  >({
     name: "",
-    subjects: [] as string[],
-    supervised_classes: [] as string[],
+    subjects: [],
+    supervised_classes: [],
     is_part_time: false,
     work_days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
   });
   const [editingTeacher, setEditingTeacher] = useState<Teacher | null>(null);
 
-    const availableClasses = ["10A", "10B", "11A", "11B", "12A", "12B"];
-    const weekDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+  const weekDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
   useEffect(() => {
     fetchData();
@@ -262,23 +267,19 @@ const TeacherManagement = () => {
 
   const fetchData = async () => {
     try {
-      const [teachersData, subjectsData] = await Promise.all([
+      const [teachersData, subjectsData, classesData] = await Promise.all([
         supabase.from("teachers").select("*").order("name"),
         supabase.from("subjects").select("*").order("name"),
+        supabase.from("classes").select("*").order("grade"),
       ]);
 
       if (teachersData.error) throw teachersData.error;
       if (subjectsData.error) throw subjectsData.error;
+      if (classesData.error) throw classesData.error;
 
-      const teachersWithCorrectTypes = teachersData.data ? teachersData.data.map(teacher => ({
-        ...teacher,
-        subjects: teacher.subjects || [],
-        supervised_classes: teacher.supervised_classes || [],
-        is_part_time: teacher.is_part_time !== null ? teacher.is_part_time : false,
-        work_days: teacher.work_days || [],
-      })) : [];
-      setTeachers(teachersWithCorrectTypes);
+      setTeachers(teachersData.data || []);
       setSubjects(subjectsData.data || []);
+      setClasses(classesData.data || []);
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -288,23 +289,21 @@ const TeacherManagement = () => {
 
   const handleAddTeacher = async () => {
     try {
-      console.log("newTeacher:", newTeacher);
-      const { data, error } = await supabase.from("teachers").insert([
-        {
-          name: newTeacher.name,
-          subjects: newTeacher.subjects,
-          supervised_classes: newTeacher.supervised_classes,
-          is_part_time: newTeacher.is_part_time,
-          work_days: newTeacher.work_days,
-        },
-      ]).select();
-
-      console.log("supabase insert result:", data);
+      const { data, error } = await supabase
+        .from("teachers")
+        .insert([
+          {
+            name: newTeacher.name,
+            subjects: newTeacher.subjects,
+            supervised_classes: newTeacher.supervised_classes,
+            is_part_time: newTeacher.is_part_time,
+            work_days: newTeacher.work_days,
+          },
+        ])
+        .select();
 
       if (error) throw error;
-      console.log("fetchData after insert");
       fetchData();
-      console.log("resetting newTeacher");
       setNewTeacher({
         name: "",
         subjects: [],
@@ -351,6 +350,11 @@ const TeacherManagement = () => {
     }
   };
 
+  const getClassName = (classId: string) => {
+    const foundClass = classes.find((c) => c.id === classId);
+    return foundClass ? foundClass.name : "";
+  };
+
   return (
     <div className="p-6 bg-white">
       <Card>
@@ -370,10 +374,12 @@ const TeacherManagement = () => {
               <TeacherForm
                 mode="add"
                 data={newTeacher}
-                onChange={(data) => setNewTeacher({...newTeacher, ...data})}
+                onChange={(data) =>
+                  setNewTeacher({ ...newTeacher, ...data })
+                }
                 onSubmit={handleAddTeacher}
                 subjects={subjects}
-                availableClasses={availableClasses}
+                availableClasses={classes}
                 weekDays={weekDays}
               />
             </DialogContent>
@@ -403,23 +409,26 @@ const TeacherManagement = () => {
                   </TableCell>
                   <TableCell>
                     <div className="flex flex-wrap gap-1">
-                      {teacher.subjects.map((subject) => (
-                        <Badge key={subject}>{subject}</Badge>
-                      ))}
+                      {teacher.subjects &&
+                        teacher.subjects.map((subject) => (
+                          <Badge key={subject}>{subject}</Badge>
+                        ))}
                     </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex flex-wrap gap-1">
-                      {teacher.supervised_classes.map((className) => (
-                        <Badge key={className}>{className}</Badge>
-                      ))}
+                      {teacher.supervised_classes &&
+                        teacher.supervised_classes.map((classId) => (
+                          <Badge key={classId}>{getClassName(classId)}</Badge>
+                        ))}
                     </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex flex-wrap gap-1">
-                      {teacher.work_days.map((day) => (
-                        <Badge key={day}>{day.slice(0, 3)}</Badge>
-                      ))}
+                      {teacher.work_days &&
+                        teacher.work_days.map((day) => (
+                          <Badge key={day}>{day.slice(0, 3)}</Badge>
+                        ))}
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
@@ -440,10 +449,15 @@ const TeacherManagement = () => {
                             <TeacherForm
                               mode="edit"
                               data={editingTeacher}
-                              onChange={(data) => setEditingTeacher({...data, id: editingTeacher.id})}
+                              onChange={(data) => {
+                                setEditingTeacher({
+                                  ...editingTeacher,
+                                  ...data
+                                });
+                              }}
                               onSubmit={handleUpdateTeacher}
                               subjects={subjects}
-                              availableClasses={availableClasses}
+                              availableClasses={classes}
                               weekDays={weekDays}
                             />
                           )}

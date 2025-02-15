@@ -23,7 +23,7 @@ type Class = Database["public"]["Tables"]["classes"]["Row"];
 type RoomAssignment = Room & {
   teachers: Teacher | null;
   subjects: Subject[] | null;
-  classes: Class | null;
+  classes: Class[] | Class | null;
 };
 
 interface RoomAssignmentFormProps {
@@ -33,9 +33,9 @@ interface RoomAssignmentFormProps {
   teachers: Teacher[];
   classes: Class[];
   onAdd?: (
-    room: Omit<RoomAssignment, "id" | "created_at"> & { subject_ids: string[] }
+    room: Omit<RoomAssignment, "id" | "created_at"> & { subject_ids: string[], class_ids: string[] }
   ) => void;
-  onUpdate?: (room: RoomAssignment & { subject_ids: string[] }) => void;
+  onUpdate?: (room: RoomAssignment & { subject_ids: string[], class_ids: string[] }) => void;
   onClose: () => void;
 }
 
@@ -49,41 +49,37 @@ const RoomAssignmentForm: React.FC<RoomAssignmentFormProps> = ({
   onUpdate,
   onClose,
 }) => {
-  type RoomState = RoomAssignment & { subject_ids: string[]; class_ids?: string[] };
-  const initialRoomState: RoomState =
-    mode === "add"
-      ? {
-          id: "",
-          created_at: "",
-          room_number: "",
-          teacher_id: null,
-          subject_id: null,
-          class_id: null,
-          teachers: null,
-          subjects: null,
-          classes: null,
-          subject_ids: initialRoom?.subjects?.map((s) => s.id) || [],
-          class_ids:
-            initialRoom &&
-            initialRoom.classes &&
-            Array.isArray(initialRoom.classes)
-              ? initialRoom.classes.map((c) => c.id)
-              : [],
-        }
-      : {
-          ...initialRoom,
-          subject_ids: initialRoom?.subjects?.map((s) => s.id) || [],
-          class_ids:
-            initialRoom &&
-            initialRoom.classes &&
-            Array.isArray(initialRoom.classes)
-              ? initialRoom.classes.map((c) => c.id)
-              : [],
-        } as RoomState;
+  type RoomState = RoomAssignment & { subject_ids: string[]; class_ids: string[] };
+    const initialRoomState: RoomState =
+      mode === "add"
+        ? {
+            id: "",
+            created_at: "",
+            room_number: "",
+            teacher_id: null,
+            subject_id: null,
+            class_id: null,
+            teachers: null,
+            subjects: null,
+            classes: null,
+            subject_ids: initialRoom?.subjects?.map((s) => s.id) || [],
+            class_ids: [],
+          }
+        : {
+            ...initialRoom,
+            subject_ids: initialRoom?.subjects?.map((s) => s.id) || [],
+            class_ids:
+              (initialRoom?.classes
+                ? Array.isArray(initialRoom.classes)
+                  ? initialRoom.classes.map((c) => c.id)
+                  : [initialRoom.classes.id]
+                : []) || [],
+          } as RoomState;
 
-  const [room, setRoom] = useState<RoomState>(initialRoomState);
+    const [room, setRoom] = useState<RoomState>(initialRoomState);
+    const [showSubjectDropdown, setShowSubjectDropdown] = useState(false);
+  const [showClassDropdown, setShowClassDropdown] = useState(false);
 
-  const [showSubjectDropdown, setShowSubjectDropdown] = useState(false);
 
   const handleAddOrUpdate = () => {
     if (mode === "add" && onAdd) {
@@ -91,19 +87,25 @@ const RoomAssignmentForm: React.FC<RoomAssignmentFormProps> = ({
       onAdd({
         ...newRoom,
         subject_ids: room.subject_ids,
+        class_ids: room.class_ids,
         teachers: null,
         classes: null,
         subjects: null,
       });
     } else if (mode === "edit" && onUpdate) {
+      const { teachers, subjects, classes, ...updatedRoom } = room;
       onUpdate(room);
     }
     onClose();
-  };
+};
 
   const getSubjectName = (id: string) => {
     return subjects.find((s) => s.id === id)?.name || "";
   };
+
+    const getClassName = (id: string) => {
+      return classes.find((c) => c.id === id)?.name || "";
+    };
 
   return (
     <Card>
@@ -208,26 +210,59 @@ const RoomAssignmentForm: React.FC<RoomAssignmentFormProps> = ({
             </Select>
           </div>
           <div>
-            <Label htmlFor="class">Class</Label>
-            <Select
-              onValueChange={(value) => {
-                setRoom((prevRoom) => ({ ...prevRoom, class_id: value }));
-              }}
-              value={room.class_id || undefined}
-            >
-              <SelectTrigger id="class">
-                <SelectValue placeholder="Select a class" />
-              </SelectTrigger>
-              <SelectContent>
-                {classes.map((c) => (
-                  <SelectItem key={c.id} value={c.id}>
-                    {c.name}
-                  </SelectItem>
+            <Label>Classes</Label>
+            <div className="relative">
+              <div className="flex flex-wrap gap-1 p-2 border rounded-md min-h-[38px]">
+                {room.class_ids.map((classId) => (
+                  <Badge key={classId} className="gap-1">
+                    {getClassName(classId)}
+                    <button
+                      onClick={() =>
+                        setRoom((prevRoom) => ({
+                          ...prevRoom,
+                          class_ids: prevRoom.class_ids.filter(
+                            (id) => id !== classId
+                          ),
+                        }))
+                      }
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
                 ))}
-              </SelectContent>
-            </Select>
+                <button
+                  className="text-sm text-slate-500 hover:text-slate-700"
+                  onClick={() => setShowClassDropdown(!showClassDropdown)}
+                >
+                  + Add Class
+                </button>
+              </div>
+              {showClassDropdown && (
+                <div className="absolute z-10 w-full mt-1 bg-white border rounded-md shadow-lg">
+                  <ScrollArea className="h-[200px]">
+                    {classes
+                      .filter((cls) => !room.class_ids.includes(cls.id))
+                      .map((cls) => (
+                        <button
+                          key={cls.id}
+                          className="w-full px-3 py-2 text-left hover:bg-slate-100"
+                          onClick={() => {
+                            setRoom((prevRoom) => ({
+                              ...prevRoom,
+                              class_ids: [...prevRoom.class_ids, cls.id],
+                            }));
+                            setShowClassDropdown(false);
+                          }}
+                        >
+                          {cls.name}
+                        </button>
+                      ))}
+                  </ScrollArea>
+                </div>
+              )}
+            </div>
           </div>
-          <Button onClick={() => handleAddOrUpdate()} className="w-full mt-4">
+          <Button onClick={handleAddOrUpdate} className="w-full mt-4">
             {mode === "edit" ? "Save Changes" : "Add Room"}
           </Button>
         </div>

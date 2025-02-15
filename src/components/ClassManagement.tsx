@@ -115,17 +115,20 @@ interface ClassWithOptionalFields extends Partial<Class> {}
 
 
 const handleAddClass = async () => {
-  const generatedName = generateClassName(newClass.grade, newClass.literal);
-
-  if (!generatedName) {
-    alert("Please enter a valid grade (1-11) and literal (single letter).");
+  if (!newClass.literal) {
+    alert("Please select a class literal.");
+    return;
+  }
+  const className = `${newClass.grade}${newClass.literal}`;
+  if (newClass.grade < 1 || newClass.grade > 11) {
+    alert("Grade must be between 1 and 11.");
     return;
   }
 
   try {
     const { error } = await supabase.from("classes").insert([
       {
-        name: generatedName, // Use generatedName
+        name: className,
         grade: newClass.grade,
         literal: newClass.literal,
         supervisor_teacher_id: newClass.supervisor_teacher_id,
@@ -143,28 +146,29 @@ const handleAddClass = async () => {
       room_id: null,
     });
   } catch (error) {
-    console.error("Error adding class:", error);
+    console.error("Error creating class:", error);
   }
 };
 
 const handleUpdateClass = async () => {
   if (!editingClass) return;
 
-  const generatedName = generateClassName(
-    editingClass.grade,
-    editingClass.literal
-  );
-
-  if (!generatedName) {
-      alert("Please enter a valid grade (1-11) and literal (single letter).");
-    return;
+  if (!editingClass.literal) {
+      alert("Please select a class literal.");
+      return;
   }
+    const className = `${editingClass.grade}${editingClass.literal}`;
+
+    if(editingClass.grade < 1 || editingClass.grade > 11) {
+        alert("Grade must be between 1 and 11.");
+        return;
+    }
 
   try {
     const { error } = await supabase
       .from("classes")
       .update({
-        name: generatedName, // Use generatedName
+        name: className,
         grade: editingClass.grade,
         literal: editingClass.literal,
         supervisor_teacher_id: editingClass.supervisor_teacher_id,
