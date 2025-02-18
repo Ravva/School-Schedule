@@ -114,9 +114,10 @@ const RoomAssignmentForm: React.FC<RoomAssignmentFormProps> = ({
       onAdd(newRoom);
     } else if (mode === "edit" && onUpdate) {
       const updatedRoom = room as RoomState;
-      const { teachers, subjects, classes, ...roomData } = updatedRoom;
+      const { classes, ...roomData } = updatedRoom;
       onUpdate({
         ...roomData,
+        subject_ids: updatedRoom.subject_ids, // Include subject_ids
       });
     }
     onClose();
@@ -377,17 +378,27 @@ const RoomAssignments = () => {
     }
   };
 
-  // Function to handle updating an existing room
   const handleUpdateRoom = async (
     updatedRoom: Room & { subject_ids: string[] }
   ) => {
     try {
-      const { id, subject_ids, ...roomData } = updatedRoom;
+      const {
+        id,
+        subject_ids,
+        created_at,
+        ...roomData
+      } = updatedRoom;
+
+      // Create a new object with only the necessary fields for updating the 'rooms' table
+      const roomUpdateData = {
+        room_number: roomData.room_number,
+        teacher_id: roomData.teacher_id,
+      };
 
       // Update the room details
       const { error: updateError } = await supabase
         .from("rooms")
-        .update(roomData)
+        .update(roomUpdateData)
         .eq("id", id);
 
       if (updateError) throw updateError;
@@ -495,7 +506,7 @@ const RoomAssignments = () => {
                 <TableHead>Teacher</TableHead>
                 <TableHead>Classes</TableHead>
                 <TableHead>Subjects</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead className="text-right pr-4">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -506,19 +517,25 @@ const RoomAssignments = () => {
                     {room.teachers ? room.teachers.name : ""}
                   </TableCell>
                   <TableCell>
-                    {room.classes
-                      ? room.classes.map((c) => c.name).join(", ")
-                      : ""}
+                    <div className="flex flex-wrap gap-1">
+                      {room.classes
+                        ? room.classes.map((c) => (
+                            <Badge key={c.id}>{c.name}</Badge>
+                          ))
+                        : ""}
+                    </div>
                   </TableCell>
                   <TableCell>
-                    <div className="flex flex-wrap">
-                      {(room.subjects || [])
-                        .map((subject) => subject.name)
-                        .join(", ") || ""}
+                    <div className="flex flex-wrap gap-1">
+                      {(room.subjects || []).map((subject) => (
+                        <Badge key={subject.id}>{subject.name}</Badge>
+                      ))}
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
+                    <div className="flex justify-end gap-2 items-center">
+                      {" "}
+                      {/* Added items-center */}
                       <Dialog
                         open={editingRoom?.id === room.id}
                         onOpenChange={setIsDialogOpen}
