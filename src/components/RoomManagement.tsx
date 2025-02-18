@@ -2,14 +2,34 @@ import { Database } from "@/lib/database.types";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Button } from "./ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "./ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogDescription,
+} from "./ui/dialog";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Edit, Plus, Trash2, X } from "lucide-react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "./ui/table";
 import { Checkbox } from "./ui/checkbox";
 import { Badge } from "./ui/badge";
 import { ScrollArea } from "./ui/scroll-area";
@@ -23,20 +43,22 @@ type Class = Database["public"]["Tables"]["classes"]["Row"];
 // Type for fetching rooms with related data
 type RoomAssignment = Room & {
   teachers: Teacher | null;
-  subjects: Subject[] | null;
-  classes: Class[] | Class | null;
+  subjects: Subject[];
+  classes: Class[] | null;
 };
 
 interface RoomAssignmentFormProps {
   mode: "add" | "edit";
-  initialRoom?: (RoomAssignment & { subject_ids?: string[] }) | null;
+  initialRoom?: RoomAssignment | null;
   subjects: Subject[];
   teachers: Teacher[];
   classes: Class[];
   onAdd?: (
-    room: Omit<RoomAssignment, "id" | "created_at"> & { subject_ids: string[], class_ids: string[] }
+    room: Omit<Room, "id" | "created_at"> & {
+      subject_ids: string[];
+    }
   ) => void;
-  onUpdate?: (room: RoomAssignment & { subject_ids: string[], class_ids: string[] }) => void;
+  onUpdate?: (room: Room & { subject_ids: string[] }) => void;
   onClose: () => void;
 }
 
@@ -50,63 +72,59 @@ const RoomAssignmentForm: React.FC<RoomAssignmentFormProps> = ({
   onUpdate,
   onClose,
 }) => {
-  type RoomState = RoomAssignment & { subject_ids: string[]; class_ids: string[] };
-    const initialRoomState: RoomState =
-      mode === "add"
-        ? {
-            id: "",
-            created_at: "",
-            room_number: "",
-            teacher_id: null,
-            subject_id: null,
-            class_id: null,
-            teachers: null,
-            subjects: null,
-            classes: null,
-            subject_ids: initialRoom?.subjects?.map((s) => s.id) || [],
-            class_ids: [],
-          }
-        : {
-            ...initialRoom,
-            subject_ids: initialRoom?.subjects?.map((s) => s.id) || [],
-            class_ids:
-              (initialRoom?.classes
-                ? Array.isArray(initialRoom.classes)
-                  ? initialRoom.classes.map((c) => c.id)
-                  : [initialRoom.classes.id]
-                : []) || [],
-          } as RoomState;
+  type RoomState = Room & {
+    teachers: Teacher | null;
+    subjects: Subject[];
+    classes: Class[] | null;
+    subject_ids: string[];
+  };
 
-    const [room, setRoom] = useState<RoomState>(initialRoomState);
-    const [showSubjectDropdown, setShowSubjectDropdown] = useState(false);
-  const [showClassDropdown, setShowClassDropdown] = useState(false);
+  type AddRoomState = Omit<Room, "id" | "created_at"> & {
+    subject_ids: string[];
+  };
 
+  const initialRoomState: RoomState | AddRoomState =
+    mode === "add"
+      ? {
+          room_number: "",
+          teacher_id: null,
+          subject_ids: [],
+        } as AddRoomState
+      : {
+          ...initialRoom,
+          subject_ids: initialRoom?.subjects?.map((s) => s.id) ?? [],
+          teachers: initialRoom?.teachers ?? null,
+          subjects: initialRoom?.subjects ?? [],
+          classes: initialRoom?.classes ?? null,
+        } as RoomState;
+
+  const [room, setRoom] = useState<RoomState | AddRoomState>(
+    initialRoomState
+  );
+  const [showSubjectDropdown, setShowSubjectDropdown] = useState(false);
 
   const handleAddOrUpdate = () => {
     if (mode === "add" && onAdd) {
-      const { id, created_at, teachers, subjects, classes, ...newRoom } = room;
-      onAdd({
-        ...newRoom,
+      const newRoom = {
+        room_number: room.room_number,
+        teacher_id: room.teacher_id === "" ? null : room.teacher_id,
         subject_ids: room.subject_ids,
-        class_ids: room.class_ids,
-        teachers: null,
-        classes: null,
-        subjects: null,
-      });
+      } as AddRoomState;
+
+      onAdd(newRoom);
     } else if (mode === "edit" && onUpdate) {
-      const { teachers, subjects, classes, ...updatedRoom } = room;
-      onUpdate(room);
+      const updatedRoom = room as RoomState;
+      const { teachers, subjects, classes, ...roomData } = updatedRoom;
+      onUpdate({
+        ...roomData,
+      });
     }
     onClose();
-};
+  };
 
   const getSubjectName = (id: string) => {
     return subjects.find((s) => s.id === id)?.name || "";
   };
-
-    const getClassName = (id: string) => {
-      return classes.find((c) => c.id === id)?.name || "";
-    };
 
   return (
     <Card>
@@ -121,6 +139,7 @@ const RoomAssignmentForm: React.FC<RoomAssignmentFormProps> = ({
             <Label htmlFor="room_number">Room Number</Label>
             <Input
               id="room_number"
+              value={"room_number" in room ? room.room_number : ""}
               onChange={(e) => {
                 setRoom((prevRoom) => ({
                   ...prevRoom,
@@ -131,67 +150,14 @@ const RoomAssignmentForm: React.FC<RoomAssignmentFormProps> = ({
             />
           </div>
           <div>
-            <Label>Subjects</Label>
-            <div className="relative">
-              <div className="flex flex-wrap gap-1 p-2 border rounded-md min-h-[38px]">
-                {room.subject_ids.map((subjectId) => (
-                  <Badge key={subjectId} className="gap-1">
-                    {getSubjectName(subjectId)}
-                    <button
-                      onClick={() =>
-                        setRoom((prevRoom) => ({
-                          ...prevRoom,
-                          subject_ids: prevRoom.subject_ids.filter(
-                            (id) => id !== subjectId
-                          ),
-                        }))
-                      }
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </Badge>
-                ))}
-                <button
-                  className="text-sm text-slate-500 hover:text-slate-700"
-                  onClick={() => setShowSubjectDropdown(!showSubjectDropdown)}
-                >
-                  + Add Subject
-                </button>
-              </div>
-              {showSubjectDropdown && (
-                <div className="absolute z-10 w-full mt-1 bg-white border rounded-md shadow-lg">
-                  <ScrollArea className="h-[200px]">
-                    {subjects
-                      .filter(
-                        (subject) => !room.subject_ids.includes(subject.id)
-                      )
-                      .map((subject) => (
-                        <button
-                          key={subject.id}
-                          className="w-full px-3 py-2 text-left hover:bg-slate-100"
-                          onClick={() => {
-                            setRoom((prevRoom) => ({
-                              ...prevRoom,
-                              subject_ids: [...prevRoom.subject_ids, subject.id],
-                            }));
-                            setShowSubjectDropdown(false);
-                          }}
-                        >
-                          {subject.name}
-                        </button>
-                      ))}
-                  </ScrollArea>
-                </div>
-              )}
-            </div>
-          </div>
-          <div>
             <Label htmlFor="teacher">Teacher</Label>
             <Select
               onValueChange={(value) => {
                 setRoom((prevRoom) => ({ ...prevRoom, teacher_id: value }));
               }}
-              value={room.teacher_id || undefined}
+              value={
+                "teacher_id" in room ? room.teacher_id || undefined : undefined
+              }
             >
               <SelectTrigger id="teacher">
                 <SelectValue placeholder="Select a teacher" />
@@ -206,51 +172,66 @@ const RoomAssignmentForm: React.FC<RoomAssignmentFormProps> = ({
             </Select>
           </div>
           <div>
-            <Label>Classes</Label>
+            <Label>Subjects</Label>
             <div className="relative">
               <div className="flex flex-wrap gap-1 p-2 border rounded-md min-h-[38px]">
-                {room.class_ids.map((classId) => (
-                  <Badge key={classId} className="gap-1">
-                    {getClassName(classId)}
-                    <button
-                      onClick={() =>
-                        setRoom((prevRoom) => ({
-                          ...prevRoom,
-                          class_ids: prevRoom.class_ids.filter(
-                            (id) => id !== classId
-                          ),
-                        }))
-                      }
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </Badge>
-                ))}
+                {("subject_ids" in room ? room.subject_ids : []).map(
+                  (subjectId) => (
+                    <Badge key={subjectId} className="gap-1">
+                      {getSubjectName(subjectId)}
+                      <button
+                        onClick={() =>
+                          setRoom((prevRoom) => ({
+                            ...prevRoom,
+                            subject_ids:
+                              "subject_ids" in prevRoom
+                                ? prevRoom.subject_ids.filter(
+                                    (id) => id !== subjectId
+                                  )
+                                : [],
+                          }))
+                        }
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  )
+                )}
                 <button
                   className="text-sm text-slate-500 hover:text-slate-700"
-                  onClick={() => setShowClassDropdown(!showClassDropdown)}
+                  onClick={() => setShowSubjectDropdown(!showSubjectDropdown)}
                 >
-                  + Add Class
+                  + Add Subject
                 </button>
               </div>
-              {showClassDropdown && (
+              {showSubjectDropdown && (
                 <div className="absolute z-10 w-full mt-1 bg-white border rounded-md shadow-lg">
                   <ScrollArea className="h-[200px]">
-                    {classes
-                      .filter((cls) => !room.class_ids.includes(cls.id))
-                      .map((cls) => (
+                    {subjects
+                      .filter(
+                        (subject) =>
+                          !("subject_ids" in room) ||
+                          !room.subject_ids.includes(subject.id)
+                      )
+                      .map((subject) => (
                         <button
-                          key={cls.id}
+                          key={subject.id}
                           className="w-full px-3 py-2 text-left hover:bg-slate-100"
                           onClick={() => {
-                            setRoom((prevRoom) => ({
-                              ...prevRoom,
-                              class_ids: [...prevRoom.class_ids, cls.id],
-                            }));
-                            setShowClassDropdown(false);
+                            setRoom((prevRoom) => {
+                              const updatedRoom = {
+                                ...prevRoom,
+                                subject_ids:
+                                  "subject_ids" in prevRoom
+                                    ? [...prevRoom.subject_ids, subject.id]
+                                    : [subject.id],
+                              };
+                              return updatedRoom;
+                            });
+                            setShowSubjectDropdown(false);
                           }}
                         >
-                          {cls.name}
+                          {subject.name}
                         </button>
                       ))}
                   </ScrollArea>
@@ -268,321 +249,327 @@ const RoomAssignmentForm: React.FC<RoomAssignmentFormProps> = ({
 };
 
 const RoomAssignments = () => {
-    const { toast } = useToast();
-    const [rooms, setRooms] = useState<RoomAssignment[]>([]);
-    const [subjects, setSubjects] = useState<Subject[]>([]);
-    const [teachers, setTeachers] = useState<Teacher[]>([]);
-    const [classes, setClasses] = useState<Class[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [editingRoom, setEditingRoom] = useState<
-        (RoomAssignment & { subject_ids?: string[] }) | null
-    >(null);
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { toast } = useToast();
+  const [rooms, setRooms] = useState<RoomAssignment[]>([]);
+  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [teachers, setTeachers] = useState<Teacher[]>([]);
+  const [classes, setClasses] = useState<Class[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingRoom, setEditingRoom] = useState<RoomAssignment | null>(null);
 
-    const fetchData = async () => {
-        setLoading(true);
-        try {
-            // Fetch subjects first
-            const { data: subjectsData, error: subjectsError } = await supabase
-                .from("subjects")
-                .select("*")
-                .order("name");
-            if (subjectsError) throw subjectsError;
-            setSubjects(subjectsData || []);
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      // Fetch subjects first
+      const { data: subjectsData, error: subjectsError } = await supabase
+        .from("subjects")
+        .select("*")
+        .order("name");
+      if (subjectsError) throw subjectsError;
+      setSubjects(subjectsData || []);
 
-            const { data: teachersData, error: teachersError } = await supabase
-                .from("teachers")
-                .select("*")
-                .order("name");
-            if (teachersError) throw teachersError;
-            setTeachers(teachersData || []);
+      const { data: teachersData, error: teachersError } = await supabase
+        .from("teachers")
+        .select("*")
+        .order("name");
+      if (teachersError) throw teachersError;
+      setTeachers(teachersData || []);
 
-            // Fetch rooms with related teachers, subjects, and classes
-            const { data: roomsData, error: roomsError } = await supabase
-                .from("rooms")
-                .select(
-                    `
-    *,
-    teachers(*),
-    room_subjects(
-      subjects(*)
-    )
-    `
-                )
-                .order("room_number");
+      // Fetch rooms with related teachers, subjects, and classes
+      const { data: roomsData, error: roomsError } = await supabase
+        .from("rooms")
+        .select(
+          `
+          *,
+          teachers!left(*),
+          room_subjects!room_subjects_room_id_fkey(
+            subjects(*)
+          )
+          `
+        )
+        .order("room_number");
 
-            if (roomsError) throw roomsError;
+      if (roomsError) throw roomsError;
 
-            const { data: classesData, error: classesError } = await supabase
-                .from("classes")
-                .select("*")
-                .order("grade");
+      // Fetch all classes
+      const { data: classesData, error: classesError } = await supabase
+        .from("classes")
+        .select("*")
+        .order("grade");
 
-            if (classesError) throw classesError;
+      if (classesError) throw classesError;
+      setClasses(classesData || []);
 
-            const combinedRooms: RoomAssignment[] = (roomsData || []).map((room) => {
-                const relatedSubjects = room.room_subjects.map(
-                    (rs: any) => rs.subjects
-                );
-                const relatedClass = classesData.find(
-                    (cls) => cls.id === room.class_id
-                );
+      const combinedRooms: RoomAssignment[] = (roomsData || []).map((room) => {
+        const relatedSubjects = room.room_subjects.map(
+          (rs: any) => rs.subjects
+        );
 
-                return {
-                    ...room,
-                    teachers: room.teachers,
-                    subjects: relatedSubjects,
-                    classes: relatedClass || null,
-                };
-            });
+        // Find classes associated with the room
+        const relatedClasses =
+          classesData?.filter((cls) => cls.room_id === room.id) || [];
 
-            setRooms(combinedRooms);
-            setClasses(classesData || []);
-        } catch (error: any) {
-            toast({
-                variant: "destructive",
-                title: "Error fetching data.",
-                description: error.message,
-            });
-        } finally {
-            setLoading(false);
-        }
-    };
+        return {
+          ...room,
+          teachers: room.teachers,
+          subjects: relatedSubjects,
+          classes: relatedClasses,
+        };
+      });
 
-    useEffect(() => {
-        fetchData();
-    }, []);
+      setRooms(combinedRooms);
+    } catch (error: any) {
+      console.error("Error fetching data:", error);
+      toast({
+        variant: "destructive",
+        title: "Error fetching data.",
+        description: error.message,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    // Function to handle adding a new room
-    const handleAddRoom = async (
-        newRoom: Omit<RoomAssignment, "id" | "created_at"> & {
-            subject_ids: string[];
-        }
-    ) => {
-        try {
-            const { subject_ids, teachers, subjects, classes, ...roomData } = newRoom;
-            console.log("Room Data to Insert:", roomData);
+  useEffect(() => {
+    fetchData();
+  }, []);
 
-            // Insert the new room and get its ID
-            const { data: insertedRoom, error: insertError } = await supabase
-                .from("rooms")
-                .insert([roomData])
-                .select("id");
+  // Function to handle adding a new room
+  const handleAddRoom = async (
+    newRoom: Omit<Room, "id" | "created_at"> & {
+      subject_ids: string[];
+    }
+  ) => {
+    try {
+      const { subject_ids, ...roomData } = newRoom;
 
+      // Insert the new room and get its ID
+      const { data: insertedRoom, error: insertError } = await supabase
+        .from("rooms")
+        .insert([roomData])
+        .select("id");
 
-            if (insertError) throw insertError;
+      if (insertError) throw insertError;
 
-            const roomId = insertedRoom![0].id;
-            console.log("Inserted Room ID:", roomId);
+      const roomId = insertedRoom![0].id;
 
-            // Insert related subjects
-            if (subject_ids.length > 0) {
-                const roomSubjectsToInsert = subject_ids.map((subjectId) => ({
-                    room_id: roomId,
-                    subject_id: subjectId,
-                }));
-                console.log("Room Subjects to Insert:", roomSubjectsToInsert);
-                const { error: insertSubjectsError } = await supabase
-                    .from("room_subjects")
-                    .insert(roomSubjectsToInsert);
+      // Insert related subjects
+      if (subject_ids.length > 0) {
+        const roomSubjectsToInsert = subject_ids.map((subjectId) => ({
+          room_id: roomId,
+          subject_id: subjectId,
+        }));
+        const { error: insertSubjectsError } = await supabase
+          .from("room_subjects")
+          .insert(roomSubjectsToInsert);
 
-                if (insertSubjectsError) {
-                    console.error("Error inserting room_subjects:", insertSubjectsError);
-                    throw insertSubjectsError;
-                }
-            }
+        if (insertSubjectsError) throw insertSubjectsError;
+      }
 
-            fetchData(); // Refresh data
-        } catch (error: any) {
-            toast({
-                variant: "destructive",
-                title: "Error adding room.",
-                description: error.message,
-            });
-        }
-    };
+      fetchData(); // Refresh data
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error adding room.",
+        description: error.message,
+      });
+    }
+  };
 
-    // Function to handle updating an existing room
-    const handleUpdateRoom = async (
-        updatedRoom: RoomAssignment & { subject_ids: string[] }
-    ) => {
-        try {
-            const { subject_ids, subjects, teachers, classes, ...roomData } = updatedRoom;
-            console.log("Room Data to Update:", roomData);
+  // Function to handle updating an existing room
+  const handleUpdateRoom = async (
+    updatedRoom: Room & { subject_ids: string[] }
+  ) => {
+    try {
+      const { id, subject_ids, ...roomData } = updatedRoom;
 
-            // Update the room details
-            const { error: updateError } = await supabase
-                .from("rooms")
-                .update(roomData)
-                .eq("id", updatedRoom.id);
+      // Update the room details
+      const { error: updateError } = await supabase
+        .from("rooms")
+        .update(roomData)
+        .eq("id", id);
 
-            if (updateError) {
-                console.error("Error updating room:", updateError);
-                throw updateError;
-            }
+      if (updateError) throw updateError;
 
-            // Delete existing room_subjects entries
-            const { error: deleteError } = await supabase
-                .from("room_subjects")
-                .delete()
-                .eq("room_id", updatedRoom.id);
+      // Delete existing room_subjects entries
+      const { error: deleteSubjectsError } = await supabase
+        .from("room_subjects")
+        .delete()
+        .eq("room_id", id);
 
-            if (deleteError) {
-                console.error("Error deleting room_subjects:", deleteError);
-                throw deleteError;
-            }
+      if (deleteSubjectsError) throw deleteSubjectsError;
 
-            // Insert updated room_subjects entries
-            if (subject_ids.length > 0) {
-                const roomSubjectsToInsert = subject_ids.map((subjectId) => ({
-                    room_id: updatedRoom.id,
-                    subject_id: subjectId,
-                }));
-                console.log("Room Subjects to Insert:", roomSubjectsToInsert);
-                const { error: insertError } = await supabase
-                    .from("room_subjects")
-                    .insert(roomSubjectsToInsert);
+      // Insert updated room_subjects entries
+      if (subject_ids.length > 0) {
+        const roomSubjectsToInsert = subject_ids.map((subjectId) => ({
+          room_id: id,
+          subject_id: subjectId,
+        }));
+        const { error: insertSubjectsError } = await supabase
+          .from("room_subjects")
+          .insert(roomSubjectsToInsert);
 
-                if (insertError) {
-                    console.error("Error inserting updated room_subjects:", insertError);
-                    throw insertError;
-                }
-            }
+        if (insertSubjectsError) throw insertSubjectsError;
+      }
 
-            fetchData(); // Refresh data
-            setEditingRoom(null);
-        } catch (error: any) {
-            toast({
-                variant: "destructive",
-                title: "Error updating room.",
-                description: error.message,
-            });
-        }
-    };
+      fetchData(); // Refresh data
+      setEditingRoom(null);
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error updating room.",
+        description: error.message,
+      });
+    }
+  };
 
-    // Function to handle deleting a room
-    const handleDeleteRoom = async (id: string) => {
-        try {
-            const { error } = await supabase.from("rooms").delete().eq("id", id);
+  // Function to handle deleting a room
+  const handleDeleteRoom = async (id: string) => {
+    try {
+      // First, delete related entries in room_subjects
+      const { error: deleteSubjectsError } = await supabase
+        .from("room_subjects")
+        .delete()
+        .eq("room_id", id);
 
-            if (error) throw error;
-            fetchData();
-        } catch (error: any) {
-            toast({
-                variant: "destructive",
-                title: "Error deleting room.",
-                description: error.message,
-            });
-        }
-    };
+      if (deleteSubjectsError) throw deleteSubjectsError;
 
-    const openEditDialog = (room: RoomAssignment) => {
-        setEditingRoom(room);
-    };
+      // Finally, delete the room itself
+      const { error: deleteRoomError } = await supabase
+        .from("rooms")
+        .delete()
+        .eq("id", id);
 
-    return (
-        <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Rooms</CardTitle>
-                <Dialog>
-                    <DialogTrigger asChild>
-                        <Button>
-                            <Plus className="mr-2" />
-                            Add Room
-                        </Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-lg">
-                        <DialogHeader>
-                            <DialogTitle>Add New Room</DialogTitle>
-                        </DialogHeader>
-                        <RoomAssignmentForm
-                            mode="add"
-                            initialRoom={null}
+      if (deleteRoomError) throw deleteRoomError;
+      fetchData(); // Refresh the data after successful deletion
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error deleting room.",
+        description: error.message,
+      });
+    }
+  };
+
+  const openEditDialog = (room: RoomAssignment) => {
+    setEditingRoom(room);
+  };
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle>Rooms</CardTitle>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="mr-2" />
+              Add Room
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Add New Room</DialogTitle>
+            </DialogHeader>
+            <RoomAssignmentForm
+              mode="add"
+              initialRoom={null}
+              subjects={subjects}
+              teachers={teachers}
+              classes={classes}
+              onAdd={handleAddRoom}
+              onClose={() => {
+                setIsDialogOpen(false);
+                setEditingRoom(null);
+              }}
+            />
+          </DialogContent>
+        </Dialog>
+      </CardHeader>
+      <CardContent>
+        <ScrollArea className="h-[500px] w-full space-y-4">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Room</TableHead>
+                <TableHead>Teacher</TableHead>
+                <TableHead>Classes</TableHead>
+                <TableHead>Subjects</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rooms.map((room) => (
+                <TableRow key={room.id}>
+                  <TableCell>{room.room_number}</TableCell>
+                  <TableCell>
+                    {room.teachers ? room.teachers.name : ""}
+                  </TableCell>
+                  <TableCell>
+                    {room.classes
+                      ? room.classes.map((c) => c.name).join(", ")
+                      : ""}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap">
+                      {(room.subjects || [])
+                        .map((subject) => subject.name)
+                        .join(", ") || ""}
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <Dialog
+                        open={editingRoom?.id === room.id}
+                        onOpenChange={setIsDialogOpen}
+                      >
+                        <DialogTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => {
+                              setIsDialogOpen(true);
+                              openEditDialog(room);
+                            }}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Edit Room Assignment</DialogTitle>
+                          </DialogHeader>
+                          <RoomAssignmentForm
+                            mode="edit"
+                            initialRoom={editingRoom}
                             subjects={subjects}
                             teachers={teachers}
                             classes={classes}
-                            onAdd={handleAddRoom}
                             onUpdate={handleUpdateRoom}
-                            onClose={() => setEditingRoom(null)}
-                        />
-                    </DialogContent>
-                </Dialog>
-            </CardHeader>
-            <CardContent>
-                <ScrollArea className="h-[500px] w-full space-y-4">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Room</TableHead>
-                                <TableHead>Teacher</TableHead>
-                                <TableHead>Classes</TableHead>
-                                <TableHead>Subjects</TableHead>
-                                <TableHead>Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {rooms.map((room) => (
-                                <TableRow key={room.id}>
-                                    <TableCell>{room.room_number}</TableCell>
-                                    <TableCell>
-                                        {room.teachers ? room.teachers.name : ""}
-                                    </TableCell>
-                                    <TableCell>
-                                        <div className="flex flex-wrap">
-                                            {Array.isArray(room.classes)
-                                                ? room.classes.map((cls) => cls.name).join(", ")
-                                                : room.classes?.name ?? ""}
-                                        </div>
-                                    </TableCell>
-                                    <TableCell>
-                                        <div className="flex flex-wrap">
-                                            {(room.subjects || []).map((subject) => subject.name).join(", ") || ""}
-                                        </div>
-                                    </TableCell>
-                                    <TableCell className="text-right">
-                                        <div className="flex justify-end gap-2">
-                                            <Dialog>
-                                                <DialogTrigger asChild>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        onClick={() => openEditDialog(room)}
-                                                    >
-                                                        <Edit className="h-4 w-4" />
-                                                    </Button>
-                                                </DialogTrigger>
-                                                <DialogContent>
-                                                    <DialogHeader>
-                                                        <DialogTitle>Edit Room Assignment</DialogTitle>
-                                                    </DialogHeader>
-                                                    <RoomAssignmentForm
-                                                        mode="edit"
-                                                        initialRoom={editingRoom}
-                                                        subjects={subjects}
-                                                        teachers={teachers}
-                                                        classes={classes}
-                                                        onUpdate={handleUpdateRoom}
-                                                        onClose={() => setEditingRoom(null)}
-                                                    />
-                                                </DialogContent>
-                                            </Dialog>
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() => handleDeleteRoom(room.id)}
-                                            >
-                                                <Trash2 className="h-4 w-4 text-red-500" />
-                                            </Button>
-                                        </div>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </ScrollArea>
-            </CardContent>
-        </Card>
-    );
+                            onClose={() => {
+                              setEditingRoom(null);
+                              setIsDialogOpen(false);
+                            }}
+                          />
+                        </DialogContent>
+                      </Dialog>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDeleteRoom(room.id)}
+                      >
+                        <Trash2 className="h-4 w-4 text-red-500" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </ScrollArea>
+      </CardContent>
+    </Card>
+  );
 };
 
 export default RoomAssignments;
