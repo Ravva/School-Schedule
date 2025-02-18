@@ -6,34 +6,28 @@ import SubjectManagement from "./components/SubjectManagement";
 import RoomManagement from "./components/RoomManagement";
 import ClassManagement from "./components/ClassManagement";
 import LessonManagement from "./components/LessonManagement";
-import TimetableBuilder from "./components/TimetableBuilder"; // Assuming this is for the "Schedule Builder"
+import TimetableBuilder from "./components/TimetableBuilder";
+import Ttes from "./components/Ttes";
 const SyllabusManagement = React.lazy(
-    () => import("./components/SyllabusManagement")
+  () => import("./components/SyllabusManagement"),
 );
 
 function App() {
-    return (
-        <Suspense fallback={<p>Loading...</p>}>
-            <>
-                <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route
-                        path="/teachers"
-                        element={<TeacherManagement />}
-                    />
-                    <Route path="/subjects" element={<SubjectManagement />} />
-                    <Route path="/rooms" element={<RoomManagement />} />
-                    <Route path="/classes" element={<ClassManagement />} />
-                    <Route path="/lessons" element={<LessonManagement />} />
-                    <Route path="/syllabus" element={<SyllabusManagement />} />
-                    <Route
-                        path="/builder"
-                        element={<TimetableBuilder />}
-                    />
-                </Routes>
-            </>
-        </Suspense>
-    );
+  return (
+    <Suspense fallback={<p>Loading...</p>}>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/teachers" element={<TeacherManagement />} />
+        <Route path="/subjects" element={<SubjectManagement />} />
+        <Route path="/rooms" element={<RoomManagement />} />
+        <Route path="/classes" element={<ClassManagement />} />
+        <Route path="/lessons" element={<LessonManagement />} />
+        <Route path="/syllabus" element={<SyllabusManagement />} />
+        <Route path="/builder" element={<TimetableBuilder />} />
+        <Route path="/ttes" element={<Ttes />} />
+      </Routes>
+    </Suspense>
+  );
 }
 
 export default App;
