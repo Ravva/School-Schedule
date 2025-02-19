@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { DragHandleDots2Icon } from "@radix-ui/react-icons";
-import { Plus } from "lucide-react";
+import { Plus, Pencil, Trash2 } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import { Database } from "../lib/database.types";
 import { useToast } from "./ui/use-toast";
@@ -24,13 +24,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
+import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu";
 
 type Lesson = Database["public"]["Tables"]["lessons"]["Row"];
 type Subject = Database["public"]["Tables"]["subjects"]["Row"];
 type Room = Database["public"]["Tables"]["rooms"]["Row"];
 type Teacher = Database["public"]["Tables"]["teachers"]["Row"];
     type Class = Database["public"]["Tables"]["classes"]["Row"];
-
     interface TimeSlot {
         id: string;
         day: string;
@@ -41,6 +41,8 @@ type Teacher = Database["public"]["Tables"]["teachers"]["Row"];
         };
         subjects: {
             name: string;
+            is_extracurricular?: boolean;
+            is_subgroup?: boolean;
         };
         rooms: {
             room_number: string;
@@ -50,9 +52,10 @@ type Teacher = Database["public"]["Tables"]["teachers"]["Row"];
         } | null;
         classes: {
             name: string;
+            has_subgroups?: boolean;
+            subgroup?: number;
         };
     }
-
     interface TimetableBuilderProps {
         timeSlots?: TimeSlot[];
         onTimeSlotAdd?: (timeSlot: TimeSlot) => void;
@@ -65,7 +68,6 @@ type Teacher = Database["public"]["Tables"]["teachers"]["Row"];
             classId: string
         ) => void;
     }
-
     const TimetableBuilder = ({
         timeSlots = [],
         onTimeSlotAdd = () => { },
@@ -369,353 +371,248 @@ type Teacher = Database["public"]["Tables"]["teachers"]["Row"];
             interface TimeSlotCardProps {
                 timeSlot: TimeSlot | undefined;
                 lessonNumber: number;
+                onDelete: (id: string) => void;
+                onEdit: (timeSlot: TimeSlot) => void;
+                availableSubjects: Subject[];
+                availableTeachers: Teacher[];
+                availableRooms: Room[];
             }
+    const TimeSlotCard: React.FC<TimeSlotCardProps> = ({ 
+        timeSlot, 
+        lessonNumber,
+        onDelete,
+        onEdit,
+        availableSubjects,
+        availableTeachers,
+        availableRooms
+    }) => {
+        const [isEditing, setIsEditing] = useState(false);
+        const [editedSubject, setEditedSubject] = useState<string | null>(null);
+        const [editedTeacher, setEditedTeacher] = useState<string | null>(null);
+        const [editedRoom, setEditedRoom] = useState<string | null>(null);
     
-            const TimeSlotCard: React.FC<TimeSlotCardProps> = ({ timeSlot, lessonNumber }) => {
-                if (!timeSlot) {
-                    return (
-                        <div
-                            key={`empty-${lessonNumber}`}
-                            className="h-24 border-2 border-dashed border-slate-300 rounded-md"
-                        ></div>
-                    );
-                }
-                return (
+        if (!timeSlot) {
+            return (
+                <div
+                    key={`empty-${lessonNumber}`}
+                    className="h-24 border-2 border-dashed border-slate-300 rounded-md"
+                ></div>
+            );
+        }
+    
+        const handleSave = () => {
+            if (editedSubject && editedTeacher && editedRoom) {
+                // Update the timeSlot with new values and call onEdit
+                const updatedTimeSlot = {
+                    ...timeSlot,
+                    subjects: { name: editedSubject },
+                    teachers: { name: editedTeacher },
+                    rooms: { room_number: editedRoom }
+                };
+                onEdit(updatedTimeSlot);
+                setIsEditing(false);
+            }
+        };
+    
+        return (
+            <ContextMenu>
+                <ContextMenuTrigger>
                     <Card
                         key={`${timeSlot.day}-${timeSlot.lessons.start_time}`}
-                        className="h-24 border-2 border-slate-300 p-2 rounded-md"
+                        className={`${isEditing ? 'h-36' : 'h-24'} border-2 border-slate-300 p-2 rounded-md relative transition-all duration-200 
+                        ${timeSlot.subjects.is_extracurricular ? 'bg-purple-50' : ''} 
+                        ${timeSlot.subjects.is_subgroup ? 'bg-green-50' : ''}`}
                     >
-                        <div className="flex items-center gap-2 text-sm bg-slate-200 p-2 rounded-md">
-                            <DragHandleDots2Icon className="h-4 w-4 text-slate-500" />
-                            <div className="flex-1">
-                                <div className="font-medium">{timeSlot.subjects.name}</div>
-                                <div className="text-slate-600">
-                                    {timeSlot.rooms.room_number}
-                                </div>
-                                <div className="text-slate-600">{timeSlot.teachers?.name}</div>
-                            </div>
-                        </div>
-                    </Card>
-                )
-            }
-    
-            return (
-                <div className="p-6 bg-slate-100 rounded-lg shadow-lg">
-                    {loading ? (
-                        <div className="flex justify-center items-center h-full">
-                            <p>Loading...</p>
-                        </div>
-                    ) : (
-                        <>
-                            <div className="flex justify-between items-center mb-6">
-                                <h2 className="text-2xl font-bold text-slate-900">
-                                    Timetable Builder
-                                </h2>
-                                <div className="flex gap-4">
-                                    <Select defaultValue="all">
-                                        <SelectTrigger className="w-[200px]">
-                                            <SelectValue placeholder="Filter by Teacher" />
+                        {isEditing ? (
+                            <div className="flex flex-col gap-1">
+                                <Select value={editedSubject || timeSlot.subjects.name} onValueChange={setEditedSubject}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select subject" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {availableSubjects.map(subject => (
+                                            <SelectItem key={subject.id} value={subject.name}>
+                                                {subject.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <Select value={editedTeacher || timeSlot.teachers?.name || ''} onValueChange={setEditedTeacher}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select teacher" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="all">All Teachers</SelectItem>
-                                            {availableTeachers.map((teacher) => (
-                                                <SelectItem key={teacher.id} value={teacher.id}>
+                                            {availableTeachers.map(teacher => (
+                                                <SelectItem key={teacher.id} value={teacher.name}>
                                                     {teacher.name}
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>
                                     </Select>
-    
-                                    <Select defaultValue="all">
-                                        <SelectTrigger className="w-[200px]">
-                                            <SelectValue placeholder="Filter by Subject" />
+                                    <Select value={editedRoom || timeSlot.rooms.room_number} onValueChange={setEditedRoom}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select room" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="all">All Subjects</SelectItem>
-                                            {availableSubjects.map((subject) => (
-                                                <SelectItem key={subject.id} value={subject.id}>
-                                                    {subject.name}
+                                            {availableRooms.map(room => (
+                                                <SelectItem key={room.id} value={room.room_number}>
+                                                    {room.room_number}
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>
                                     </Select>
-                                    <Dialog
-                                        open={isDialogOpen}
-                                        onOpenChange={setIsDialogOpen}
-                                    >
-                                        <DialogTrigger asChild>
-                                            <Button className="flex items-center gap-2">
-                                                <Plus className="h-4 w-4" />
-                                                Add Time Slot
-                                            </Button>
-                                        </DialogTrigger>
-                                        <DialogContent className="sm:max-w-[425px]">
-                                            <DialogHeader>
-                                                <DialogTitle>Add Time Slot</DialogTitle>
-                                                <DialogDescription>
-                                                    Add a new time slot to the timetable.
-                                                </DialogDescription>
-                                            </DialogHeader>
-                                            <div className="grid gap-4 py-4">
-                                                <div className="grid grid-cols-4 items-center gap-4">
-                                                    <Label htmlFor="day" className="text-right">
-                                                        Day
-                                                    </Label>
-                                                    <Select
-                                                        onValueChange={(value) =>
-                                                            setSelectedDay(value)
-                                                        }
-                                                        value={selectedDay}
-                                                    >
-                                                        <SelectTrigger
-                                                            id="day"
-                                                            className="col-span-3"
-                                                        >
-                                                            <SelectValue placeholder="Select a day" />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            {days.map((day) => (
-                                                                <SelectItem
-                                                                    key={day}
-                                                                    value={day}
-                                                                >
-                                                                    {day}
-                                                                </SelectItem>
-                                                            ))}
-                                                        </SelectContent>
-                                                    </Select>
-                                                </div>
-                                                <div className="grid grid-cols-4 items-center gap-4">
-                                                    <Label
-                                                        htmlFor="lesson"
-                                                        className="text-right"
-                                                    >
-                                                        Lesson
-                                                    </Label>
-                                                    <Select
-                                                        onValueChange={(value) =>
-                                                            setSelectedLesson(value)
-                                                        }
-                                                        value={selectedLesson}
-                                                    >
-                                                        <SelectTrigger
-                                                            id="lesson"
-                                                            className="col-span-3"
-                                                        >
-                                                            <SelectValue placeholder="Select a lesson" />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            {availableLessons.map((lesson) => (
-                                                                <SelectItem
-                                                                    key={lesson.id}
-                                                                    value={lesson.id}
-                                                                >
-                                                                    {lesson.lesson_number}{" "}
-                                                                    ({formatTimeRange(
-                                                                        lesson.id
-                                                                    )})
-                                                                </SelectItem>
-                                                            ))}
-                                                        </SelectContent>
-                                                    </Select>
-                                                </div>
-                                                <div className="grid grid-cols-4 items-center gap-4">
-                                                    <Label
-                                                        htmlFor="subject"
-                                                        className="text-right"
-                                                    >
-                                                        Subject
-                                                    </Label>
-                                                    <Select
-                                                        onValueChange={(value) =>
-                                                            setSelectedSubject(value)
-                                                        }
-                                                        value={selectedSubject}
-                                                    >
-                                                        <SelectTrigger
-                                                            id="subject"
-                                                            className="col-span-3"
-                                                        >
-                                                            <SelectValue placeholder="Select a subject" />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            {availableSubjects.map((subject) => (
-                                                                <SelectItem
-                                                                    key={subject.id}
-                                                                    value={subject.id}
-                                                                >
-                                                                    {subject.name}
-                                                                </SelectItem>
-                                                            ))}
-                                                        </SelectContent>
-                                                    </Select>
-                                                </div>
-                                                <div className="grid grid-cols-4 items-center gap-4">
-                                                    <Label
-                                                        htmlFor="room"
-                                                        className="text-right"
-                                                    >
-                                                        Room
-                                                    </Label>
-                                                    <Select
-                                                        onValueChange={(value) =>
-                                                            setSelectedRoom(value)
-                                                        }
-                                                        value={selectedRoom}
-                                                    >
-                                                        <SelectTrigger
-                                                            id="room"
-                                                            className="col-span-3"
-                                                        >
-                                                            <SelectValue placeholder="Select a room" />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            {availableRooms.map((room) => (
-                                                                <SelectItem
-                                                                    key={room.id}
-                                                                    value={room.id}
-                                                                >
-                                                                    {room.room_number}
-                                                                </SelectItem>
-                                                            ))}
-                                                        </SelectContent>
-                                                    </Select>
-                                                </div>
-                                                <div className="grid grid-cols-4 items-center gap-4">
-                                                    <Label
-                                                        htmlFor="teacher"
-                                                        className="text-right"
-                                                    >
-                                                        Teacher
-                                                    </Label>
-                                                    <Select
-                                                        onValueChange={(value) =>
-                                                            setSelectedTeacher(value)
-                                                        }
-                                                        value={selectedTeacher}
-                                                    >
-                                                        <SelectTrigger
-                                                            id="teacher"
-                                                            className="col-span-3"
-                                                        >
-                                                            <SelectValue placeholder="Select a teacher" />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            {availableTeachers.map((teacher) => (
-                                                                <SelectItem
-                                                                    key={teacher.id}
-                                                                    value={teacher.id}
-                                                                >
-                                                                    {teacher.name}
-                                                                </SelectItem>
-                                                            ))}
-                                                        </SelectContent>
-                                                    </Select>
-                                                </div>
-                                                <div className="grid grid-cols-4 items-center gap-4">
-                                                    <Label
-                                                        htmlFor="teacher"
-                                                        className="text-right"
-                                                    >
-                                                        Class
-                                                    </Label>
-                                                    <Select
-                                                        onValueChange={(value) =>
-                                                            setSelectedClass(value)
-                                                        }
-                                                        value={selectedClass}
-                                                    >
-                                                        <SelectTrigger
-                                                            id="class"
-                                                            className="col-span-3"
-                                                        >
-                                                            <SelectValue placeholder="Select a class" />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            {availableClasses.map((cls) => (
-                                                                <SelectItem
-                                                                    key={cls.id}
-                                                                    value={cls.id}
-                                                                >
-                                                                    {cls.name}
-                                                                </SelectItem>
-                                                            ))}
-                                                        </SelectContent>
-                                                    </Select>
-                                                </div>
-                                            </div>
-                                            <DialogFooter>
-                                                <Button
-                                                    type="button"
-                                                    onClick={handleAddTimeSlot}
-                                                >
-                                                    Save
-                                                </Button>
-                                            </DialogFooter>
-                                        </DialogContent>
-                                    </Dialog>
+                                </div>
+                                <Button onClick={handleSave} className="mt-2">Save</Button>
+                            </div>
+                        ) : (
+                            <div className="flex flex-col gap-1 text-sm">
+                                <div className="font-medium">{timeSlot.subjects.name}</div>
+                                <div className="text-slate-600 flex items-center gap-2">
+                                    <span>{timeSlot.teachers?.name}</span>
+                                    {timeSlot.classes.has_subgroups && (
+                                        <span className="text-xs bg-slate-200 px-1 rounded">
+                                            Group {timeSlot.classes.subgroup}
+                                        </span>
+                                    )}
+                                    <span className="ml-auto">{timeSlot.rooms.room_number}</span>
                                 </div>
                             </div>
-    
-                            <div className="grid grid-cols-6 gap-4 mt-8">
-                                {/* Time column */}
-                                <div className="flex flex-col justify-between space-y-4">
+                        )}
+                    </Card>
+                </ContextMenuTrigger>
+                <ContextMenuContent>
+                    <ContextMenuItem onClick={() => setIsEditing(true)}>
+                        <Pencil className="h-4 w-4 mr-2" />
+                        Edit
+                    </ContextMenuItem>
+                    <ContextMenuItem onClick={() => onDelete(timeSlot.id)} className="text-red-600">
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Delete
+                    </ContextMenuItem>
+                </ContextMenuContent>
+            </ContextMenu>
+        );
+    };
+    const handleDeleteTimeSlot = async (id: string) => {
+        try {
+            const { error } = await supabase
+                .from("time_slots")
+                .delete()
+                .eq('id', id);
+
+            if (error) throw error;
+
+            setLessons(lessons.filter(lesson => lesson.id !== id));
+            toast({
+                title: "Time slot deleted",
+                description: "The time slot has been successfully deleted.",
+            });
+        } catch (error: any) {
+            toast({
+                variant: "destructive",
+                title: "Error deleting time slot",
+                description: error.message,
+            });
+        }
+    };
+    const handleEditTimeSlot = (timeSlot: TimeSlot) => {
+        const lessonObj = availableLessons.find(l => l.lesson_number === timeSlot.lessons.lesson_number);
+        const subjectObj = availableSubjects.find(s => s.name === timeSlot.subjects.name);
+        const roomObj = availableRooms.find(r => r.room_number === timeSlot.rooms.room_number);
+        const teacherObj = availableTeachers.find(t => t.name === timeSlot.teachers?.name);
+        const classObj = availableClasses.find(c => c.name === timeSlot.classes.name);
+    setSelectedDay(timeSlot.day);
+    setSelectedLesson(lessonObj?.id || null);
+    setSelectedSubject(subjectObj?.id || null);
+    setSelectedRoom(roomObj?.id || null);
+    setSelectedTeacher(teacherObj?.id || null);
+    setSelectedClass(classObj?.id || null);
+    setIsDialogOpen(true);
+};
+    // Update the TimeSlotCard usage in the render:
+    <TimeSlotCard
+        availableSubjects={availableSubjects}
+        availableTeachers={availableTeachers}
+        availableRooms={availableRooms}
+        key={`${days[0]}-${timeSlots?.[0]?.lessons?.lesson_number}`}
+        timeSlot={timeSlots?.[0]}
+        lessonNumber={timeSlots?.[0]?.lessons?.lesson_number || 0}
+        onDelete={handleDeleteTimeSlot}
+        onEdit={handleEditTimeSlot}
+    />
+    return (
+        <div className="p-6 bg-slate-100 rounded-lg shadow-lg">
+            {loading ? (
+                <div className="flex justify-center items-center h-full">
+                    <p>Loading...</p>
+                </div>
+            ) : (
+                <>
+                    <div className="flex justify-between items-center mb-6">
+                        <h2 className="text-2xl font-bold text-slate-900">
+                            Timetable Builder
+                        </h2>
+                        <Button onClick={() => setIsDialogOpen(true)}>
+                            <Plus className="h-4 w-4 mr-2" />
+                            Add Time Slot
+                        </Button>
+                    </div>
+                    
+                    <div className="grid grid-cols-[min-content_repeat(5,1fr)] gap-2">
+                        <div className="space-y-4 pt-12 pr-2 w-8">
+                            {Array.from({ length: 8 }).map((_, index) => (
+                                <div key={`lesson-${index + 1}`} className="h-24 flex items-center justify-center font-semibold text-sm">
+                                    {index + 1}
+                                </div>
+                            ))}
+                        </div>
+                        {days.map((day) => (
+                            <div key={day} className="space-y-4">
+                                <h3 className="text-xl font-semibold text-center">{day}</h3>
+                                <div className="space-y-4">
                                     {Array.from({ length: 8 }).map((_, index) => {
                                         const lessonNumber = index + 1;
-                                        const lesson = availableLessons.find(
-                                            (l) => l?.lesson_number === lessonNumber
+                                        const timeSlot = lessons.find(
+                                            (lesson) =>
+                                                lesson.day === day &&
+                                                lesson.lessons.lesson_number === lessonNumber
                                         );
-    
                                         return (
-                                            <div
-                                                key={lessonNumber}
-                                                className="h-24 flex items-center justify-center text-sm text-slate-600"
-                                            >
-                                                <div className="flex items-center gap-2">
-                                                    <div className="font-medium text-center">
-                                                        {lessonNumber}
-                                                    </div>
-                                                    <div className="text-xs">
-                                                        {lesson
-                                                            ? formatTimeRange(lesson.id)
-                                                            : ""}
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            <TimeSlotCard
+                                                availableSubjects={availableSubjects}
+                                                availableTeachers={availableTeachers}
+                                                availableRooms={availableRooms}
+                                                key={`${day}-${lessonNumber}`}
+                                                timeSlot={timeSlot}
+                                                lessonNumber={lessonNumber}
+                                                onDelete={handleDeleteTimeSlot}
+                                                onEdit={handleEditTimeSlot}
+                                            />
                                         );
                                     })}
                                 </div>
-    
-                                {/* Days columns */}
-                                {days.map((day) => (
-                                    <div key={day} className="space-y-4">
-                                        <div className="h-16 flex items-center justify-center font-semibold text-slate-900">
-                                            {day}
-                                        </div>
-                                        {/* Render 8 slots for each day */}
-                                        {Array.from({ length: 8 }).map((_, index) => {
-                                            const lessonNumber = index + 1;
-                                            // Find the specific time slot for this day and lesson number
-                                            const timeSlot = lessons.find(
-                                                (lesson) =>
-                                                    lesson.day === day &&
-                                                    lesson.lessons.lesson_number === lessonNumber
-                                            );
-                                            return (
-                                                <TimeSlotCard
-                                                    key={`${day}-${lessonNumber}`}
-                                                    timeSlot={timeSlot}
-                                                    lessonNumber={lessonNumber}
-                                                />
-                                            );
-                                        })}
-                                    </div>
-                                ))}
                             </div>
-                        </>
-                    )}
-                </div>
-            );
-        };
+                        ))}
+                    </div>
+                    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Add Time Slot</DialogTitle>
+                                <DialogDescription>
+                                    Fill in the details for the new time slot.
+                                </DialogDescription>
+                            </DialogHeader>
+                            {/* Add your form fields here */}
+                            <DialogFooter>
+                                <Button onClick={handleAddTimeSlot}>Add Time Slot</Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
+                </>
+            )}
+        </div>
+    );
+};
 
 export default TimetableBuilder;
