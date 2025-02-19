@@ -9,6 +9,30 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      academic_periods: {
+        Row: {
+          end_date: string
+          id: string
+          is_active: boolean | null
+          name: string
+          start_date: string
+        }
+        Insert: {
+          end_date: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          start_date: string
+        }
+        Update: {
+          end_date?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          start_date?: string
+        }
+        Relationships: []
+      }
       classes: {
         Row: {
           created_at: string
@@ -26,7 +50,7 @@ export type Database = {
           literal: string
           name: string
           room_id?: string | null
-          supervisor_teacher_id?: string | null
+          supervisor_teacher_id: string
         }
         Update: {
           created_at?: string
@@ -157,6 +181,45 @@ export type Database = {
           },
         ]
       }
+      schedule_conflicts: {
+        Row: {
+          conflict_type: string
+          created_at: string | null
+          id: string
+          time_slot_1_id: string | null
+          time_slot_2_id: string | null
+        }
+        Insert: {
+          conflict_type: string
+          created_at?: string | null
+          id?: string
+          time_slot_1_id?: string | null
+          time_slot_2_id?: string | null
+        }
+        Update: {
+          conflict_type?: string
+          created_at?: string | null
+          id?: string
+          time_slot_1_id?: string | null
+          time_slot_2_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "schedule_conflicts_time_slot_1_id_fkey"
+            columns: ["time_slot_1_id"]
+            isOneToOne: false
+            referencedRelation: "time_slots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "schedule_conflicts_time_slot_2_id_fkey"
+            columns: ["time_slot_2_id"]
+            isOneToOne: false
+            referencedRelation: "time_slots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subjects: {
         Row: {
           created_at: string
@@ -180,6 +243,105 @@ export type Database = {
           name?: string
         }
         Relationships: []
+      }
+      syllabus: {
+        Row: {
+          amount_of_academic_hours_per_week: number | null
+          class_id: string | null
+          id: string
+          subject_id: string | null
+          teacher_id: string | null
+        }
+        Insert: {
+          amount_of_academic_hours_per_week?: number | null
+          class_id?: string | null
+          id?: string
+          subject_id?: string | null
+          teacher_id?: string | null
+        }
+        Update: {
+          amount_of_academic_hours_per_week?: number | null
+          class_id?: string | null
+          id?: string
+          subject_id?: string | null
+          teacher_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "syllabus_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "syllabus_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "syllabus_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "teachers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      teacher_subjects: {
+        Row: {
+          subject_id: string
+          teacher_id: string
+        }
+        Insert: {
+          subject_id: string
+          teacher_id: string
+        }
+        Update: {
+          subject_id?: string
+          teacher_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teacher_subjects_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teacher_subjects_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "teachers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      teacher_work_days: {
+        Row: {
+          day: Database["public"]["Enums"]["day_of_week"]
+          teacher_id: string
+        }
+        Insert: {
+          day: Database["public"]["Enums"]["day_of_week"]
+          teacher_id: string
+        }
+        Update: {
+          day?: Database["public"]["Enums"]["day_of_week"]
+          teacher_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teacher_work_days_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "teachers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       teachers: {
         Row: {
@@ -211,85 +373,39 @@ export type Database = {
         }
         Relationships: []
       }
-      syllabus: {
-        Row: {
-          id: string;
-          class_id: string;
-          subject_id: string;
-          amount_of_academic_hours_per_week: number;
-          teacher_id: string;
-        }
-        Insert: {
-          id?: string;
-          class_id: string;
-          subject_id: string;
-          amount_of_academic_hours_per_week: number;
-          teacher_id: string;
-        }
-        Update: {
-          id?: string;
-          class_id?: string;
-          subject_id?: string;
-          amount_of_academic_hours_per_week?: number;
-          teacher_id?: string;
-        }
-        Relationships: [
-          {
-            foreignKeyName: "syllabus_class_id_fkey"
-            columns: ["class_id"]
-            isOneToOne: false
-            referencedRelation: "classes"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "syllabus_subject_id_fkey"
-            columns: ["subject_id"]
-            isOneToOne: false
-            referencedRelation: "subjects"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "syllabus_teacher_id_fkey"
-            columns: ["teacher_id"]
-            isOneToOne: false
-            referencedRelation: "teachers"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
       time_slots: {
         Row: {
-          id: string;
-          day: string;
-          lesson_id: string;
-          subject: string;
-          room_id: string;
-          teacher_id: string | null;
-          class_id: string | null;
-          is_extracurricular: boolean | null;
-          created_at: string;
+          class_id: string | null
+          created_at: string | null
+          day: string
+          id: string
+          is_extracurricular: boolean | null
+          lesson_id: string | null
+          room_id: string | null
+          subject: string | null
+          teacher_id: string | null
         }
         Insert: {
-          id?: string;
-          day: string;
-          lesson_id: string;
-          subject: string;
-          room_id: string;
-          teacher_id?: string | null;
-          class_id?: string | null;
-          is_extracurricular?: boolean | null;
-          created_at?: string;
+          class_id?: string | null
+          created_at?: string | null
+          day: string
+          id?: string
+          is_extracurricular?: boolean | null
+          lesson_id?: string | null
+          room_id?: string | null
+          subject?: string | null
+          teacher_id?: string | null
         }
         Update: {
-          id?: string;
-          day?: string;
-          lesson_id?: string;
-          subject?: string;
-          room_id?: string;
-          teacher_id?: string | null;
-          class_id?: string | null;
-          is_extracurricular?: boolean | null;
-          created_at?: string;
+          class_id?: string | null
+          created_at?: string | null
+          day?: string
+          id?: string
+          is_extracurricular?: boolean | null
+          lesson_id?: string | null
+          room_id?: string | null
+          subject?: string | null
+          teacher_id?: string | null
         }
         Relationships: [
           {
@@ -369,7 +485,7 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      day_of_week: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday"
     }
     CompositeTypes: {
       [_ in never]: never
