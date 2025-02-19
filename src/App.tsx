@@ -24,7 +24,6 @@ function App() {
         <Route path="/lessons" element={<LessonManagement />} />
         <Route path="/syllabus" element={<SyllabusManagement />} />
         <Route path="/builder" element={<TimetableBuilder />} />
-        <Route path="/ttes" element={<Ttes />} />
       </Routes>
     </Suspense>
   );

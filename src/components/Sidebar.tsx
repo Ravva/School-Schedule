@@ -39,7 +39,6 @@ const Sidebar = ({
     { id: "classes", label: "Classes", icon: School },
     { id: "syllabus", label: "Syllabus", icon: BookOpen },
     { id: "builder", label: "Timetable Builder", icon: CalendarRange },
-    { id: "ttes", label: "TTES", icon: BookOpen },
   ];
 
   const filterItems = [
