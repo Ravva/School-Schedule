@@ -1,17 +1,3 @@
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-} from "./ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "./ui/popover";
-import { Check } from "lucide-react";
-import { cn } from "@/lib/utils";
 import React, { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
@@ -31,6 +17,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
+import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Database } from "@/lib/database.types";
 import {
@@ -41,10 +28,8 @@ import {
   ChevronUp,
   ChevronsUpDown,
   Upload,
-  X
 } from "lucide-react";
 import { Checkbox } from "./ui/checkbox";
-import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -119,15 +104,18 @@ const SyllabusForm = ({
       amount_of_academic_hours_per_week: 0,
     },
   );
+
   return (
     <div className="space-y-4">
       <div>
         <Label htmlFor="class">Class</Label>
         <Select
           value={formData.class_id}
-          onValueChange={(value) => setFormData({ ...formData, class_id: value })}
+          onValueChange={(value) =>
+            setFormData({ ...formData, class_id: value })
+          }
         >
-          <SelectTrigger id="class_id" name="class_id">
+          <SelectTrigger>
             <SelectValue placeholder="Select a class" />
           </SelectTrigger>
           <SelectContent>
@@ -148,7 +136,7 @@ const SyllabusForm = ({
             setFormData({ ...formData, subject_id: value })
           }
         >
-          <SelectTrigger id="subject_id" name="subject_id">
+          <SelectTrigger>
             <SelectValue placeholder="Select a subject" />
           </SelectTrigger>
           <SelectContent>
@@ -169,7 +157,7 @@ const SyllabusForm = ({
             setFormData({ ...formData, teacher_id: value })
           }
         >
-          <SelectTrigger id="teacher_id" name="teacher_id">
+          <SelectTrigger>
             <SelectValue placeholder="Select a teacher" />
           </SelectTrigger>
           <SelectContent>
@@ -223,11 +211,13 @@ const SyllabusManagement = () => {
   const [visibleColumns, setVisibleColumns] = useState<Set<keyof SyllabusData>>(
     new Set(columns.map((col) => col.id)),
   );
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingSyllabus, setEditingSyllabus] = useState<SyllabusData | null>(
+    null,
+  );
 
-    useEffect(() => {
-        fetchData();
-    }, []);
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const fetchData = async () => {
     try {
@@ -251,26 +241,7 @@ const SyllabusManagement = () => {
       if (teachersData.error) throw teachersData.error;
       if (subjectsData.error) throw subjectsData.error;
 
-      console.log("classesData.data:", classesData.data);
-      console.log("teachersData.data:", teachersData.data);
-      console.log("subjectsData.data:", subjectsData.data);
-
-      setSyllabuses(
-        syllabusData.data?.map((item) => {
-          const typedItem = item as unknown as {
-            teachers: Teacher | null;
-            subjects: Subject | null;
-            classes: Class | null;
-          } & Omit<SyllabusData, 'teachers' | 'subjects' | 'classes'>;
-
-          return {
-            ...typedItem,
-            teachers: typedItem.teachers || null,
-            subjects: typedItem.subjects || null,
-            classes: typedItem.classes || null,
-          };
-        }) || []
-      );
+      setSyllabuses(syllabusData.data || []);
       setClasses(classesData.data || []);
       setTeachers(teachersData.data || []);
       setSubjects(subjectsData.data || []);
@@ -398,474 +369,329 @@ const SyllabusManagement = () => {
         description: error.message,
       });
     }
-}
-    const handleSave = async (syllabus: SyllabusData) => {
-        try {
-            const { error } = await supabase
-                .from("syllabus")
-                .update({
-                    class_id: syllabus.class_id,
-                    subject_id: syllabus.subject_id,
-                    teacher_id: syllabus.teacher_id,
-                    amount_of_academic_hours_per_week:
-                        syllabus.amount_of_academic_hours_per_week,
-                })
-                .eq("id", syllabus.id);
+  };
 
-            if (error) throw error;
+  const handleUpdateSyllabus = async (data: SyllabusFormData) => {
+    if (!editingSyllabus) return;
 
-            fetchData();
-            setEditingId(null);
-            toast({
-                title: "Success",
-                description: "Syllabus updated successfully",
-            });
-        } catch (error: any) {
-            toast({
-                variant: "destructive",
-                title: "Error updating syllabus",
-                description: error.message,
-            });
-        }
-    };
+    try {
+      const { error } = await supabase
+        .from("syllabus")
+        .update(data)
+        .eq("id", editingSyllabus.id);
 
-    const handleDeleteSyllabus = async (id: string) => {
-        try {
-            const { error } = await supabase.from("syllabus").delete().eq("id", id);
-            if (error) throw error;
-            fetchData();
-            toast({
-                title: "Success",
-                description: "Syllabus deleted successfully",
-            });
-        } catch (error: any) {
-            toast({
-                variant: "destructive",
-                title: "Error deleting syllabus",
-                description: error.message,
-            });
-        }
-    };
+      if (error) throw error;
+      fetchData();
+      setEditingSyllabus(null);
+      toast({
+        title: "Success",
+        description: "Syllabus updated successfully",
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error updating syllabus",
+        description: error.message,
+      });
+    }
+  };
 
-    const handleImportJSON = async (
-        event: React.ChangeEvent<HTMLInputElement>,
-    ) => {
-        const file = event.target.files?.[0];
-        if (!file) return;
+  const handleDeleteSyllabus = async (id: string) => {
+    try {
+      const { error } = await supabase.from("syllabus").delete().eq("id", id);
+      if (error) throw error;
+      fetchData();
+      toast({
+        title: "Success",
+        description: "Syllabus deleted successfully",
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error deleting syllabus",
+        description: error.message,
+      });
+    }
+  };
 
-        try {
-            const text = await file.text();
-            const data = JSON.parse(text);
+  const handleImportJSON = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
 
-            if (!Array.isArray(data)) {
-                throw new Error("Invalid JSON format. Expected an array.");
-            }
+    try {
+      const text = await file.text();
+      const data = JSON.parse(text);
 
-            const { error } = await supabase.from("syllabus").insert(data);
-            if (error) throw error;
+      if (!Array.isArray(data)) {
+        throw new Error("Invalid JSON format. Expected an array.");
+      }
 
-            fetchData();
-            toast({
-                title: "Success",
-                description: "Syllabus data imported successfully",
-            });
-        } catch (error: any) {
-            toast({
-                variant: "destructive",
-                title: "Error importing data",
-                description: error.message,
-            });
-        }
+      const { error } = await supabase.from("syllabus").insert(data);
+      if (error) throw error;
 
-        // Reset the input
-        event.target.value = "";
-    };
+      fetchData();
+      toast({
+        title: "Success",
+        description: "Syllabus data imported successfully",
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error importing data",
+        description: error.message,
+      });
+    }
 
-    const getButtonContent = (columnId: keyof SyllabusData, syllabus: SyllabusData) => {
-        switch (columnId) {
-            case "class_id":
-                return (
-                    classes.find((c) => c.id === syllabus[columnId])?.name ||
-                    "Select class"
-                );
-            case "subject_id":
-                return (
-                    subjects.find((s) => s.id === syllabus[columnId])?.name ||
-                    "Select subject"
-                );
-            case "teacher_id":
-                return (
-                    teachers.find((t) => t.id === syllabus[columnId])?.name ||
-                    "Select teacher"
-                );
-            default:
-                return "Select";
-        }
-    };
+    // Reset the input
+    event.target.value = "";
+  };
 
-    const getCommandItems = (columnId: keyof SyllabusData) => {
-        switch (columnId) {
-            case "class_id":
-                return classes || [];
-            case "subject_id":
-                return subjects || [];
-            case "teacher_id":
-                return teachers || [];
-            default:
-                return [];
-        }
-    };
-
-    return (
-        <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Syllabus Management</CardTitle>
-                <div className="flex items-center gap-4">
-                    <Select value={selectedClass} onValueChange={setSelectedClass}>
-                        <SelectTrigger className="w-[180px]">
-                            <SelectValue placeholder="Filter by Class" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All Classes</SelectItem>
-                            {classes.map((cls) => (
-                                <SelectItem key={cls.id} value={cls.id}>
-                                    {cls.name}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                    <Select
-                        value={String(rowsPerPage)}
-                        onValueChange={handleRowsPerPageChange}
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle>Syllabus Management</CardTitle>
+        <div className="flex items-center gap-4">
+          <Select value={selectedClass} onValueChange={setSelectedClass}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filter by Class" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Classes</SelectItem>
+              {classes.map((cls) => (
+                <SelectItem key={cls.id} value={cls.id}>
+                  {cls.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select
+            value={String(rowsPerPage)}
+            onValueChange={handleRowsPerPageChange}
+          >
+            <SelectTrigger className="w-[120px]">
+              <SelectValue placeholder="Rows per page" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="10">10 rows</SelectItem>
+              <SelectItem value="20">20 rows</SelectItem>
+              <SelectItem value="all">All rows</SelectItem>
+            </SelectContent>
+          </Select>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">Columns</Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              {columns.map((column) => (
+                <DropdownMenuCheckboxItem
+                  key={column.id}
+                  checked={visibleColumns.has(column.id)}
+                  onCheckedChange={() => toggleColumn(column.id)}
+                >
+                  {column.label}
+                </DropdownMenuCheckboxItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <div className="flex gap-2">
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus className="mr-2" />
+                  Add Syllabus
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add New Syllabus</DialogTitle>
+                </DialogHeader>
+                <SyllabusForm
+                  mode="add"
+                  onSubmit={handleAddSyllabus}
+                  classes={classes}
+                  subjects={subjects}
+                  teachers={teachers}
+                />
+              </DialogContent>
+            </Dialog>
+            <div className="relative">
+              <input
+                type="file"
+                accept=".json"
+                onChange={handleImportJSON}
+                className="hidden"
+                id="json-upload"
+              />
+              <Button
+                variant="outline"
+                onClick={() => document.getElementById("json-upload")?.click()}
+              >
+                <Upload className="mr-2" />
+                Import JSON
+              </Button>
+            </div>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-12">
+                  <Checkbox
+                    checked={selectedRows.size === filteredSyllabuses.length}
+                    onCheckedChange={toggleAllRows}
+                  />
+                </TableHead>
+                {columns.map((column) =>
+                  visibleColumns.has(column.id) ? (
+                    <TableHead
+                      key={column.id}
+                      className={column.sortable ? "cursor-pointer" : ""}
+                      onClick={() => column.sortable && toggleSort(column.id)}
                     >
-                        <SelectTrigger className="w-[120px]">
-                            <SelectValue placeholder="Rows per page" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="10">10 rows</SelectItem>
-                            <SelectItem value="20">20 rows</SelectItem>
-                            <SelectItem value="all">All rows</SelectItem>
-                        </SelectContent>
-                    </Select>
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="outline">Columns</Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent>
-                            {columns.map((column) => (
-                                <DropdownMenuCheckboxItem
-                                    key={column.id}
-                                    checked={visibleColumns.has(column.id)}
-                                    onCheckedChange={() => toggleColumn(column.id)}
-                                >
-                                    {column.label}
-                                </DropdownMenuCheckboxItem>
-                            ))}
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                    <div className="flex gap-2">
-                        <Dialog>
-                            <DialogTrigger asChild>
-                                <Button>
-                                    <Plus className="mr-2" />
-                                    Add Syllabus
-                                </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                                <DialogHeader>
-                                    <DialogTitle>Add New Syllabus</DialogTitle>
-                                </DialogHeader>
-                                <SyllabusForm
-                                    mode="add"
-                                    onSubmit={handleAddSyllabus}
-                                    classes={classes}
-                                    subjects={subjects}
-                                    teachers={teachers}
-                                />
-                            </DialogContent>
-                        </Dialog>
-                        <div className="relative">
-                            <input
-                                type="file"
-                                accept=".json"
-                                onChange={handleImportJSON}
-                                className="hidden"
-                                id="json-upload"
-                            />
-                            <Button
-                                variant="outline"
-                                onClick={() =>
-                                    document.getElementById("json-upload")?.click()
-                                }
-                            >
-                                <Upload className="mr-2" />
-                                Import JSON
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-            </CardHeader>
-            <CardContent>
-                <div className="rounded-md border">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead className="w-12">
-                                    <Checkbox
-                                        checked={selectedRows.size === filteredSyllabuses.length}
-                                        onCheckedChange={toggleAllRows}
-                                    />
-                                </TableHead>
-                                {columns.map((column) =>
-                                    visibleColumns.has(column.id) ? (
-                                        <TableHead
-                                            key={column.id}
-                                            className={column.sortable ? "cursor-pointer" : ""}
-                                            onClick={() =>
-                                                column.sortable && toggleSort(column.id)
-                                            }
-                                        >
-                                            <div className="flex items-center gap-1">
-                                                {column.label}{" "}
-                                                {column.sortable && getSortIcon(column.id)}
-                                            </div>
-                                        </TableHead>
-                                    ) : null,
-                                )}
-                                <TableHead className="text-right">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {loading ? (
-                                <TableRow>
-                                    <TableCell
-                                        colSpan={columns.length + 2}
-                                        className="text-center"
-                                    >
-                                        Loading...
-                                    </TableCell>
-                                </TableRow>
-                            ) : paginatedSyllabuses.length === 0 ? (
-                                <TableRow>
-                                    <TableCell
-                                        colSpan={columns.length + 2}
-                                        className="text-center"
-                                    >
-                                        No results found
-                                    </TableCell>
-                                </TableRow>
-                            ) : (
-                                paginatedSyllabuses.map((syllabus) => (
-                                    <TableRow
-                                        key={syllabus.id}
-                                        className={
-                                            selectedRows.has(syllabus.id) ? "bg-slate-50" : ""
-                                        }
-                                    >
-                                        <TableCell>
-                                            <Checkbox
-                                                checked={selectedRows.has(syllabus.id)}
-                                                onCheckedChange={() => toggleRow(syllabus.id)}
-                                            />
-                                        </TableCell>
-                                        {columns.map((column) =>
-                                            visibleColumns.has(column.id) ? (
-                                                <TableCell key={column.id}>
-                                                    {editingId === syllabus.id ? (
-                                                        <div className="w-[200px]">
-                                                            {column.id ===
-                                                                "amount_of_academic_hours_per_week" ? (
-                                                                <Input
-                                                                    type="number"
-                                                                    min="1"
-                                                                    value={syllabus[column.id]}
-                                                                    onChange={(e) => {
-                                                                        const updatedSyllabus = {
-                                                                            ...syllabus,
-                                                                            [column.id]: parseInt(
-                                                                                e.target.value,
-                                                                                10,
-                                                                            ),
-                                                                        };
-                                                                        setSyllabuses(
-                                                                            syllabuses.map((s) =>
-                                                                                s.id === syllabus.id
-                                                                                    ? updatedSyllabus
-                                                                                    : s,
-                                                                            ),
-                                                                        );
-                                                                    }}
-                                                                />
-                                                            ) : (
-                                                                <Popover>
-                                                                    <PopoverTrigger asChild>
-                                                                        <Button
-                                                                            variant="outline"
-                                                                            role="combobox"
-                                                                            className="w-full justify-between"
-                                                                        >
-                                                                            {getButtonContent(
-                                                                                column.id,
-                                                                                syllabus,
-                                                                            )}
-                                                                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                                                        </Button>
-                                                                    </PopoverTrigger>
-                                                                    <PopoverContent className="w-[200px] p-0">
-                                                                        <Command>
-                                                                            <CommandInput placeholder="Search..." />
-                                                                            <CommandEmpty>
-                                                                                No item found.
-                                                                            </CommandEmpty>
-                                                                            <CommandGroup>
-                                                                                {getCommandItems(
-                                                                                    column.id,
-                                                                                ).length > 0 ? (
-                                                                                    getCommandItems(
-                                                                                        column.id,
-                                                                                    ).map((item) => (
-                                                                                        <CommandItem
-                                                                                            key={item.id}
-                                                                                            onSelect={() => {
-                                                                                                const updatedSyllabus =
-                                                                                                {
-                                                                                                    ...syllabus,
-                                                                                                    [column.id]:
-                                                                                                        item.id,
-                                                                                                };
-                                                                                                setSyllabuses(
-                                                                                                    syllabuses.map(
-                                                                                                        (s) =>
-                                                                                                            s.id ===
-                                                                                                                syllabus.id
-                                                                                                                ? updatedSyllabus
-                                                                                                                : s,
-                                                                                                    ),
-                                                                                                );
-                                                                                            }}
-                                                                                        >
-                                                                                            <Check
-                                                                                                className={cn(
-                                                                                                    "mr-2 h-4 w-4",
-                                                                                                    syllabus[
-                                                                                                        column.id
-                                                                                                    ] ===
-                                                                                                        item.id
-                                                                                                        ? "opacity-100"
-                                                                                                        : "opacity-0",
-                                                                                                )}
-                                                                                            />
-                                                                                            {item.name}
-                                                                                        </CommandItem>
-                                                                                    ))
-                                                                                ) : (
-                                                                                    <CommandItem disabled>
-                                                                                        No items available
-                                                                                    </CommandItem>
-                                                                                )}
-                                                                            </CommandGroup>
-                                                                        </Command>
-                                                                    </PopoverContent>
-                                                                </Popover>
-                                                            )}
-                                                        </div>
-                                                    ) : (
-                                                        (() => {
-                                                            switch (column.id) {
-                                                                case "class_id":
-                                                                    return classes.find((c) => c.id === syllabus[column.id])?.name || "Select class";
-                                                                case "subject_id":
-                                                                    return subjects.find((s) => s.id === syllabus[column.id])?.name || "Select subject";
-                                                                case "teacher_id":
-                                                                    return teachers.find((t) => t.id === syllabus[column.id])?.name || "Select teacher";
-                                                                default:
-                                                                    return String(syllabus[column.id]) || "";
-                                                            }
-                                                        })()
-                                                    )}
-                                                </TableCell>
-                                            ) : null,
-                                        )}
-                                        <TableCell className="text-right">
-                                            <div className="flex justify-end gap-2">
-                                                {editingId === syllabus.id ? (
-                                                    <>
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            onClick={() => handleSave(syllabus)}
-                                                        >
-                                                            <Check className="w-4 h-4" />
-                                                        </Button>
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            onClick={() => setEditingId(null)}
-                                                        >
-                                                            <X className="w-4 h-4" />
-                                                        </Button>
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            onClick={() => setEditingId(syllabus.id)}
-                                                        >
-                                                            <Edit className="w-4 h-4" />
-                                                        </Button>
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            onClick={() =>
-                                                                handleDeleteSyllabus(syllabus.id)
-                                                            }
-                                                        >
-                                                            <Trash2 className="w-4 h-4 text-red-500" />
-                                                        </Button>
-                                                    </>
-                                                )}
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
-                                ))
-                            )}
-                        </TableBody>
-                    </Table>
-                </div>
-                <div className="flex items-center justify-between mt-4">
-                    <div className="text-sm text-gray-500">
-                        {selectedRows.size} of {filteredSyllabuses.length} row(s)
-                        selected
-                    </div>
-                    {rowsPerPage !== "all" && (
-                        <div className="flex items-center gap-2">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                                disabled={page === 1}
-                            >
-                                Previous
-                            </Button>
-                            <div className="text-sm">
-                                Page {page} of {totalPages}
-                            </div>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                                disabled={page === totalPages}
-                            >
-                                Next
-                            </Button>
-                        </div>
+                      <div className="flex items-center gap-1">
+                        {column.label}{" "}
+                        {column.sortable && getSortIcon(column.id)}
+                      </div>
+                    </TableHead>
+                  ) : null,
+                )}
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {loading ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length + 2}
+                    className="text-center"
+                  >
+                    Loading...
+                  </TableCell>
+                </TableRow>
+              ) : paginatedSyllabuses.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length + 2}
+                    className="text-center"
+                  >
+                    No results found
+                  </TableCell>
+                </TableRow>
+              ) : (
+                paginatedSyllabuses.map((syllabus) => (
+                  <TableRow
+                    key={syllabus.id}
+                    className={
+                      selectedRows.has(syllabus.id) ? "bg-slate-50" : ""
+                    }
+                  >
+                    <TableCell>
+                      <Checkbox
+                        checked={selectedRows.has(syllabus.id)}
+                        onCheckedChange={() => toggleRow(syllabus.id)}
+                      />
+                    </TableCell>
+                    {columns.map((column) =>
+                      visibleColumns.has(column.id) ? (
+                        <TableCell key={column.id}>
+                          {column.id === "class_id"
+                            ? classes.find((c) => c.id === syllabus[column.id])
+                                ?.name
+                            : column.id === "subject_id"
+                              ? subjects.find(
+                                  (s) => s.id === syllabus[column.id],
+                                )?.name
+                              : column.id === "teacher_id"
+                                ? teachers.find(
+                                    (t) => t.id === syllabus[column.id],
+                                  )?.name
+                                : syllabus[column.id]}
+                        </TableCell>
+                      ) : null,
                     )}
-                </div>
-            </CardContent>
-        </Card>
-    );
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => setEditingSyllabus(syllabus)}
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Edit Syllabus</DialogTitle>
+                            </DialogHeader>
+                            <SyllabusForm
+                              mode="edit"
+                              initialData={{
+                                class_id: syllabus.class_id,
+                                subject_id: syllabus.subject_id,
+                                teacher_id: syllabus.teacher_id,
+                                amount_of_academic_hours_per_week:
+                                  syllabus.amount_of_academic_hours_per_week,
+                              }}
+                              onSubmit={handleUpdateSyllabus}
+                              classes={classes}
+                              subjects={subjects}
+                              teachers={teachers}
+                            />
+                          </DialogContent>
+                        </Dialog>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDeleteSyllabus(syllabus.id)}
+                        >
+                          <Trash2 className="w-4 h-4 text-red-500" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+        <div className="flex items-center justify-between mt-4">
+          <div className="text-sm text-gray-500">
+            {selectedRows.size} of {filteredSyllabuses.length} row(s) selected
+          </div>
+          {rowsPerPage !== "all" && (
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+              >
+                Previous
+              </Button>
+              <div className="text-sm">
+                Page {page} of {totalPages}
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+              >
+                Next
+              </Button>
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
 };
-
 
 export default SyllabusManagement;
