@@ -263,73 +263,69 @@ const TimetableBuilder = () => {
       // Process each syllabus entry
       for (const syllabus of syllabusData || []) {
         const hoursNeeded = syllabus.amount_of_academic_hours_per_week || 0;
-        const currentHours = subjectHoursAssigned.get(syllabus.subject_id) || 0;
+        let currentHours = subjectHoursAssigned.get(syllabus.subject_id) || 0;
 
-        if (currentHours >= hoursNeeded) continue;
+        // Ensure we assign the correct number of time slots
+        while (currentHours < hoursNeeded) {
+          // Find available slots for this subject
+          for (const slot of availableSlots) {
+            if (currentHours >= hoursNeeded) break;
 
-        // Find available slots for this subject
-        for (const slot of availableSlots) {
-          if (currentHours >= hoursNeeded) break;
-
-          // Check if this slot is already used
-          const isSlotUsed = newTimeSlots.some(
-            (ts) => ts.day === slot.day && ts.lesson_id === slot.lesson.id,
-          );
-
-          if (isSlotUsed) continue;
-
-          // Check if teacher is available in this slot
-          const isTeacherBusy = newTimeSlots.some(
-            (ts) =>
-              ts.day === slot.day &&
-              ts.lesson_id === slot.lesson.id &&
-              ts.teacher_id === syllabus.teacher_id,
-          );
-          if (isTeacherBusy) continue;
-
-          // Get available rooms
-          const usedRoomIds = newTimeSlots
-            .filter(
+            // Check if this slot is already used
+            const isSlotUsed = newTimeSlots.some(
               (ts) => ts.day === slot.day && ts.lesson_id === slot.lesson.id,
-            )
-            .map((ts) => ts.room_id);
+            );
 
-          // Get available rooms - handle empty usedRoomIds case
-          const roomsQuery = supabase.from("rooms").select("*");
+            if (isSlotUsed) continue;
 
-          // Only add the not-in condition if there are used room IDs
-          const { data: availableRooms, error: rError } =
-            await (usedRoomIds.length > 0
-              ? roomsQuery.not("id", "in", usedRoomIds)
-              : roomsQuery);
+            // Check if teacher is available in this slot
+            const isTeacherBusy = newTimeSlots.some(
+              (ts) =>
+                ts.day === slot.day &&
+                ts.lesson_id === slot.lesson.id &&
+                ts.teacher_id === syllabus.teacher_id,
+            );
+            if (isTeacherBusy) continue;
 
-          if (rError) throw rError;
-          if (!availableRooms?.length) continue;
+            // Get available rooms
+            const usedRoomIds = newTimeSlots
+              .filter(
+                (ts) => ts.day === slot.day && ts.lesson_id === slot.lesson.id,
+              )
+              .map((ts) => ts.room_id);
 
-          const randomRoom =
-            availableRooms[Math.floor(Math.random() * availableRooms.length)];
+            const roomsQuery = supabase.from("rooms").select("*");
+            const { data: availableRooms, error: rError } =
+              await (usedRoomIds.length > 0
+                ? roomsQuery.not("id", "in", usedRoomIds)
+                : roomsQuery);
 
-          // Get the subject name
-          const subjectName = subjects.find(
-            (s) => s.id === syllabus.subject_id,
-          )?.name;
-          if (!subjectName) continue;
+            if (rError) throw rError;
+            if (!availableRooms?.length) continue;
 
-          // Add the time slot
-          newTimeSlots.push({
-            day: slot.day,
-            lesson_id: slot.lesson.id,
-            subject: subjectName,
-            teacher_id: syllabus.teacher_id,
-            room_id: randomRoom.id,
-            class_id: selectedClass,
-          });
+            const randomRoom =
+              availableRooms[Math.floor(Math.random() * availableRooms.length)];
 
-          // Update assigned hours
-          subjectHoursAssigned.set(
-            syllabus.subject_id,
-            (subjectHoursAssigned.get(syllabus.subject_id) || 0) + 1,
-          );
+            // Get the subject name
+            const subjectName = subjects.find(
+              (s) => s.id === syllabus.subject_id,
+            )?.name;
+            if (!subjectName) continue;
+
+            // Add the time slot
+            newTimeSlots.push({
+              day: slot.day,
+              lesson_id: slot.lesson.id,
+              subject: subjectName,
+              teacher_id: syllabus.teacher_id,
+              room_id: randomRoom.id,
+              class_id: selectedClass,
+            });
+
+            // Update assigned hours
+            currentHours++;
+            subjectHoursAssigned.set(syllabus.subject_id, currentHours);
+          }
         }
       }
 
@@ -558,11 +554,11 @@ const TimetableBuilder = () => {
                             <table className="w-full">
                               <thead>
                                 <tr className="text-left border-b">
-                                  <th className="pb-2 font-medium">№</th>
-                                  <th className="pb-2 font-medium">Time</th>
-                                  <th className="pb-2 font-medium">Subject</th>
-                                  <th className="pb-2 font-medium">Teacher</th>
-                                  <th className="pb-2 font-medium">Room</th>
+                                  <th className="pb-2 font-medium text-center pr-2 w-10">№</th>
+                                  <th className="pb-2 font-medium text-left px-2">Time</th>
+                                  <th className="pb-2 font-medium text-left px-2">Subject</th>
+                                  <th className="pb-2 font-medium text-left px-2">Teacher</th>
+                                  <th className="pb-2 font-medium text-left px-2">Room</th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -577,27 +573,25 @@ const TimetableBuilder = () => {
                                         ts.day === day &&
                                         ts.class_id === cls.id,
                                     );
+                                    // Determine the background color based on flags
+                                    const subject = subjects.find((s) => s.name === timeSlot?.subject);
+                                    const bgColor = subject
+                                      ? false // Assuming default value as false since 'is_extracurricular' does not exist
+                                        ? "bg-purple-50"
+                                        : false // Assuming default value as false since 'is_subgroup' does not exist
+                                        ? "bg-green-50"
+                                        : ""
+                                      : "";
                                     return (
-                                      <tr
-                                        key={`${day}-${lesson.id}`}
-                                        className="border-b last:border-0"
-                                      >
-                                        <td className="py-3">
-                                          {lesson.lesson_number}
+                                      <tr key={`${day}-${lesson.id}`} className={`border-b last:border-0 ${bgColor}`}>
+                                        <td className="py-3 text-center pr-2">{lesson.lesson_number}</td>
+                                        <td className="py-3 text-left px-2">
+                                          {lesson.start_time.slice(0, 5)}-{lesson.end_time.slice(0, 5)}
                                         </td>
-                                        <td className="py-3">
-                                          {lesson.start_time.slice(0, 5)}-
-                                          {lesson.end_time.slice(0, 5)}
+                                        <td className="py-3 text-left px-2">
+                                          {timeSlot ? timeSlot.subject : "-"}
                                         </td>
-                                        <td className="py-3">
-                                          {timeSlot
-                                            ? subjects.find(
-                                                (s) =>
-                                                  s.id === timeSlot.subject,
-                                              )?.name
-                                            : "-"}
-                                        </td>
-                                        <td className="py-3">
+                                        <td className="py-3 text-left px-2">
                                           {timeSlot
                                             ? teachers.find(
                                                 (t) =>
@@ -605,7 +599,7 @@ const TimetableBuilder = () => {
                                               )?.name
                                             : "-"}
                                         </td>
-                                        <td className="py-3">
+                                        <td className="py-3 text-left px-2">
                                           {timeSlot
                                             ? rooms.find(
                                                 (r) =>

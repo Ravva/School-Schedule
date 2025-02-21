@@ -336,29 +336,6 @@ export type Database = {
           },
         ]
       }
-      teacher_work_days: {
-        Row: {
-          day: Database["public"]["Enums"]["day_of_week"]
-          teacher_id: string
-        }
-        Insert: {
-          day: Database["public"]["Enums"]["day_of_week"]
-          teacher_id: string
-        }
-        Update: {
-          day?: Database["public"]["Enums"]["day_of_week"]
-          teacher_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "teacher_work_days_teacher_id_fkey"
-            columns: ["teacher_id"]
-            isOneToOne: false
-            referencedRelation: "teachers"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       teachers: {
         Row: {
           created_at: string
@@ -460,30 +437,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      timetable: {
-        Row: {
-          created_at: string
-          end: string | null
-          id: number
-          number: number | null
-          start: string | null
-        }
-        Insert: {
-          created_at?: string
-          end?: string | null
-          id?: number
-          number?: number | null
-          start?: string | null
-        }
-        Update: {
-          created_at?: string
-          end?: string | null
-          id?: number
-          number?: number | null
-          start?: string | null
-        }
-        Relationships: []
       }
     }
     Views: {
