@@ -6,12 +6,12 @@ import {
   Calendar,
   Users,
   CalendarRange,
-  Filter,
   User,
   School,
   DoorOpen,
   BookOpen,
   Clock,
+  NotebookPen,
 } from "lucide-react";
 import { cn } from "../lib/utils";
 
@@ -20,15 +20,11 @@ import type { ViewMode } from "./home";
 interface SidebarProps {
   activeView?: ViewMode;
   onViewChange?: (view: ViewMode) => void;
-  selectedFilter?: "teacher" | "class" | "room";
-  onFilterChange?: (filter: "teacher" | "class" | "room") => void;
 }
 
 const Sidebar = ({
   activeView = "timetable",
   onViewChange = () => {},
-  selectedFilter = "teacher",
-  onFilterChange = () => {},
 }: SidebarProps) => {
   const navigationItems = [
     { id: "timetable", label: "Daily Schedule", icon: Calendar },
@@ -37,14 +33,8 @@ const Sidebar = ({
     { id: "lessons", label: "Lessons", icon: Clock },
     { id: "rooms", label: "Rooms", icon: DoorOpen },
     { id: "classes", label: "Classes", icon: School },
-    { id: "syllabus", label: "Syllabus", icon: BookOpen },
+    { id: "syllabus", label: "Syllabus", icon: NotebookPen },
     { id: "builder", label: "Timetable Builder", icon: CalendarRange },
-  ];
-
-  const filterItems = [
-    { id: "teacher", label: "By Teacher", icon: User },
-    { id: "class", label: "By Class", icon: School },
-    { id: "room", label: "By Room", icon: DoorOpen },
   ];
 
   return (
@@ -73,37 +63,6 @@ const Sidebar = ({
             );
           })}
         </nav>
-      </div>
-
-      <Separator className="my-2" />
-
-      <div className="p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <Filter className="h-5 w-5 text-slate-500" />
-          <h3 className="font-medium text-slate-900">Filters</h3>
-        </div>
-
-        <ScrollArea className="h-[400px] pr-4">
-          <div className="space-y-2">
-            {filterItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <Button
-                  key={item.id}
-                  variant={selectedFilter === item.id ? "secondary" : "ghost"}
-                  className={cn(
-                    "w-full justify-start gap-2",
-                    selectedFilter === item.id ? "bg-slate-200" : "",
-                  )}
-                  onClick={() => onFilterChange(item.id as any)}
-                >
-                  <Icon className="h-5 w-5" />
-                  {item.label}
-                </Button>
-              );
-            })}
-          </div>
-        </ScrollArea>
       </div>
     </div>
   );
