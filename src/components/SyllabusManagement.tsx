@@ -29,6 +29,7 @@ import {
   Upload,
 } from "lucide-react";
 import { Checkbox } from "./ui/checkbox";
+import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -103,7 +104,6 @@ const SyllabusForm = ({
       amount_of_academic_hours_per_week: 0,
     },
   );
-
   return (
     <div className="space-y-4">
       <div>
@@ -240,7 +240,22 @@ const SyllabusManagement = () => {
       if (teachersData.error) throw teachersData.error;
       if (subjectsData.error) throw subjectsData.error;
 
-      setSyllabuses(syllabusData.data || []);
+      setSyllabuses(
+        syllabusData.data?.map((item) => {
+          const typedItem = item as unknown as {
+            teachers: Teacher | null;
+            subjects: Subject | null;
+            classes: Class | null;
+          } & Omit<SyllabusData, 'teachers' | 'subjects' | 'classes'>;
+          
+          return {
+            ...typedItem,
+            teachers: typedItem.teachers || null,
+            subjects: typedItem.subjects || null,
+            classes: typedItem.classes || null,
+          };
+        }) || []
+      );
       setClasses(classesData.data || []);
       setTeachers(teachersData.data || []);
       setSubjects(subjectsData.data || []);
@@ -598,18 +613,18 @@ const SyllabusManagement = () => {
                     {columns.map((column) =>
                       visibleColumns.has(column.id) ? (
                         <TableCell key={column.id}>
-                          {column.id === "class_id"
-                            ? classes.find((c) => c.id === syllabus[column.id])
-                                ?.name
-                            : column.id === "subject_id"
-                              ? subjects.find(
-                                  (s) => s.id === syllabus[column.id],
-                                )?.name
-                              : column.id === "teacher_id"
-                                ? teachers.find(
-                                    (t) => t.id === syllabus[column.id],
-                                  )?.name
-                                : syllabus[column.id]}
+                          {(() => {
+                            switch (column.id) {
+                              case "class_id":
+                                return classes.find((c) => c.id === syllabus[column.id])?.name || '';
+                              case "subject_id":
+                                return subjects.find((s) => s.id === syllabus[column.id])?.name || '';
+                              case "teacher_id":
+                                return teachers.find((t) => t.id === syllabus[column.id])?.name || '';
+                              default:
+                                return String(syllabus[column.id]) || '';
+                            }
+                          })()}
                         </TableCell>
                       ) : null,
                     )}
@@ -629,20 +644,22 @@ const SyllabusManagement = () => {
                             <DialogHeader>
                               <DialogTitle>Edit Syllabus</DialogTitle>
                             </DialogHeader>
-                            <SyllabusForm
-                              mode="edit"
-                              initialData={{
-                                class_id: syllabus.class_id,
-                                subject_id: syllabus.subject_id,
-                                teacher_id: syllabus.teacher_id,
-                                amount_of_academic_hours_per_week:
-                                  syllabus.amount_of_academic_hours_per_week,
-                              }}
-                              onSubmit={handleUpdateSyllabus}
-                              classes={classes}
-                              subjects={subjects}
-                              teachers={teachers}
-                            />
+                            {editingSyllabus && (  // Add this check
+                              <SyllabusForm
+                                mode="edit"
+                                initialData={{
+                                  class_id: editingSyllabus.class_id,
+                                  subject_id: editingSyllabus.subject_id,
+                                  teacher_id: editingSyllabus.teacher_id,
+                                  amount_of_academic_hours_per_week:
+                                    editingSyllabus.amount_of_academic_hours_per_week,
+                                }}
+                                onSubmit={handleUpdateSyllabus}
+                                classes={classes}
+                                subjects={subjects}
+                                teachers={teachers}
+                              />
+                            )}
                           </DialogContent>
                         </Dialog>
                         <Button
