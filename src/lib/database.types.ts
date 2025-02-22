@@ -326,6 +326,39 @@ export type Database = {
           },
         ]
       }
+      teacher_rooms: {
+        Row: {
+          created_at: string
+          room_id: string
+          teacher_id: string
+        }
+        Insert: {
+          created_at?: string
+          room_id: string
+          teacher_id: string
+        }
+        Update: {
+          created_at?: string
+          room_id?: string
+          teacher_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teacher_rooms_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teacher_rooms_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "teachers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       teachers: {
         Row: {
           created_at: string
@@ -358,6 +391,7 @@ export type Database = {
       }
       time_slots: {
         Row: {
+          academic_period_id: string | null
           class_id: string | null
           created_at: string | null
           day: string
@@ -369,6 +403,7 @@ export type Database = {
           teacher_id: string | null
         }
         Insert: {
+          academic_period_id?: string | null
           class_id?: string | null
           created_at?: string | null
           day: string
@@ -380,6 +415,7 @@ export type Database = {
           teacher_id?: string | null
         }
         Update: {
+          academic_period_id?: string | null
           class_id?: string | null
           created_at?: string | null
           day?: string
@@ -391,6 +427,13 @@ export type Database = {
           teacher_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "time_slots_academic_period_id_fkey"
+            columns: ["academic_period_id"]
+            isOneToOne: false
+            referencedRelation: "academic_periods"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "time_slots_class_id_fkey"
             columns: ["class_id"]
