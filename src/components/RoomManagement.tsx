@@ -56,7 +56,7 @@ interface RoomAssignmentFormProps {
   onAdd?: (
     room: Omit<Room, "id" | "created_at"> & {
       subject_ids: string[];
-    }
+    },
   ) => void;
   onUpdate?: (room: Room & { subject_ids: string[] }) => void;
   onClose: () => void;
@@ -85,22 +85,20 @@ const RoomAssignmentForm: React.FC<RoomAssignmentFormProps> = ({
 
   const initialRoomState: RoomState | AddRoomState =
     mode === "add"
-      ? {
+      ? ({
           room_number: "",
           teacher_id: null,
           subject_ids: [],
-        } as AddRoomState
-      : {
+        } as AddRoomState)
+      : ({
           ...initialRoom,
           subject_ids: initialRoom?.subjects?.map((s) => s.id) ?? [],
           teachers: initialRoom?.teachers ?? null,
           subjects: initialRoom?.subjects ?? [],
           classes: initialRoom?.classes ?? null,
-        } as RoomState;
+        } as RoomState);
 
-  const [room, setRoom] = useState<RoomState | AddRoomState>(
-    initialRoomState
-  );
+  const [room, setRoom] = useState<RoomState | AddRoomState>(initialRoomState);
   const [showSubjectDropdown, setShowSubjectDropdown] = useState(false);
 
   const handleAddOrUpdate = () => {
@@ -187,7 +185,7 @@ const RoomAssignmentForm: React.FC<RoomAssignmentFormProps> = ({
                             subject_ids:
                               "subject_ids" in prevRoom
                                 ? prevRoom.subject_ids.filter(
-                                    (id) => id !== subjectId
+                                    (id) => id !== subjectId,
                                   )
                                 : [],
                           }))
@@ -196,7 +194,7 @@ const RoomAssignmentForm: React.FC<RoomAssignmentFormProps> = ({
                         <X className="h-3 w-3" />
                       </button>
                     </Badge>
-                  )
+                  ),
                 )}
                 <button
                   className="text-sm text-slate-500 hover:text-slate-700"
@@ -212,7 +210,7 @@ const RoomAssignmentForm: React.FC<RoomAssignmentFormProps> = ({
                       .filter(
                         (subject) =>
                           !("subject_ids" in room) ||
-                          !room.subject_ids.includes(subject.id)
+                          !room.subject_ids.includes(subject.id),
                       )
                       .map((subject) => (
                         <button
@@ -287,7 +285,7 @@ const RoomAssignments = () => {
           room_subjects!room_subjects_room_id_fkey(
             subjects(*)
           )
-          `
+          `,
         )
         .order("room_number");
 
@@ -304,7 +302,7 @@ const RoomAssignments = () => {
 
       const combinedRooms: RoomAssignment[] = (roomsData || []).map((room) => {
         const relatedSubjects = room.room_subjects.map(
-          (rs: any) => rs.subjects
+          (rs: any) => rs.subjects,
         );
 
         // Find classes associated with the room
@@ -339,36 +337,30 @@ const RoomAssignments = () => {
   const handleAddRoom = async (
     newRoom: Omit<Room, "id" | "created_at"> & {
       subject_ids: string[];
-    }
+    },
   ) => {
     try {
-      const { subject_ids, ...roomData } = newRoom;
-
-      // Create room data matching the exact schema
-      const roomToInsert = {
-        room_number: roomData.room_number.trim(), // Ensure the room number is trimmed
-        teacher_id: roomData.teacher_id || null,
-        class_id: null,
-        subject_id: null,
-        // Remove created_at as it's handled by Supabase
-      };
-
-      // Insert the new room and get its ID
-      const { data: insertedRoom, error: insertError } = await supabase
+      // First insert the room
+      const { data, error } = await supabase
         .from("rooms")
-        .insert([roomToInsert])
-        .select("id");
+        .insert([
+          {
+            room_number: newRoom.room_number.trim(),
+            teacher_id: newRoom.teacher_id === "" ? null : newRoom.teacher_id,
+          },
+        ])
+        .select();
 
-      if (insertError) {
-        console.error("Insert error:", insertError);
-        throw insertError;
+      if (error) {
+        console.error("Insert error:", error);
+        throw error;
       }
 
-      const roomId = insertedRoom![0].id;
+      const roomId = data![0].id;
 
       // Insert related subjects
-      if (subject_ids.length > 0) {
-        const roomSubjectsToInsert = subject_ids.map((subjectId) => ({
+      if (newRoom.subject_ids.length > 0) {
+        const roomSubjectsToInsert = newRoom.subject_ids.map((subjectId) => ({
           room_id: roomId,
           subject_id: subjectId,
         }));
@@ -378,6 +370,11 @@ const RoomAssignments = () => {
 
         if (insertSubjectsError) throw insertSubjectsError;
       }
+
+      toast({
+        title: "Success",
+        description: "Room added successfully",
+      });
 
       fetchData(); // Refresh data
     } catch (error: any) {
@@ -390,15 +387,10 @@ const RoomAssignments = () => {
   };
 
   const handleUpdateRoom = async (
-    updatedRoom: Room & { subject_ids: string[] }
+    updatedRoom: Room & { subject_ids: string[] },
   ) => {
     try {
-      const {
-        id,
-        subject_ids,
-        created_at,
-        ...roomData
-      } = updatedRoom;
+      const { id, subject_ids, created_at, ...roomData } = updatedRoom;
 
       // Create a new object with only the necessary fields for updating the 'rooms' table
       const roomUpdateData = {
