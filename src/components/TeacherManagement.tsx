@@ -230,8 +230,8 @@ const TeacherForm = ({
             <div className="absolute z-10 w-full mt-1 bg-white border rounded-md shadow-lg">
               <ScrollArea className="h-[200px]">
                 {availableRooms
-                  .filter((room) => !data.rooms.some(existingRoom => existingRoom.id === room.id))
-                  .sort((a, b) => a.room_number.localeCompare(b.room_number)) // Sort rooms by room_number
+                  .filter((room) => !data.rooms?.some(existingRoom => existingRoom.id === room.id))
+                  .sort((a, b) => a.room_number.localeCompare(b.room_number))
                   .map((room) => (
                     <button
                       key={room.id}
@@ -239,9 +239,7 @@ const TeacherForm = ({
                       onClick={() => {
                         onChange({
                           ...data,
-                          rooms: data.rooms
-                            ? [...data.rooms, room]
-                            : [room],
+                          rooms: data.rooms ? [...data.rooms, room] : [room],
                         });
                         setShowRoomDropdown(false);
                       }}
@@ -343,33 +341,50 @@ const TeacherManagement = () => {
     fetchData();
   }, []);
 
-  const fetchData = async () => {
-    try {
-      const [teachersData, subjectsData, classesData, roomsData] =
-        await Promise.all([
-          supabase.from("teachers").select("*, rooms(*)").order("name"),
-          supabase.from("subjects").select("*").order("name"),
-          supabase.from("classes").select("*").order("grade"),
-          supabase.from("rooms").select("*"),
-        ]);
+const fetchData = async () => {
+  try {
+    const [teachersData, subjectsData, classesData, roomsData, timeSlotsData] =
+      await Promise.all([
+        supabase.from("teachers").select("*").order("name"),
+        supabase.from("subjects").select("*").order("name"),
+        supabase.from("classes").select("*").order("grade"),
+        supabase.from("rooms").select("*"),
+        supabase.from("time_slots").select("teacher_id, room_id, rooms(*)"),
+      ]);
 
-      if (teachersData.error) throw teachersData.error;
-      if (subjectsData.error) throw subjectsData.error;
-      if (classesData.error) throw classesData.error;
-      if (roomsData.error) throw roomsData.error;
+    // ... error handling ...
+    if (teachersData.error) throw teachersData.error;
+    if (subjectsData.error) throw subjectsData.error;
+    if (classesData.error) throw classesData.error;
+    if (roomsData.error) throw roomsData.error;
+    if (timeSlotsData.error) throw timeSlotsData.error;
 
-      setTeachers(
-        (teachersData.data as (Teacher & { rooms: Room[] | null })[]) || [],
-      );
-      setSubjects(subjectsData.data || []);
-      setClasses(classesData.data || []);
-      setRooms(roomsData.data || []);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    // Process teachers data to include their rooms from time_slots
+    const teachersWithRooms = teachersData.data.map(teacher => {
+      const teacherRooms = timeSlotsData.data
+        .filter(slot => slot.teacher_id === teacher.id)
+        .map(slot => slot.rooms)
+        .filter((room, index, self) => 
+          room && index === self.findIndex(r => r?.id === room?.id)
+        );
+
+      return {
+        ...teacher,
+        rooms: teacherRooms.length > 0 ? teacherRooms : null
+      };
+    });
+
+    setTeachers(teachersWithRooms);
+    // ... rest of the code ...
+    setSubjects(subjectsData.data || []);
+    setClasses(classesData.data || []);
+    setRooms(roomsData.data || []);
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleAddTeacher = async () => {
     try {
@@ -438,65 +453,67 @@ const handleUpdateTeacher = async () => {
 
     if (updateError) throw updateError;
 
-    // Fetch existing room associations
-    const { data: existingRoomsData, error: fetchRoomsError } = await supabase
-      .from("teachers")
-      .select("rooms(*)")
-      .eq("id", editingTeacher.id)
-      .single();
+    // Get existing time slots for this teacher
+    const { data: existingSlots, error: slotsError } = await supabase
+      .from("time_slots")
+      .select("*")
+      .eq("teacher_id", editingTeacher.id);
 
-      if (fetchRoomsError) throw fetchRoomsError;
-    const existingRooms = existingRoomsData?.rooms
-      ? (existingRoomsData.rooms as Room[])
-      : [];
+    if (slotsError) throw slotsError;
 
-    // Determine rooms to add and remove
-    const roomsToUpdate = editingTeacher.rooms.filter(
-      (room) => !existingRooms.some((existing) => existing.id === room.id),
-    );
-    const roomsToRemove = existingRooms.filter(
-      (existing) =>
-        !editingTeacher.rooms.some((room) => room.id === existing.id),
-    );
+    // Fetch first lesson for default assignment
+    const { data: lessonData, error: lessonsError } = await supabase
+      .from("lessons")
+      .select("id")
+      .order("lesson_number")
+      .limit(1);
 
-      // Add new room associations
-      for (const room of roomsToUpdate) {
-        const { error: updateError } = await supabase
-        .from("rooms")
-        .update({ teacher_id: editingTeacher.id })
-        .eq("id", room.id);
-        if (updateError) throw updateError;
-      }
+    if (lessonsError) throw lessonsError;
 
-    // Remove old room associations
-    for (const room of roomsToRemove) {
-      const { error: updateError } = await supabase
-        .from("rooms")
-        .update({ teacher_id: null })
-        .eq("id", room.id)
+    // Remove existing room assignments
+    if (existingSlots && existingSlots.length > 0) {
+      const { error: deleteError } = await supabase
+        .from("time_slots")
+        .delete()
+        .eq("teacher_id", editingTeacher.id);
 
-      if (updateError) throw updateError;
+      if (deleteError) throw deleteError;
     }
 
-      // Construct toast message
-      const toastMessage = `${editingTeacher.name} updated successfully.`;
+    // Add new room assignments
+    if (editingTeacher.rooms && editingTeacher.rooms.length > 0 && lessonData && lessonData[0]) {
+      const newTimeSlots = editingTeacher.rooms.map(room => ({
+        teacher_id: editingTeacher.id,
+        room_id: room.id,
+        day: editingTeacher.work_days[0],
+        lesson_id: lessonData[0].id,  // Use lesson_id instead of start/end times
+        subject: editingTeacher.subjects?.[0] || null // Add first subject as default
+      }));
 
-      toast({
-        title: "Success",
-        description: toastMessage,
-        duration: 5000,
-      });
+      const { error: insertError } = await supabase
+        .from("time_slots")
+        .insert(newTimeSlots);
+
+      if (insertError) throw insertError;
+    }
+
+    const toastMessage = `${editingTeacher.name} updated successfully.`;
+    toast({
+      title: "Success",
+      description: toastMessage,
+      duration: 5000,
+    });
 
     await fetchData();
-    setEditingTeacher(null); // Reset editingTeacher to null
+    setEditingTeacher(null);
     setDialogOpen(false)
   } catch (error) {
     console.error("Error updating teacher:", error);
-      toast({
-        title: "Error",
-        description: "Failed to update teacher.",
-        variant: "destructive",
-      });
+    toast({
+      title: "Error",
+      description: "Failed to update teacher.",
+      variant: "destructive",
+    });
   }
 };
 
@@ -595,9 +612,11 @@ const handleUpdateTeacher = async () => {
                   <TableCell>
                     <div className="flex flex-wrap gap-1">
                     {teacher.rooms && teacher.rooms.length > 0 ? (
-                      teacher.rooms.map(room => (
-                        <Badge key={room.id}>{room.room_number}</Badge>
-                      ))
+                      [...teacher.rooms]
+                        .sort((a, b) => a.room_number.localeCompare(b.room_number))
+                        .map(room => (
+                          <Badge key={room.id}>{room.room_number}</Badge>
+                        ))
                     ) : (
                       <></>
                     )}
@@ -614,7 +633,14 @@ const handleUpdateTeacher = async () => {
                         }}
                       >
                         <DialogTrigger asChild>
-                          <Button variant="ghost" size="icon" onClick={() => setEditingTeacher(teacher)}>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={() => setEditingTeacher({
+                              ...teacher,
+                              rooms: teacher.rooms || [] // Ensure rooms is always an array
+                            })}
+                          >
                             <Edit className="w-4 h-4" />
                           </Button>
                         </DialogTrigger>

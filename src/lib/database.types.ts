@@ -139,7 +139,6 @@ export type Database = {
           id: string
           room_number: string
           subject_id: string | null
-          teacher_id: string | null
         }
         Insert: {
           class_id?: string | null
@@ -147,7 +146,6 @@ export type Database = {
           id?: string
           room_number: string
           subject_id?: string | null
-          teacher_id?: string | null
         }
         Update: {
           class_id?: string | null
@@ -155,7 +153,6 @@ export type Database = {
           id?: string
           room_number?: string
           subject_id?: string | null
-          teacher_id?: string | null
         }
         Relationships: [
           {
@@ -170,13 +167,6 @@ export type Database = {
             columns: ["subject_id"]
             isOneToOne: false
             referencedRelation: "subjects"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "rooms_teacher_id_fkey"
-            columns: ["teacher_id"]
-            isOneToOne: false
-            referencedRelation: "teachers"
             referencedColumns: ["id"]
           },
         ]
