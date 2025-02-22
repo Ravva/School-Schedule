@@ -498,7 +498,7 @@ const RoomAssignments = () => {
         </Dialog>
       </CardHeader>
       <CardContent>
-        <ScrollArea className="h-[500px] w-full space-y-4">
+        <ScrollArea className="h-full w-full space-y-4">
           <Table>
             <TableHeader>
               <TableRow>

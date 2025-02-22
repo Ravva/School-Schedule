@@ -26,17 +26,20 @@ import { Switch } from "./ui/switch";
 import { Checkbox } from "./ui/checkbox";
 import { Database } from "@/lib/database.types";
 import { Separator } from "./ui/separator";
+import { useToast } from "./ui/use-toast";
 
 type Teacher = Database["public"]["Tables"]["teachers"]["Row"];
 type Class = Database["public"]["Tables"]["classes"]["Row"];
+type Room = Database["public"]["Tables"]["rooms"]["Row"];
 
 interface TeacherFormProps {
   mode: "add" | "edit";
-  data: Omit<Teacher, "id" | "created_at">;
+  data: Omit<Teacher, "id" | "created_at"> & { rooms: Room[] };
   onSubmit: () => void;
   onChange: (data: TeacherFormProps["data"]) => void;
   subjects: { id: string; name: string }[];
   availableClasses: Class[];
+  availableRooms: Room[];
   weekDays: string[];
 }
 
@@ -47,15 +50,22 @@ const TeacherForm = ({
   onSubmit,
   subjects,
   availableClasses,
+  availableRooms,
   weekDays,
 }: TeacherFormProps) => {
   const [showSubjectDropdown, setShowSubjectDropdown] = useState(false);
   const [showClassDropdown, setShowClassDropdown] = useState(false);
+  const [showRoomDropdown, setShowRoomDropdown] = useState(false);
 
-  const getClassName = (classId: string) => {
-    const foundClass = availableClasses.find((c) => c.id === classId);
-    return foundClass ? foundClass.name : "";
-  };
+    const getClassName = (classId: string) => {
+      const foundClass = availableClasses.find((c) => c.id === classId);
+      return foundClass ? foundClass.name : "";
+    };
+
+    const getRoomNumber = (roomId: string) => {
+        const foundRoom = availableRooms.find((r) => r.id === roomId)
+        return foundRoom ? foundRoom.room_number : ""
+    }
 
   return (
     <div className="space-y-4">
@@ -187,6 +197,63 @@ const TeacherForm = ({
         </div>
       </div>
 
+      <div>
+        <Label>Rooms</Label>
+        <div className="relative">
+          <div className="flex flex-wrap gap-1 p-2 border rounded-md min-h-[38px]">
+            {data.rooms &&
+              data.rooms.map((room) => (
+                <Badge key={room.id} className="gap-1">
+                  {room.room_number}
+                  <button
+                    onClick={() =>
+                      onChange({
+                        ...data,
+                        rooms: data.rooms
+                          ? data.rooms.filter((r) => r.id !== room.id)
+                          : [],
+                      })
+                    }
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              ))}
+            <button
+              className="text-sm text-slate-500 hover:text-slate-700"
+              onClick={() => setShowRoomDropdown(!showRoomDropdown)}
+            >
+              + Add Room
+            </button>
+          </div>
+          {showRoomDropdown && (
+            <div className="absolute z-10 w-full mt-1 bg-white border rounded-md shadow-lg">
+              <ScrollArea className="h-[200px]">
+                {availableRooms
+                  .filter((room) => !data.rooms.some(existingRoom => existingRoom.id === room.id))
+                  .map((room) => (
+                    <button
+                      key={room.id}
+                      className="w-full px-3 py-2 text-left hover:bg-slate-100"
+                      onClick={() => {
+                        onChange({
+                          ...data,
+                          rooms: data.rooms
+                            ? [...data.rooms, room]
+                            : [room],
+                        });
+                        setShowRoomDropdown(false);
+                      }}
+                    >
+                      {room.room_number}
+                    </button>
+                  ))}
+              </ScrollArea>
+            </div>
+          )}
+        </div>
+      </div>
+
       <Separator />
 
       <div className="space-y-4">
@@ -244,20 +311,30 @@ const TeacherForm = ({
 };
 
 const TeacherManagement = () => {
-  const [teachers, setTeachers] = useState<Teacher[]>([]);
+  const [teachers, setTeachers] = useState<(Teacher & { rooms: Room[] | null })[]>(
+    [],
+  );
   const [subjects, setSubjects] = useState<{ id: string; name: string }[]>([]);
   const [classes, setClasses] = useState<Class[]>([]);
+  const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
   const [newTeacher, setNewTeacher] = useState<
-    Omit<Teacher, "id" | "created_at">
+    Omit<Teacher, "id" | "created_at"> & { rooms: Room[] }
   >({
     name: "",
     subjects: [],
     supervised_classes: [],
+    rooms: [],
     is_part_time: false,
     work_days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
   });
-  const [editingTeacher, setEditingTeacher] = useState<Teacher | null>(null);
+  const [editingTeacher, setEditingTeacher] = useState<
+    (Teacher & { rooms: Room[] | null }) | null
+  >(null);
+    const [dialogOpen, setDialogOpen] = useState(false);
+
+  const { toast } = useToast();
+
 
   const weekDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
@@ -267,19 +344,25 @@ const TeacherManagement = () => {
 
   const fetchData = async () => {
     try {
-      const [teachersData, subjectsData, classesData] = await Promise.all([
-        supabase.from("teachers").select("*").order("name"),
-        supabase.from("subjects").select("*").order("name"),
-        supabase.from("classes").select("*").order("grade"),
-      ]);
+      const [teachersData, subjectsData, classesData, roomsData] =
+        await Promise.all([
+          supabase.from("teachers").select("*, rooms(*)").order("name"),
+          supabase.from("subjects").select("*").order("name"),
+          supabase.from("classes").select("*").order("grade"),
+          supabase.from("rooms").select("*"),
+        ]);
 
       if (teachersData.error) throw teachersData.error;
       if (subjectsData.error) throw subjectsData.error;
       if (classesData.error) throw classesData.error;
+      if (roomsData.error) throw roomsData.error;
 
-      setTeachers(teachersData.data || []);
+      setTeachers(
+        (teachersData.data as (Teacher & { rooms: Room[] | null })[]) || [],
+      );
       setSubjects(subjectsData.data || []);
       setClasses(classesData.data || []);
+      setRooms(roomsData.data || []);
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -296,6 +379,7 @@ const TeacherManagement = () => {
             name: newTeacher.name,
             subjects: newTeacher.subjects,
             supervised_classes: newTeacher.supervised_classes,
+            rooms: newTeacher.rooms,
             is_part_time: newTeacher.is_part_time,
             work_days: newTeacher.work_days,
           },
@@ -303,41 +387,117 @@ const TeacherManagement = () => {
         .select();
 
       if (error) throw error;
+
+      // Construct the toast message
+      const teacherName = data && data[0] ? data[0].name : "New Teacher";
+      const toastMessage = `${teacherName} added successfully.`;
+
+      toast({
+        title: "Success",
+        description: toastMessage,
+        duration: 5000, // 5 seconds
+      });
+
       fetchData();
       setNewTeacher({
         name: "",
         subjects: [],
         supervised_classes: [],
+        rooms: [],
         is_part_time: false,
         work_days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
       });
+            setDialogOpen(false);
+
     } catch (error) {
       console.error("Error adding teacher:", error);
+        toast({
+          title: "Error",
+          description: "Failed to add teacher.",
+          variant: "destructive",
+        });
     }
   };
 
-  const handleUpdateTeacher = async () => {
-    if (!editingTeacher) return;
+const handleUpdateTeacher = async () => {
+  if (!editingTeacher) return;
 
-    try {
-      const { error } = await supabase
-        .from("teachers")
-        .update({
-          name: editingTeacher.name,
-          subjects: editingTeacher.subjects,
-          supervised_classes: editingTeacher.supervised_classes,
-          is_part_time: editingTeacher.is_part_time,
-          work_days: editingTeacher.work_days,
-        })
-        .eq("id", editingTeacher.id);
+  try {
+    // Update the teacher's basic information
+    const { error: updateError } = await supabase
+      .from("teachers")
+      .update({
+        name: editingTeacher.name,
+        subjects: editingTeacher.subjects,
+        supervised_classes: editingTeacher.supervised_classes,
+        is_part_time: editingTeacher.is_part_time,
+        work_days: editingTeacher.work_days,
+      })
+      .eq("id", editingTeacher.id);
 
-      if (error) throw error;
-      fetchData();
-      setEditingTeacher(null);
-    } catch (error) {
-      console.error("Error updating teacher:", error);
+    if (updateError) throw updateError;
+
+    // Fetch existing room associations
+    const { data: existingRoomsData, error: fetchRoomsError } = await supabase
+      .from("teachers")
+      .select("rooms(*)")
+      .eq("id", editingTeacher.id)
+      .single();
+
+      if (fetchRoomsError) throw fetchRoomsError;
+    const existingRooms = existingRoomsData?.rooms
+      ? (existingRoomsData.rooms as Room[])
+      : [];
+
+    // Determine rooms to add and remove
+    const roomsToUpdate = editingTeacher.rooms.filter(
+      (room) => !existingRooms.some((existing) => existing.id === room.id),
+    );
+    const roomsToRemove = existingRooms.filter(
+      (existing) =>
+        !editingTeacher.rooms.some((room) => room.id === existing.id),
+    );
+
+      // Add new room associations
+      for (const room of roomsToUpdate) {
+        const { error: updateError } = await supabase
+        .from("rooms")
+        .update({ teacher_id: editingTeacher.id })
+        .eq("id", room.id);
+        if (updateError) throw updateError;
+      }
+
+    // Remove old room associations
+    for (const room of roomsToRemove) {
+      const { error: updateError } = await supabase
+        .from("rooms")
+        .update({ teacher_id: null })
+        .eq("id", room.id)
+
+      if (updateError) throw updateError;
     }
-  };
+
+      // Construct toast message
+      const toastMessage = `${editingTeacher.name} updated successfully.`;
+
+      toast({
+        title: "Success",
+        description: toastMessage,
+        duration: 5000,
+      });
+
+    await fetchData();
+    setEditingTeacher(null); // Reset editingTeacher to null
+    setDialogOpen(false)
+  } catch (error) {
+    console.error("Error updating teacher:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update teacher.",
+        variant: "destructive",
+      });
+  }
+};
 
   const handleDeleteTeacher = async (id: string) => {
     try {
@@ -360,7 +520,7 @@ const TeacherManagement = () => {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Teacher Management</CardTitle>
-          <Dialog>
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
               <Button>
                 <Plus className="w-4 h-4 mr-2" />
@@ -374,12 +534,11 @@ const TeacherManagement = () => {
               <TeacherForm
                 mode="add"
                 data={newTeacher}
-                onChange={(data) =>
-                  setNewTeacher({ ...newTeacher, ...data })
-                }
+                onChange={(data) => setNewTeacher({ ...newTeacher, ...data })}
                 onSubmit={handleAddTeacher}
                 subjects={subjects}
                 availableClasses={classes}
+                availableRooms={rooms}
                 weekDays={weekDays}
               />
             </DialogContent>
@@ -393,6 +552,7 @@ const TeacherManagement = () => {
                 <TableHead>Subjects</TableHead>
                 <TableHead>Supervised Classes</TableHead>
                 <TableHead>Schedule</TableHead>
+                <TableHead>Rooms</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -431,15 +591,29 @@ const TeacherManagement = () => {
                         ))}
                     </div>
                   </TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap gap-1">
+                    {teacher.rooms && teacher.rooms.length > 0 ? (
+                      teacher.rooms.map(room => (
+                        <Badge key={room.id}>{room.room_number}</Badge>
+                      ))
+                    ) : (
+                      <></>
+                    )}
+                    </div>
+                  </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
-                      <Dialog>
+                      <Dialog
+                        open={editingTeacher?.id === teacher.id}
+                        onOpenChange={(open) => {
+                          if (!open) {
+                            setEditingTeacher(null);
+                          }
+                        }}
+                      >
                         <DialogTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setEditingTeacher(teacher)}
-                          >
+                          <Button variant="ghost" size="icon" onClick={() => setEditingTeacher(teacher)}>
                             <Edit className="w-4 h-4" />
                           </Button>
                         </DialogTrigger>
@@ -460,6 +634,7 @@ const TeacherManagement = () => {
                               onSubmit={handleUpdateTeacher}
                               subjects={subjects}
                               availableClasses={classes}
+                              availableRooms={rooms}
                               weekDays={weekDays}
                             />
                           )}
