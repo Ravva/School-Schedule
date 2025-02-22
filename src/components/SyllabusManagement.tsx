@@ -223,28 +223,34 @@ const SyllabusManagement = () => {
     try {
       const [syllabusData, classesData, teachersData, subjectsData] =
         await Promise.all([
-          supabase.from("syllabus").select(
-            `
-              *,
-              teachers:teacher_id(name),
-              subjects:subject_id(name),
-              classes:class_id(name)
-            `,
-          ),
+          supabase.from("syllabus").select(`
+            *,
+            teachers:teacher_id(*),
+            subjects:subject_id(*),
+            classes:class_id(*)
+          `),
           supabase.from("classes").select("*").order("grade"),
           supabase.from("teachers").select("*").order("name"),
           supabase.from("subjects").select("*").order("name"),
         ]);
 
-      if (syllabusData.error) throw syllabusData.error;
+      if (classesData.error) throw classesData.error;
       if (classesData.error) throw classesData.error;
       if (teachersData.error) throw teachersData.error;
       if (subjectsData.error) throw subjectsData.error;
 
-      setSyllabuses(syllabusData.data || []);
+      const combinedData = (syllabusData.data || []).map((syllabus: any) => ({
+        ...syllabus,
+        teachers: syllabus.teachers ? syllabus.teachers as Teacher : null,
+        subjects: syllabus.subjects ? syllabus.subjects as Subject : null,
+        classes: syllabus.classes ? syllabus.classes as Class : null,
+      }));
+
+      setSyllabuses(combinedData);
       setClasses(classesData.data || []);
       setTeachers(teachersData.data || []);
       setSubjects(subjectsData.data || []);
+
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -371,6 +377,7 @@ const SyllabusManagement = () => {
     }
   };
 
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const handleUpdateSyllabus = async (data: SyllabusFormData) => {
     if (!editingSyllabus) return;
 
@@ -383,6 +390,7 @@ const SyllabusManagement = () => {
       if (error) throw error;
       fetchData();
       setEditingSyllabus(null);
+      setEditDialogOpen(false); // Close the dialog
       toast({
         title: "Success",
         description: "Syllabus updated successfully",
@@ -395,7 +403,6 @@ const SyllabusManagement = () => {
       });
     }
   };
-
   const handleDeleteSyllabus = async (id: string) => {
     try {
       const { error } = await supabase.from("syllabus").delete().eq("id", id);
@@ -599,18 +606,21 @@ const SyllabusManagement = () => {
                     {columns.map((column) =>
                       visibleColumns.has(column.id) ? (
                         <TableCell key={column.id}>
-                          {column.id === "class_id"
-                            ? classes.find((c) => c.id === syllabus[column.id])
-                                ?.name
-                            : column.id === "subject_id"
-                              ? subjects.find(
-                                  (s) => s.id === syllabus[column.id],
-                                )?.name
-                              : column.id === "teacher_id"
-                                ? teachers.find(
-                                    (t) => t.id === syllabus[column.id],
-                                  )?.name
-                                : syllabus[column.id]}
+                          {
+                            column.id === "class_id" ? (
+                              typeof syllabus[column.id] === 'object' && syllabus[column.id] !== null ? (syllabus[column.id] as any).name :
+                              classes.find((c) => c.id === syllabus[column.id])?.name
+                            ) :
+                            column.id === "subject_id" ? (
+                              typeof syllabus[column.id] === 'object' && syllabus[column.id] !== null ? (syllabus[column.id] as any).name :
+                              subjects.find((s) => s.id === syllabus[column.id])?.name
+                            ) :
+                            column.id === "teacher_id" ? (
+                              typeof syllabus[column.id] === 'object' && syllabus[column.id] !== null ? (syllabus[column.id] as any).name :
+                              teachers.find((t) => t.id === syllabus[column.id])?.name
+                            ) :
+                            syllabus[column.id]
+                          }
                         </TableCell>
                       ) : null,
                     )}
