@@ -576,9 +576,9 @@ const TimetableBuilder = () => {
                                     // Determine the background color based on flags
                                     const subject = subjects.find((s) => s.name === timeSlot?.subject);
                                     const bgColor = subject
-                                      ? false // Assuming default value as false since 'is_extracurricular' does not exist
+                                      ? false // Assuming is_extracurricular is not available, default to false
                                         ? "bg-purple-50"
-                                        : false // Assuming default value as false since 'is_subgroup' does not exist
+                                        : false
                                         ? "bg-green-50"
                                         : ""
                                       : "";
