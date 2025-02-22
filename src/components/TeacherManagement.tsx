@@ -231,6 +231,7 @@ const TeacherForm = ({
               <ScrollArea className="h-[200px]">
                 {availableRooms
                   .filter((room) => !data.rooms.some(existingRoom => existingRoom.id === room.id))
+                  .sort((a, b) => a.room_number.localeCompare(b.room_number)) // Sort rooms by room_number
                   .map((room) => (
                     <button
                       key={room.id}

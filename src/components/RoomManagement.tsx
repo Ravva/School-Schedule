@@ -345,10 +345,12 @@ const RoomAssignments = () => {
     try {
       const { subject_ids, ...roomData } = newRoom;
 
+      console.log("roomData:", roomData); // Log the data
+
       // Insert the new room and get its ID
       const { data: insertedRoom, error: insertError } = await supabase
         .from("rooms")
-        .insert([roomData])
+        .insert(roomData)
         .select("id");
 
       if (insertError) throw insertError;
