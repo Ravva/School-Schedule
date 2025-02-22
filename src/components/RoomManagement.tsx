@@ -336,7 +336,6 @@ const RoomAssignments = () => {
     fetchData();
   }, []);
 
-  // Function to handle adding a new room
   const handleAddRoom = async (
     newRoom: Omit<Room, "id" | "created_at"> & {
       subject_ids: string[];
@@ -345,15 +344,25 @@ const RoomAssignments = () => {
     try {
       const { subject_ids, ...roomData } = newRoom;
 
-      console.log("roomData:", roomData); // Log the data
+      // Create room data matching the exact schema
+      const roomToInsert = {
+        room_number: roomData.room_number.trim(), // Ensure the room number is trimmed
+        teacher_id: roomData.teacher_id || null,
+        class_id: null,
+        subject_id: null,
+        // Remove created_at as it's handled by Supabase
+      };
 
       // Insert the new room and get its ID
       const { data: insertedRoom, error: insertError } = await supabase
         .from("rooms")
-        .insert(roomData)
+        .insert([roomToInsert])
         .select("id");
 
-      if (insertError) throw insertError;
+      if (insertError) {
+        console.error("Insert error:", insertError);
+        throw insertError;
+      }
 
       const roomId = insertedRoom![0].id;
 
