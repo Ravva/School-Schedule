@@ -2,403 +2,331 @@
     {
         "Teacher": "Алексеев А.П.",
         "Weekday": "Пятница",
-        "Lesson number": 2,
+        "LessonNumber": 2,
         "Class": "10Ю",
-        "Subgroup": null,
+        "Subgroup": "",
         "Subject": "История",
         "Room": "212"
     },
     {
         "Teacher": "Алексеев А.П.",
         "Weekday": "Среда",
-        "Lesson number": 3,
+        "LessonNumber": 3,
         "Class": "9Ю",
-        "Subgroup": null,
+        "Subgroup": "",
         "Subject": "История",
         "Room": "203"
     },
     {
         "Teacher": "Алексеев А.П.",
         "Weekday": "Четверг",
-        "Lesson number": 3,
+        "LessonNumber": 3,
         "Class": "9Ю",
-        "Subgroup": null,
+        "Subgroup": "",
         "Subject": "История",
         "Room": "212"
     },
     {
         "Teacher": "Алексеев А.П.",
         "Weekday": "Вторник",
-        "Lesson number": 4,
+        "LessonNumber": 4,
         "Class": "9Э",
-        "Subgroup": null,
+        "Subgroup": "",
         "Subject": "История",
         "Room": "204"
     },
     {
         "Teacher": "Алексеев А.П.",
         "Weekday": "Среда",
-        "Lesson number": 4,
+        "LessonNumber": 4,
         "Class": "9Э",
-        "Subgroup": null,
+        "Subgroup": "",
         "Subject": "История",
         "Room": "204"
     },
     {
         "Teacher": "Алексеев А.П.",
         "Weekday": "Четверг",
-        "Lesson number": 4,
+        "LessonNumber": 4,
         "Class": "9Ю",
-        "Subgroup": null,
+        "Subgroup": "",
         "Subject": "История",
         "Room": "212"
     },
     {
         "Teacher": "Алексеев А.П.",
         "Weekday": "Вторник",
-        "Lesson number": 5,
+        "LessonNumber": 5,
         "Class": "10Э",
-        "Subgroup": null,
+        "Subgroup": "",
         "Subject": "История",
         "Room": "211"
     },
     {
         "Teacher": "Алексеев А.П.",
         "Weekday": "Вторник",
-        "Lesson number": 6,
+        "LessonNumber": 6,
         "Class": "10Э",
-        "Subgroup": null,
+        "Subgroup": "",
         "Subject": "История",
         "Room": "211"
     },
     {
         "Teacher": "Алексеев А.П.",
         "Weekday": "Среда",
-        "Lesson number": 6,
+        "LessonNumber": 6,
         "Class": "9Э",
-        "Subgroup": null,
+        "Subgroup": "",
         "Subject": "История",
         "Room": "204"
     },
     {
         "Teacher": "Алексеев А.П.",
         "Weekday": "Среда",
-        "Lesson number": 7,
+        "LessonNumber": 7,
         "Class": "10Ю",
-        "Subgroup": null,
+        "Subgroup": "",
         "Subject": "История",
         "Room": "204"
     },
     {
         "Teacher": "Барат А.А.",
         "Weekday": "Среда",
-        "Lesson number": 1,
+        "LessonNumber": 1,
         "Class": "7Э",
-        "Subgroup": null,
+        "Subgroup": "",
         "Subject": "Геометрия",
         "Room": "307"
     },
     {
         "Teacher": "Барат А.А.",
         "Weekday": "Понедельник",
-        "Lesson number": 2,
+        "LessonNumber": 2,
         "Class": "10Э",
-        "Subgroup": null,
+        "Subgroup": "",
         "Subject": "Физика",
         "Room": "308"
     },
     {
         "Teacher": "Барат А.А.",
         "Weekday": "Понедельник",
-        "Lesson number": 3,
+        "LessonNumber": 3,
         "Class": "10Э",
-        "Subgroup": null,
+        "Subgroup": "",
         "Subject": "Физика",
         "Room": "308"
     },
     {
         "Teacher": "Барат А.А.",
         "Weekday": "Среда",
-        "Lesson number": 3,
+        "LessonNumber": 3,
         "Class": "7Ю",
-        "Subgroup": null,
+        "Subgroup": "",
         "Subject": "Физика",
         "Room": "307"
     },
     {
         "Teacher": "Барат А.А.",
         "Weekday": "Пятница",
-        "Lesson number": 3,
+        "LessonNumber": 3,
         "Class": "7Э",
-        "Subgroup": null,
+        "Subgroup": "",
         "Subject": "Физика",
         "Room": "307"
     },
     {
         "Teacher": "Барат А.А.",
         "Weekday": "Понедельник",
-        "Lesson number": 4,
+        "LessonNumber": 4,
         "Class": "7Э",
-        "Subgroup": null,
+        "Subgroup": "",
         "Subject": "Физика",
         "Room": "307"
     },
     {
         "Teacher": "Барат А.А.",
         "Weekday": "Четверг",
-        "Lesson number": 4,
+        "LessonNumber": 4,
         "Class": "7Ю",
-        "Subgroup": null,
+        "Subgroup": "",
         "Subject": "Физика",
         "Room": "307"
     },
     {
         "Teacher": "Барат А.А.",
         "Weekday": "Понедельник",
-        "Lesson number": 5,
+        "LessonNumber": 5,
         "Class": "7Э",
-        "Subgroup": null,
+        "Subgroup": "",
         "Subject": "Геометрия",
         "Room": "307"
     },
     {
         "Teacher": "Барат А.А.",
         "Weekday": "Вторник",
-        "Lesson number": 5,
+        "LessonNumber": 5,
         "Class": "7Э",
-        "Subgroup": null,
+        "Subgroup": "",
         "Subject": "Физика",
         "Room": "307"
     },
     {
         "Teacher": "Барат А.А.",
         "Weekday": "Среда",
-        "Lesson number": 5,
+        "LessonNumber": 5,
         "Class": "9Э",
-        "Subgroup": null,
-        "Subject": "Физика",
-        "Room": "307"
-    },
-    {
-        "Teacher": "Барат А.А.",
-        "Weekday": "Четверг",
-        "Lesson number": 5,
-        "Class": "10Э",
-        "Subgroup": null,
-        "Subject": "Физика",
-        "Room": "308"
-    },
-    {
-        "Teacher": "Барат А.А.",
-        "Weekday": "Понедельник",
-        "Lesson number": 6,
-        "Class": "9Э",
-        "Subgroup": null,
-        "Subject": "Физика",
-        "Room": "307"
-    },
-    {
-        "Teacher": "Барат А.А.",
-        "Weekday": "Среда",
-        "Lesson number": 6,
-        "Class": "9Ю",
-        "Subgroup": null,
-        "Subject": "Физика",
-        "Room": "307"
-    },
-    {
-        "Teacher": "Барат А.А.",
-        "Weekday": "Четверг",
-        "Lesson number": 6,
-        "Class": "10Э",
-        "Subgroup": null,
-        "Subject": "Физика",
-        "Room": "308"
-    },
-    {
-        "Teacher": "Барат А.А.",
-        "Weekday": "Понедельник",
-        "Lesson number": 7,
-        "Class": "9Ю",
-        "Subgroup": null,
-        "Subject": "Физика",
-        "Room": "307"
-    },
-    {
-        "Teacher": "Барат А.А.",
-        "Weekday": "Вторник",
-        "Lesson number": 7,
-        "Class": "7Ю",
-        "Subgroup": null,
-        "Subject": "Физика",
-        "Room": "307"
-    },
-    {
-        "Teacher": "Барат А.А.",
-        "Weekday": "Среда",
-        "Lesson number": 7,
-        "Class": "9Ю",
-        "Subgroup": null,
-        "Subject": "Физика",
-        "Room": "307"
-    },
-    {
-        "Teacher": "Барат А.А.",
-        "Weekday": "Четверг",
-        "Lesson number": 7,
-        "Class": "9Э",
-        "Subgroup": null,
+        "Subgroup": "",
         "Subject": "Физика",
         "Room": "307"
     },
     {
         "Teacher": "Бурдонов А.Ю.",
         "Weekday": "Вторник",
-        "Lesson number": 1,
-        "Class": "10ЭЮ",
-        "Subgroup": "2гр",
-        "Subject": "ОБЗР",
+        "LessonNumber": 1,
+        "Class": "10ЭЮ 2гр",
+        "Subgroup": "",
+        "Subject": "Основы безопасности и защиты Родины",
         "Room": "220"
     },
     {
         "Teacher": "Бурдонов А.Ю.",
         "Weekday": "Четверг",
-        "Lesson number": 1,
+        "LessonNumber": 1,
         "Class": "9Э",
-        "Subgroup": null,
-        "Subject": "ОБЗР",
+        "Subgroup": "",
+        "Subject": "Основы безопасности и защиты Родины",
         "Room": "220"
     },
     {
         "Teacher": "Бурдонов А.Ю.",
         "Weekday": "Пятница",
-        "Lesson number": 2,
+        "LessonNumber": 2,
         "Class": "9Ю",
-        "Subgroup": null,
-        "Subject": "ОБЗР",
+        "Subgroup": "",
+        "Subject": "Основы безопасности и защиты Родины",
         "Room": "220"
     },
     {
         "Teacher": "Бурдонов А.Ю.",
         "Weekday": "Понедельник",
-        "Lesson number": 4,
+        "LessonNumber": 4,
         "Class": "10Ю",
-        "Subgroup": null,
+        "Subgroup": "",
         "Subject": "Физическая культура",
-        "Room": "Спортивный зал"
+        "Room": "СЗ"
     },
     {
         "Teacher": "Бурдонов А.Ю.",
         "Weekday": "Вторник",
-        "Lesson number": 4,
-        "Class": "10ЭЮ",
-        "Subgroup": "1гр",
-        "Subject": "ОБЗР",
+        "LessonNumber": 4,
+        "Class": "10ЭЮ 1гр",
+        "Subgroup": "",
+        "Subject": "Основы безопасности и защиты Родины",
         "Room": "220"
     },
     {
         "Teacher": "Бурдонов А.Ю.",
         "Weekday": "Среда",
-        "Lesson number": 4,
+        "LessonNumber": 4,
         "Class": "8Э",
         "Subgroup": "1",
-        "Subject": "Технология (труд)",
+        "Subject": "Труд",
         "Room": "219"
     },
     {
         "Teacher": "Бурдонов А.Ю.",
         "Weekday": "Четверг",
-        "Lesson number": 4,
+        "LessonNumber": 4,
         "Class": "8Ю",
-        "Subgroup": null,
-        "Subject": "ОБЗР",
+        "Subgroup": "",
+        "Subject": "Основы безопасности и защиты Родины",
         "Room": "220"
     },
     {
         "Teacher": "Бурдонов А.Ю.",
         "Weekday": "Пятница",
-        "Lesson number": 4,
+        "LessonNumber": 4,
         "Class": "8Я",
         "Subgroup": "1",
-        "Subject": "Технология (труд)",
+        "Subject": "Труд",
         "Room": "218"
     },
     {
         "Teacher": "Бурдонов А.Ю.",
         "Weekday": "Понедельник",
-        "Lesson number": 5,
+        "LessonNumber": 5,
         "Class": "10Э",
-        "Subgroup": null,
+        "Subgroup": "",
         "Subject": "Физическая культура",
-        "Room": "Спортивный зал"
+        "Room": "СЗ"
     },
     {
         "Teacher": "Бурдонов А.Ю.",
         "Weekday": "Среда",
-        "Lesson number": 5,
+        "LessonNumber": 5,
         "Class": "8Э",
         "Subgroup": "2",
-        "Subject": "Технология (труд)",
+        "Subject": "Труд",
         "Room": "219"
     },
     {
         "Teacher": "Бурдонов А.Ю.",
         "Weekday": "Четверг",
-        "Lesson number": 5,
+        "LessonNumber": 5,
         "Class": "11Я",
-        "Subgroup": null,
-        "Subject": "ОБЗР",
+        "Subgroup": "",
+        "Subject": "Основы безопасности и защиты Родины",
         "Room": "220"
     },
     {
         "Teacher": "Бурдонов А.Ю.",
         "Weekday": "Пятница",
-        "Lesson number": 5,
+        "LessonNumber": 5,
         "Class": "8Я",
         "Subgroup": "2",
-        "Subject": "Технология (труд)",
+        "Subject": "Труд",
         "Room": "218"
     },
     {
         "Teacher": "Бурдонов А.Ю.",
         "Weekday": "Среда",
-        "Lesson number": 6,
+        "LessonNumber": 6,
         "Class": "8Ю",
         "Subgroup": "1",
-        "Subject": "Технология (труд)",
+        "Subject": "Труд",
         "Room": "219"
     },
     {
         "Teacher": "Бурдонов А.Ю.",
         "Weekday": "Пятница",
-        "Lesson number": 6,
+        "LessonNumber": 6,
         "Class": "8Я",
-        "Subgroup": null,
-        "Subject": "ОБЗР",
+        "Subgroup": "",
+        "Subject": "Основы безопасности и защиты Родины",
         "Room": "220"
     },
     {
         "Teacher": "Бурдонов А.Ю.",
         "Weekday": "Понедельник",
-        "Lesson number": 7,
+        "LessonNumber": 7,
         "Class": "8Э",
-        "Subgroup": null,
-        "Subject": "ОБЗР",
+        "Subgroup": "",
+        "Subject": "Основы безопасности и защиты Родины",
         "Room": "220"
     },
     {
         "Teacher": "Бурдонов А.Ю.",
         "Weekday": "Среда",
-        "Lesson number": 7,
+        "LessonNumber": 7,
         "Class": "8Ю",
         "Subgroup": "2",
-        "Subject": "Технология (труд)",
+        "Subject": "Труд",
         "Room": "219"
     },
     {
         "Teacher": "Гаврик С.С.",
         "Weekday": "Среда",
-        "Lesson number": 1,
+        "LessonNumber": 1,
         "Class": "7Ю",
         "Subgroup": "1",
         "Subject": "Иностранный Язык",
@@ -407,7 +335,7 @@
     {
         "Teacher": "Гаврик С.С.",
         "Weekday": "Пятница",
-        "Lesson number": 1,
+        "LessonNumber": 1,
         "Class": "7Я",
         "Subgroup": "1",
         "Subject": "Иностранный Язык",
@@ -416,7 +344,7 @@
     {
         "Teacher": "Гаврик С.С.",
         "Weekday": "Понедельник",
-        "Lesson number": 2,
+        "LessonNumber": 2,
         "Class": "7Э",
         "Subgroup": "1",
         "Subject": "Иностранный Язык",
@@ -425,7 +353,7 @@
     {
         "Teacher": "Гаврик С.С.",
         "Weekday": "Среда",
-        "Lesson number": 2,
+        "LessonNumber": 2,
         "Class": "7Ю",
         "Subgroup": "2",
         "Subject": "Иностранный Язык",
@@ -434,7 +362,7 @@
     {
         "Teacher": "Гаврик С.С.",
         "Weekday": "Пятница",
-        "Lesson number": 2,
+        "LessonNumber": 2,
         "Class": "7Я",
         "Subgroup": "2",
         "Subject": "Иностранный Язык",
@@ -443,7 +371,7 @@
     {
         "Teacher": "Гаврик С.С.",
         "Weekday": "Понедельник",
-        "Lesson number": 3,
+        "LessonNumber": 3,
         "Class": "7Э",
         "Subgroup": "2",
         "Subject": "Иностранный Язык",
@@ -452,7 +380,7 @@
     {
         "Teacher": "Гаврик С.С.",
         "Weekday": "Среда",
-        "Lesson number": 3,
+        "LessonNumber": 3,
         "Class": "7Э",
         "Subgroup": "1",
         "Subject": "Иностранный Язык",
@@ -461,7 +389,7 @@
     {
         "Teacher": "Гаврик С.С.",
         "Weekday": "Пятница",
-        "Lesson number": 3,
+        "LessonNumber": 3,
         "Class": "7Ю",
         "Subgroup": "2",
         "Subject": "Иностранный Язык",
@@ -470,7 +398,7 @@
     {
         "Teacher": "Гаврик С.С.",
         "Weekday": "Понедельник",
-        "Lesson number": 4,
+        "LessonNumber": 4,
         "Class": "7Ю",
         "Subgroup": "1",
         "Subject": "Иностранный Язык",
@@ -479,7 +407,7 @@
     {
         "Teacher": "Гаврик С.С.",
         "Weekday": "Среда",
-        "Lesson number": 4,
+        "LessonNumber": 4,
         "Class": "7Э",
         "Subgroup": "2",
         "Subject": "Иностранный Язык",
@@ -488,7 +416,7 @@
     {
         "Teacher": "Гаврик С.С.",
         "Weekday": "Пятница",
-        "Lesson number": 4,
+        "LessonNumber": 4,
         "Class": "7Ю",
         "Subgroup": "1",
         "Subject": "Иностранный Язык",
@@ -497,7 +425,7 @@
     {
         "Teacher": "Гаврик С.С.",
         "Weekday": "Понедельник",
-        "Lesson number": 5,
+        "LessonNumber": 5,
         "Class": "7Ю",
         "Subgroup": "2",
         "Subject": "Иностранный Язык",
@@ -506,7 +434,7 @@
     {
         "Teacher": "Гаврик С.С.",
         "Weekday": "Среда",
-        "Lesson number": 5,
+        "LessonNumber": 5,
         "Class": "7Я",
         "Subgroup": "1",
         "Subject": "Иностранный Язык",
@@ -515,7 +443,7 @@
     {
         "Teacher": "Гаврик С.С.",
         "Weekday": "Пятница",
-        "Lesson number": 5,
+        "LessonNumber": 5,
         "Class": "7Э",
         "Subgroup": "1",
         "Subject": "Иностранный Язык",
@@ -524,7 +452,7 @@
     {
         "Teacher": "Гаврик С.С.",
         "Weekday": "Понедельник",
-        "Lesson number": 6,
+        "LessonNumber": 6,
         "Class": "7Я",
         "Subgroup": "1",
         "Subject": "Иностранный Язык",
@@ -533,10 +461,3358 @@
     {
         "Teacher": "Гаврик С.С.",
         "Weekday": "Среда",
-        "Lesson number": 6,
+        "LessonNumber": 6,
         "Class": "7Я",
         "Subgroup": "2",
         "Subject": "Иностранный Язык",
         "Room": "406"
+    },
+    {
+        "Teacher": "Гаврик С.С.",
+        "Weekday": "Пятница",
+        "LessonNumber": 6,
+        "Class": "7Э",
+        "Subgroup": "2",
+        "Subject": "Иностранный Язык",
+        "Room": "308"
+    },
+    {
+        "Teacher": "Гаврик С.С.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 7,
+        "Class": "7Я",
+        "Subgroup": "2",
+        "Subject": "Иностранный Язык",
+        "Room": "406"
+    },
+    {
+        "Teacher": "Гордополова Е.С.",
+        "Weekday": "Вторник",
+        "LessonNumber": 1,
+        "Class": "8Я",
+        "Subgroup": "",
+        "Subject": "География",
+        "Room": "406"
+    },
+    {
+        "Teacher": "Гордополова Е.С.",
+        "Weekday": "Четверг",
+        "LessonNumber": 1,
+        "Class": "7Ю",
+        "Subgroup": "",
+        "Subject": "География",
+        "Room": "406"
+    },
+    {
+        "Teacher": "Гордополова Е.С.",
+        "Weekday": "Пятница",
+        "LessonNumber": 1,
+        "Class": "9Э",
+        "Subgroup": "",
+        "Subject": "География",
+        "Room": "406"
+    },
+    {
+        "Teacher": "Гордополова Е.С.",
+        "Weekday": "Среда",
+        "LessonNumber": 2,
+        "Class": "9Ю",
+        "Subgroup": "",
+        "Subject": "География",
+        "Room": "406"
+    },
+    {
+        "Teacher": "Гордополова Е.С.",
+        "Weekday": "Четверг",
+        "LessonNumber": 2,
+        "Class": "8Ю",
+        "Subgroup": "",
+        "Subject": "География",
+        "Room": "406"
+    },
+    {
+        "Teacher": "Гордополова Е.С.",
+        "Weekday": "Вторник",
+        "LessonNumber": 3,
+        "Class": "8Э",
+        "Subgroup": "",
+        "Subject": "География",
+        "Room": "406"
+    },
+    {
+        "Teacher": "Гордополова Е.С.",
+        "Weekday": "Среда",
+        "LessonNumber": 3,
+        "Class": "9Э",
+        "Subgroup": "",
+        "Subject": "География",
+        "Room": "406"
+    },
+    {
+        "Teacher": "Гордополова Е.С.",
+        "Weekday": "Четверг",
+        "LessonNumber": 3,
+        "Class": "7Я",
+        "Subgroup": "",
+        "Subject": "География",
+        "Room": "406"
+    },
+    {
+        "Teacher": "Гордополова Е.С.",
+        "Weekday": "Вторник",
+        "LessonNumber": 4,
+        "Class": "7Э",
+        "Subgroup": "",
+        "Subject": "География",
+        "Room": "406"
+    },
+    {
+        "Teacher": "Гордополова Е.С.",
+        "Weekday": "Среда",
+        "LessonNumber": 4,
+        "Class": "8Я",
+        "Subgroup": "",
+        "Subject": "География",
+        "Room": "406"
+    },
+    {
+        "Teacher": "Гордополова Е.С.",
+        "Weekday": "Четверг",
+        "LessonNumber": 4,
+        "Class": "8Э",
+        "Subgroup": "",
+        "Subject": "География",
+        "Room": "406"
+    },
+    {
+        "Teacher": "Гордополова Е.С.",
+        "Weekday": "Среда",
+        "LessonNumber": 5,
+        "Class": "7Э",
+        "Subgroup": "",
+        "Subject": "География",
+        "Room": "406"
+    },
+    {
+        "Teacher": "Гордополова Е.С.",
+        "Weekday": "Четверг",
+        "LessonNumber": 5,
+        "Class": "11Я",
+        "Subgroup": "",
+        "Subject": "География",
+        "Room": "406"
+    },
+    {
+        "Teacher": "Гордополова Е.С.",
+        "Weekday": "Вторник",
+        "LessonNumber": 6,
+        "Class": "10Ю",
+        "Subgroup": "",
+        "Subject": "География",
+        "Room": "406"
+    },
+    {
+        "Teacher": "Гордополова Е.С.",
+        "Weekday": "Среда",
+        "LessonNumber": 6,
+        "Class": "8Ю",
+        "Subgroup": "",
+        "Subject": "География",
+        "Room": "406"
+    },
+    {
+        "Teacher": "Гордополова Е.С.",
+        "Weekday": "Четверг",
+        "LessonNumber": 6,
+        "Class": "9Ю",
+        "Subgroup": "",
+        "Subject": "География",
+        "Room": "406"
+    },
+    {
+        "Teacher": "Гордополова Е.С.",
+        "Weekday": "Вторник",
+        "LessonNumber": 7,
+        "Class": "7Я",
+        "Subgroup": "",
+        "Subject": "География",
+        "Room": "406"
+    },
+    {
+        "Teacher": "Гордополова Е.С.",
+        "Weekday": "Среда",
+        "LessonNumber": 7,
+        "Class": "10Э",
+        "Subgroup": "",
+        "Subject": "География",
+        "Room": "406"
+    },
+    {
+        "Teacher": "Гордополова Е.С.",
+        "Weekday": "Четверг",
+        "LessonNumber": 7,
+        "Class": "7Ю",
+        "Subgroup": "",
+        "Subject": "География",
+        "Room": "406"
+    },
+    {
+        "Teacher": "Голумеева Е.А.",
+        "Weekday": "Вторник",
+        "LessonNumber": 1,
+        "Class": "11Я",
+        "Subgroup": "",
+        "Subject": "Математика",
+        "Room": "203"
+    },
+    {
+        "Teacher": "Голумеева Е.А.",
+        "Weekday": "Четверг",
+        "LessonNumber": 1,
+        "Class": "11Я",
+        "Subgroup": "",
+        "Subject": "Математика",
+        "Room": "203"
+    },
+    {
+        "Teacher": "Голумеева Е.А.",
+        "Weekday": "Пятница",
+        "LessonNumber": 1,
+        "Class": "7Ю",
+        "Subgroup": "",
+        "Subject": "Алгебра",
+        "Room": "203"
+    },
+    {
+        "Teacher": "Голумеева Е.А.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 2,
+        "Class": "11Я",
+        "Subgroup": "",
+        "Subject": "Математика",
+        "Room": "203"
+    },
+    {
+        "Teacher": "Голумеева Е.А.",
+        "Weekday": "Вторник",
+        "LessonNumber": 2,
+        "Class": "7Ю",
+        "Subgroup": "",
+        "Subject": "Алгебра",
+        "Room": "203"
+    },
+    {
+        "Teacher": "Голумеева Е.А.",
+        "Weekday": "Среда",
+        "LessonNumber": 2,
+        "Class": "11Я",
+        "Subgroup": "",
+        "Subject": "Математика",
+        "Room": "203"
+    },
+    {
+        "Teacher": "Голумеева Е.А.",
+        "Weekday": "Четверг",
+        "LessonNumber": 2,
+        "Class": "7Ю",
+        "Subgroup": "",
+        "Subject": "Геометрия",
+        "Room": "203"
+    },
+    {
+        "Teacher": "Голумеева Е.А.",
+        "Weekday": "Пятница",
+        "LessonNumber": 2,
+        "Class": "7Ю",
+        "Subgroup": "",
+        "Subject": "Вероятность и статистика",
+        "Room": "203"
+    },
+    {
+        "Teacher": "Голумеева Е.А.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 3,
+        "Class": "11Я",
+        "Subgroup": "",
+        "Subject": "Математика",
+        "Room": "203"
+    },
+    {
+        "Teacher": "Голумеева Е.А.",
+        "Weekday": "Вторник",
+        "LessonNumber": 3,
+        "Class": "7Ю",
+        "Subgroup": "",
+        "Subject": "Алгебра",
+        "Room": "203"
+    },
+    {
+        "Teacher": "Голумеева Е.А.",
+        "Weekday": "Среда",
+        "LessonNumber": 3,
+        "Class": "11Я",
+        "Subgroup": "",
+        "Subject": "Математика",
+        "Room": "203"
+    },
+    {
+        "Teacher": "Голумеева Е.А.",
+        "Weekday": "Пятница",
+        "LessonNumber": 3,
+        "Class": "11Я",
+        "Subgroup": "",
+        "Subject": "Математика",
+        "Room": "203"
+    },
+    {
+        "Teacher": "Голумеева Е.А.",
+        "Weekday": "Среда",
+        "LessonNumber": 4,
+        "Class": "7Ю",
+        "Subgroup": "",
+        "Subject": "Алгебра",
+        "Room": "203"
+    },
+    {
+        "Teacher": "Голумеева Е.А.",
+        "Weekday": "Пятница",
+        "LessonNumber": 4,
+        "Class": "11Я",
+        "Subgroup": "",
+        "Subject": "Математика",
+        "Room": "203"
+    },
+    {
+        "Teacher": "Голумеева Е.А.",
+        "Weekday": "Пятница",
+        "LessonNumber": 5,
+        "Class": "7Ю",
+        "Subgroup": "",
+        "Subject": "Математическое моделирование",
+        "Room": "203"
+    },
+    {
+        "Teacher": "Голумеева Е.А.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 6,
+        "Class": "7Ю",
+        "Subgroup": "",
+        "Subject": "Геометрия",
+        "Room": "203"
+    },
+    {
+        "Teacher": "Дембицкий А.В.",
+        "Weekday": "Вторник",
+        "LessonNumber": 1,
+        "Class": "9Ю",
+        "Subgroup": "2",
+        "Subject": "Иностранный Язык",
+        "Room": "309"
+    },
+    {
+        "Teacher": "Дембицкий А.В.",
+        "Weekday": "Среда",
+        "LessonNumber": 1,
+        "Class": "10Ю",
+        "Subgroup": "1",
+        "Subject": "Иностранный Язык",
+        "Room": "309"
+    },
+    {
+        "Teacher": "Дембицкий А.В.",
+        "Weekday": "Пятница",
+        "LessonNumber": 1,
+        "Class": "10Ю",
+        "Subgroup": "1",
+        "Subject": "Иностранный Язык",
+        "Room": "309"
+    },
+    {
+        "Teacher": "Дембицкий А.В.",
+        "Weekday": "Вторник",
+        "LessonNumber": 2,
+        "Class": "9Э",
+        "Subgroup": "2",
+        "Subject": "Иностранный Язык",
+        "Room": "309"
+    },
+    {
+        "Teacher": "Дембицкий А.В.",
+        "Weekday": "Среда",
+        "LessonNumber": 2,
+        "Class": "10Ю",
+        "Subgroup": "1",
+        "Subject": "Иностранный Язык",
+        "Room": "309"
+    },
+    {
+        "Teacher": "Дембицкий А.В.",
+        "Weekday": "Пятница",
+        "LessonNumber": 2,
+        "Class": "10Э",
+        "Subgroup": "1",
+        "Subject": "Иностранный Язык",
+        "Room": "309"
+    },
+    {
+        "Teacher": "Дембицкий А.В.",
+        "Weekday": "Вторник",
+        "LessonNumber": 3,
+        "Class": "9Э",
+        "Subgroup": "1",
+        "Subject": "Иностранный Язык",
+        "Room": "309"
+    },
+    {
+        "Teacher": "Дембицкий А.В.",
+        "Weekday": "Среда",
+        "LessonNumber": 3,
+        "Class": "10Э",
+        "Subgroup": "1",
+        "Subject": "Иностранный Язык",
+        "Room": "309"
+    },
+    {
+        "Teacher": "Дембицкий А.В.",
+        "Weekday": "Четверг",
+        "LessonNumber": 3,
+        "Class": "11Я",
+        "Subgroup": "2",
+        "Subject": "Иностранный Язык",
+        "Room": "309"
+    },
+    {
+        "Teacher": "Дембицкий А.В.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 4,
+        "Class": "11Я",
+        "Subgroup": "2",
+        "Subject": "Иностранный Язык",
+        "Room": "309"
+    },
+    {
+        "Teacher": "Дембицкий А.В.",
+        "Weekday": "Вторник",
+        "LessonNumber": 4,
+        "Class": "9Ю",
+        "Subgroup": "1",
+        "Subject": "Иностранный Язык",
+        "Room": "309"
+    },
+    {
+        "Teacher": "Дембицкий А.В.",
+        "Weekday": "Среда",
+        "LessonNumber": 4,
+        "Class": "9Ю",
+        "Subgroup": "1",
+        "Subject": "Иностранный Язык",
+        "Room": "309"
+    },
+    {
+        "Teacher": "Дембицкий А.В.",
+        "Weekday": "Пятница",
+        "LessonNumber": 4,
+        "Class": "9Э",
+        "Subgroup": "1",
+        "Subject": "Иностранный Язык",
+        "Room": "309"
+    },
+    {
+        "Teacher": "Дембицкий А.В.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 5,
+        "Class": "10Ю",
+        "Subgroup": "1",
+        "Subject": "Иностранный Язык",
+        "Room": "309"
+    },
+    {
+        "Teacher": "Дембицкий А.В.",
+        "Weekday": "Вторник",
+        "LessonNumber": 5,
+        "Class": "11Я",
+        "Subgroup": "1",
+        "Subject": "Иностранный Язык",
+        "Room": "309"
+    },
+    {
+        "Teacher": "Дембицкий А.В.",
+        "Weekday": "Среда",
+        "LessonNumber": 5,
+        "Class": "9Ю",
+        "Subgroup": "2",
+        "Subject": "Иностранный Язык",
+        "Room": "309"
+    },
+    {
+        "Teacher": "Дембицкий А.В.",
+        "Weekday": "Пятница",
+        "LessonNumber": 5,
+        "Class": "9Э",
+        "Subgroup": "2",
+        "Subject": "Иностранный Язык",
+        "Room": "309"
+    },
+    {
+        "Teacher": "Дембицкий А.В.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 6,
+        "Class": "10Ю",
+        "Subgroup": "1",
+        "Subject": "Иностранный Язык",
+        "Room": "309"
+    },
+    {
+        "Teacher": "Дембицкий А.В.",
+        "Weekday": "Четверг",
+        "LessonNumber": 7,
+        "Class": "11Я",
+        "Subgroup": "1",
+        "Subject": "Иностранный Язык",
+        "Room": "309"
+    },
+    {
+        "Teacher": "Дембицкий А.В.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 8,
+        "Class": "9Ю",
+        "Subgroup": "1",
+        "Subject": "Иностранный Язык",
+        "Room": "309"
+    },
+    {
+        "Teacher": "Дембицкий А.В.",
+        "Weekday": "Среда",
+        "LessonNumber": 8,
+        "Class": "9Ю",
+        "Subgroup": "2",
+        "Subject": "Иностранный Язык",
+        "Room": "309"
+    },
+    {
+        "Teacher": "Дембицкий А.В.",
+        "Weekday": "Четверг",
+        "LessonNumber": 8,
+        "Class": "9Э",
+        "Subgroup": "1",
+        "Subject": "Иностранный Язык",
+        "Room": "309"
+    },
+    {
+        "Teacher": "Дембицкий А.В.",
+        "Weekday": "Пятница",
+        "LessonNumber": 8,
+        "Class": "9Э",
+        "Subgroup": "2",
+        "Subject": "Иностранный Язык",
+        "Room": "309"
+    },
+    {
+        "Teacher": "Дмитриева С.В.",
+        "Weekday": "Пятница",
+        "LessonNumber": 1,
+        "Class": "10Э",
+        "Subgroup": "",
+        "Subject": "Обществознание",
+        "Room": "405"
+    },
+    {
+        "Teacher": "Дмитриева С.В.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 3,
+        "Class": "10Ю",
+        "Subgroup": "",
+        "Subject": "Обществознание",
+        "Room": "405"
+    },
+    {
+        "Teacher": "Дмитриева С.В.",
+        "Weekday": "Среда",
+        "LessonNumber": 3,
+        "Class": "10Ю",
+        "Subgroup": "",
+        "Subject": "Обществознание",
+        "Room": "405"
+    },
+    {
+        "Teacher": "Дмитриева С.В.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 4,
+        "Class": "10Э",
+        "Subgroup": "",
+        "Subject": "Обществознание",
+        "Room": "405"
+    },
+    {
+        "Teacher": "Дмитриева С.В.",
+        "Weekday": "Среда",
+        "LessonNumber": 4,
+        "Class": "11Ю",
+        "Subgroup": "2",
+        "Subject": "Обществознание",
+        "Room": "405"
+    },
+    {
+        "Teacher": "Дмитриева С.В.",
+        "Weekday": "Среда",
+        "LessonNumber": 5,
+        "Class": "11Ю",
+        "Subgroup": "2",
+        "Subject": "Обществознание",
+        "Room": "405"
+    },
+    {
+        "Teacher": "Дмитриева С.В.",
+        "Weekday": "Четверг",
+        "LessonNumber": 5,
+        "Class": "10Ю",
+        "Subgroup": "",
+        "Subject": "Основы предпринимательской деятельности",
+        "Room": "405"
+    },
+    {
+        "Teacher": "Дмитриева С.В.",
+        "Weekday": "Пятница",
+        "LessonNumber": 5,
+        "Class": "9Ю",
+        "Subgroup": "",
+        "Subject": "Обществознание",
+        "Room": "405"
+    },
+    {
+        "Teacher": "Дмитриева С.В.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 6,
+        "Class": "11Ю",
+        "Subgroup": "2",
+        "Subject": "Обществознание",
+        "Room": "405"
+    },
+    {
+        "Teacher": "Дмитриева С.В.",
+        "Weekday": "Среда",
+        "LessonNumber": 6,
+        "Class": "11Э",
+        "Subgroup": "1",
+        "Subject": "Обществознание",
+        "Room": "405"
+    },
+    {
+        "Teacher": "Дмитриева С.В.",
+        "Weekday": "Четверг",
+        "LessonNumber": 6,
+        "Class": "10Ю",
+        "Subgroup": "",
+        "Subject": "Обществознание",
+        "Room": "405"
+    },
+    {
+        "Teacher": "Дмитриева С.В.",
+        "Weekday": "Пятница",
+        "LessonNumber": 6,
+        "Class": "9Э",
+        "Subgroup": "",
+        "Subject": "Обществознание",
+        "Room": "405"
+    },
+    {
+        "Teacher": "Дмитриева С.В.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 7,
+        "Class": "11Ю",
+        "Subgroup": "2",
+        "Subject": "Обществознание",
+        "Room": "405"
+    },
+    {
+        "Teacher": "Дмитриева С.В.",
+        "Weekday": "Пятница",
+        "LessonNumber": 7,
+        "Class": "10Ю",
+        "Subgroup": "",
+        "Subject": "Обществознание",
+        "Room": "405"
+    },
+    {
+        "Teacher": "Дмитриева С.В.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 8,
+        "Class": "11Э",
+        "Subgroup": "1",
+        "Subject": "Обществознание",
+        "Room": "405"
+    },
+    {
+        "Teacher": "Донцова М.А.",
+        "Weekday": "Вторник",
+        "LessonNumber": 1,
+        "Class": "10ЭЮ 1гр",
+        "Subgroup": "",
+        "Subject": "Математика",
+        "Room": "207"
+    },
+    {
+        "Teacher": "Донцова М.А.",
+        "Weekday": "Среда",
+        "LessonNumber": 1,
+        "Class": "9Э",
+        "Subgroup": "",
+        "Subject": "Алгебра",
+        "Room": "207"
+    },
+    {
+        "Teacher": "Донцова М.А.",
+        "Weekday": "Четверг",
+        "LessonNumber": 1,
+        "Class": "10ЭЮ 1гр",
+        "Subgroup": "",
+        "Subject": "Математика",
+        "Room": "207"
+    },
+    {
+        "Teacher": "Донцова М.А.",
+        "Weekday": "Пятница",
+        "LessonNumber": 1,
+        "Class": "9Ю",
+        "Subgroup": "",
+        "Subject": "Геометрия",
+        "Room": "207"
+    },
+    {
+        "Teacher": "Донцова М.А.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 2,
+        "Class": "9Ю",
+        "Subgroup": "",
+        "Subject": "Алгебра",
+        "Room": "207"
+    },
+    {
+        "Teacher": "Донцова М.А.",
+        "Weekday": "Вторник",
+        "LessonNumber": 2,
+        "Class": "10ЭЮ 1гр",
+        "Subgroup": "",
+        "Subject": "Математика",
+        "Room": "207"
+    },
+    {
+        "Teacher": "Донцова М.А.",
+        "Weekday": "Среда",
+        "LessonNumber": 2,
+        "Class": "9Э",
+        "Subgroup": "",
+        "Subject": "Геометрия",
+        "Room": "207"
+    },
+    {
+        "Teacher": "Донцова М.А.",
+        "Weekday": "Четверг",
+        "LessonNumber": 2,
+        "Class": "10ЭЮ 1гр",
+        "Subgroup": "",
+        "Subject": "Математика",
+        "Room": "207"
+    },
+    {
+        "Teacher": "Донцова М.А.",
+        "Weekday": "Пятница",
+        "LessonNumber": 2,
+        "Class": "9Э",
+        "Subgroup": "",
+        "Subject": "Алгебра",
+        "Room": "207"
+    },
+    {
+        "Teacher": "Донцова М.А.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 3,
+        "Class": "9Ю",
+        "Subgroup": "",
+        "Subject": "Алгебра",
+        "Room": "207"
+    },
+    {
+        "Teacher": "Донцова М.А.",
+        "Weekday": "Вторник",
+        "LessonNumber": 3,
+        "Class": "10ЭЮ 2гр",
+        "Subgroup": "",
+        "Subject": "Математика",
+        "Room": "207"
+    },
+    {
+        "Teacher": "Донцова М.А.",
+        "Weekday": "Среда",
+        "LessonNumber": 3,
+        "Class": "9Ю",
+        "Subgroup": "",
+        "Subject": "Алгебра",
+        "Room": "207"
+    },
+    {
+        "Teacher": "Донцова М.А.",
+        "Weekday": "Четверг",
+        "LessonNumber": 3,
+        "Class": "10ЭЮ 2гр",
+        "Subgroup": "",
+        "Subject": "Математика",
+        "Room": "207"
+    },
+    {
+        "Teacher": "Донцова М.А.",
+        "Weekday": "Пятница",
+        "LessonNumber": 3,
+        "Class": "10ЭЮ 1гр",
+        "Subgroup": "",
+        "Subject": "Математика",
+        "Room": "207"
+    },
+    {
+        "Teacher": "Донцова М.А.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 4,
+        "Class": "9Э",
+        "Subgroup": "",
+        "Subject": "Алгебра",
+        "Room": "207"
+    },
+    {
+        "Teacher": "Донцова М.А.",
+        "Weekday": "Вторник",
+        "LessonNumber": 4,
+        "Class": "10ЭЮ 2гр",
+        "Subgroup": "",
+        "Subject": "Математика",
+        "Room": "207"
+    },
+    {
+        "Teacher": "Донцова М.А.",
+        "Weekday": "Среда",
+        "LessonNumber": 4,
+        "Class": "10ЭЮ 2гр",
+        "Subgroup": "",
+        "Subject": "Математика",
+        "Room": "207"
+    },
+    {
+        "Teacher": "Донцова М.А.",
+        "Weekday": "Четверг",
+        "LessonNumber": 4,
+        "Class": "10ЭЮ 2гр",
+        "Subgroup": "",
+        "Subject": "Математика",
+        "Room": "207"
+    },
+    {
+        "Teacher": "Донцова М.А.",
+        "Weekday": "Пятница",
+        "LessonNumber": 4,
+        "Class": "10ЭЮ 1гр",
+        "Subgroup": "",
+        "Subject": "Математика",
+        "Room": "207"
+    },
+    {
+        "Teacher": "Донцова М.А.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 5,
+        "Class": "9Э",
+        "Subgroup": "",
+        "Subject": "Алгебра",
+        "Room": "207"
+    },
+    {
+        "Teacher": "Донцова М.А.",
+        "Weekday": "Вторник",
+        "LessonNumber": 5,
+        "Class": "9Ю",
+        "Subgroup": "",
+        "Subject": "Геометрия",
+        "Room": "207"
+    },
+    {
+        "Teacher": "Донцова М.А.",
+        "Weekday": "Среда",
+        "LessonNumber": 5,
+        "Class": "10ЭЮ 2гр",
+        "Subgroup": "",
+        "Subject": "Математика",
+        "Room": "207"
+    },
+    {
+        "Teacher": "Донцова М.А.",
+        "Weekday": "Четверг",
+        "LessonNumber": 5,
+        "Class": "9Э",
+        "Subgroup": "",
+        "Subject": "Геометрия",
+        "Room": "207"
+    },
+    {
+        "Teacher": "Донцова М.А.",
+        "Weekday": "Пятница",
+        "LessonNumber": 5,
+        "Class": "10ЭЮ 2гр",
+        "Subgroup": "",
+        "Subject": "Математика",
+        "Room": "207"
+    },
+    {
+        "Teacher": "Донцова М.А.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 6,
+        "Class": "9Ю",
+        "Subgroup": "",
+        "Subject": "Вероятность и статистика",
+        "Room": "207"
+    },
+    {
+        "Teacher": "Донцова М.А.",
+        "Weekday": "Вторник",
+        "LessonNumber": 6,
+        "Class": "9Ю",
+        "Subgroup": "",
+        "Subject": "Алгебра",
+        "Room": "207"
+    },
+    {
+        "Teacher": "Донцова М.А.",
+        "Weekday": "Среда",
+        "LessonNumber": 6,
+        "Class": "10ЭЮ 1гр",
+        "Subgroup": "",
+        "Subject": "Математика",
+        "Room": "207"
+    },
+    {
+        "Teacher": "Донцова М.А.",
+        "Weekday": "Четверг",
+        "LessonNumber": 6,
+        "Class": "9Ю",
+        "Subgroup": "",
+        "Subject": "Геометрия",
+        "Room": "207"
+    },
+    {
+        "Teacher": "Донцова М.А.",
+        "Weekday": "Пятница",
+        "LessonNumber": 6,
+        "Class": "10ЭЮ 2гр",
+        "Subgroup": "",
+        "Subject": "Математика",
+        "Room": "207"
+    },
+    {
+        "Teacher": "Донцова М.А.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 7,
+        "Class": "9Э",
+        "Subgroup": "",
+        "Subject": "Вероятность и статистика",
+        "Room": "207"
+    },
+    {
+        "Teacher": "Донцова М.А.",
+        "Weekday": "Среда",
+        "LessonNumber": 7,
+        "Class": "10ЭЮ 1гр",
+        "Subgroup": "",
+        "Subject": "Математика",
+        "Room": "207"
+    },
+    {
+        "Teacher": "Донцова М.А.",
+        "Weekday": "Пятница",
+        "LessonNumber": 7,
+        "Class": "9Э",
+        "Subgroup": "",
+        "Subject": "Геометрия",
+        "Room": "207"
+    },
+    {
+        "Teacher": "Карипидис П.А.",
+        "Weekday": "Среда",
+        "LessonNumber": 1,
+        "Class": "8Я",
+        "Subgroup": "",
+        "Subject": "Алгебра",
+        "Room": "310"
+    },
+    {
+        "Teacher": "Карипидис П.А.",
+        "Weekday": "Пятница",
+        "LessonNumber": 1,
+        "Class": "8Я",
+        "Subgroup": "",
+        "Subject": "Геометрия",
+        "Room": "310"
+    },
+    {
+        "Teacher": "Карипидис П.А.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 2,
+        "Class": "8Я",
+        "Subgroup": "",
+        "Subject": "Алгебра",
+        "Room": "310"
+    },
+    {
+        "Teacher": "Карипидис П.А.",
+        "Weekday": "Среда",
+        "LessonNumber": 2,
+        "Class": "8Я",
+        "Subgroup": "",
+        "Subject": "Вероятность и статистика",
+        "Room": "310"
+    },
+    {
+        "Teacher": "Карипидис П.А.",
+        "Weekday": "Пятница",
+        "LessonNumber": 2,
+        "Class": "8Я",
+        "Subgroup": "",
+        "Subject": "Геометрия",
+        "Room": "310"
+    },
+    {
+        "Teacher": "Карипидис П.А.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 3,
+        "Class": "8Я",
+        "Subgroup": "",
+        "Subject": "Геометрия",
+        "Room": "310"
+    },
+    {
+        "Teacher": "Карипидис П.А.",
+        "Weekday": "Пятница",
+        "LessonNumber": 3,
+        "Class": "8Я",
+        "Subgroup": "",
+        "Subject": "Алгебра",
+        "Room": "310"
+    },
+    {
+        "Teacher": "Карипидис П.А.",
+        "Weekday": "Среда",
+        "LessonNumber": 4,
+        "Class": "8Я",
+        "Subgroup": "",
+        "Subject": "Геометрия",
+        "Room": "310"
+    },
+    {
+        "Teacher": "Колясников О.В.",
+        "Weekday": "Вторник",
+        "LessonNumber": 1,
+        "Class": "7Э",
+        "Subgroup": "",
+        "Subject": "Химия",
+        "Room": "306"
+    },
+    {
+        "Teacher": "Колясников О.В.",
+        "Weekday": "Среда",
+        "LessonNumber": 1,
+        "Class": "8Я",
+        "Subgroup": "",
+        "Subject": "Химия",
+        "Room": "306"
+    },
+    {
+        "Teacher": "Колясников О.В.",
+        "Weekday": "Вторник",
+        "LessonNumber": 2,
+        "Class": "8Э",
+        "Subgroup": "",
+        "Subject": "Химия",
+        "Room": "306"
+    },
+    {
+        "Teacher": "Колясников О.В.",
+        "Weekday": "Среда",
+        "LessonNumber": 2,
+        "Class": "8Ю",
+        "Subgroup": "",
+        "Subject": "Химия",
+        "Room": "306"
+    },
+    {
+        "Teacher": "Колясников О.В.",
+        "Weekday": "Вторник",
+        "LessonNumber": 3,
+        "Class": "8Я",
+        "Subgroup": "",
+        "Subject": "Химия",
+        "Room": "306"
+    },
+    {
+        "Teacher": "Колясников О.В.",
+        "Weekday": "Среда",
+        "LessonNumber": 3,
+        "Class": "8Э",
+        "Subgroup": "",
+        "Subject": "Химия",
+        "Room": "306"
+    },
+    {
+        "Teacher": "Колясников О.В.",
+        "Weekday": "Вторник",
+        "LessonNumber": 5,
+        "Class": "8Ю",
+        "Subgroup": "",
+        "Subject": "Химия",
+        "Room": "306"
+    },
+    {
+        "Teacher": "Колясников О.В.",
+        "Weekday": "Среда",
+        "LessonNumber": 7,
+        "Class": "7Э",
+        "Subgroup": "",
+        "Subject": "Химия",
+        "Room": "306"
+    },
+    {
+        "Teacher": "Кривицкая Д.А.",
+        "Weekday": "Вторник",
+        "LessonNumber": 1,
+        "Class": "8Э",
+        "Subgroup": "",
+        "Subject": "История",
+        "Room": "204"
+    },
+    {
+        "Teacher": "Кривицкая Д.А.",
+        "Weekday": "Пятница",
+        "LessonNumber": 1,
+        "Class": "8Ю",
+        "Subgroup": "",
+        "Subject": "История",
+        "Room": "204"
+    },
+    {
+        "Teacher": "Кривицкая Д.А.",
+        "Weekday": "Вторник",
+        "LessonNumber": 2,
+        "Class": "7Я",
+        "Subgroup": "",
+        "Subject": "История",
+        "Room": "204"
+    },
+    {
+        "Teacher": "Кривицкая Д.А.",
+        "Weekday": "Среда",
+        "LessonNumber": 2,
+        "Class": "7Я",
+        "Subgroup": "",
+        "Subject": "Обществознание",
+        "Room": "204"
+    },
+    {
+        "Teacher": "Кривицкая Д.А.",
+        "Weekday": "Четверг",
+        "LessonNumber": 2,
+        "Class": "8Э",
+        "Subgroup": "",
+        "Subject": "История",
+        "Room": "204"
+    },
+    {
+        "Teacher": "Кривицкая Д.А.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 3,
+        "Class": "7Ю",
+        "Subgroup": "",
+        "Subject": "История",
+        "Room": "204"
+    },
+    {
+        "Teacher": "Кривицкая Д.А.",
+        "Weekday": "Среда",
+        "LessonNumber": 3,
+        "Class": "8Я",
+        "Subgroup": "",
+        "Subject": "Обществознание",
+        "Room": "204"
+    },
+    {
+        "Teacher": "Кривицкая Д.А.",
+        "Weekday": "Четверг",
+        "LessonNumber": 3,
+        "Class": "7Ю",
+        "Subgroup": "",
+        "Subject": "Обществознание",
+        "Room": "204"
+    },
+    {
+        "Teacher": "Кривицкая Д.А.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 4,
+        "Class": "7Я",
+        "Subgroup": "",
+        "Subject": "История",
+        "Room": "204"
+    },
+    {
+        "Teacher": "Кривицкая Д.А.",
+        "Weekday": "Пятница",
+        "LessonNumber": 4,
+        "Class": "7Э",
+        "Subgroup": "",
+        "Subject": "История",
+        "Room": "204"
+    },
+    {
+        "Teacher": "Кривицкая Д.А.",
+        "Weekday": "Среда",
+        "LessonNumber": 5,
+        "Class": "7Ю",
+        "Subgroup": "",
+        "Subject": "История",
+        "Room": "204"
+    },
+    {
+        "Teacher": "Кривицкая Д.А.",
+        "Weekday": "Среда",
+        "LessonNumber": 5,
+        "Class": "8Я",
+        "Subgroup": "",
+        "Subject": "История",
+        "Room": "204"
+    },
+    {
+        "Teacher": "Кривицкая Д.А.",
+        "Weekday": "Пятница",
+        "LessonNumber": 5,
+        "Class": "8Ю",
+        "Subgroup": "",
+        "Subject": "Обществознание",
+        "Room": "204"
+    },
+    {
+        "Teacher": "Кривицкая Д.А.",
+        "Weekday": "Среда",
+        "LessonNumber": 6,
+        "Class": "8Ю",
+        "Subgroup": "",
+        "Subject": "История",
+        "Room": "204"
+    },
+    {
+        "Teacher": "Кривицкая Д.А.",
+        "Weekday": "Среда",
+        "LessonNumber": 6,
+        "Class": "7Э",
+        "Subgroup": "",
+        "Subject": "История",
+        "Room": "204"
+    },
+    {
+        "Teacher": "Кривицкая Д.А.",
+        "Weekday": "Пятница",
+        "LessonNumber": 6,
+        "Class": "11Я",
+        "Subgroup": "",
+        "Subject": "История",
+        "Room": "204"
+    },
+    {
+        "Teacher": "Кривицкая Д.А.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 7,
+        "Class": "7Э",
+        "Subgroup": "",
+        "Subject": "История",
+        "Room": "204"
+    },
+    {
+        "Teacher": "Кривицкая Д.А.",
+        "Weekday": "Вторник",
+        "LessonNumber": 7,
+        "Class": "11Я",
+        "Subgroup": "",
+        "Subject": "История",
+        "Room": "204"
+    },
+    {
+        "Teacher": "Кривицкая Д.А.",
+        "Weekday": "Среда",
+        "LessonNumber": 7,
+        "Class": "8Э",
+        "Subgroup": "",
+        "Subject": "Обществознание",
+        "Room": "204"
+    },
+    {
+        "Teacher": "Кривицкая Д.А.",
+        "Weekday": "Пятница",
+        "LessonNumber": 7,
+        "Class": "8Я",
+        "Subgroup": "",
+        "Subject": "История",
+        "Room": "204"
+    },
+    {
+        "Teacher": "Кузнецов Н.С.",
+        "Weekday": "Четверг",
+        "LessonNumber": 1,
+        "Class": "8Э",
+        "Subgroup": "",
+        "Subject": "Физическая культура",
+        "Room": "СЗ"
+    },
+    {
+        "Teacher": "Кузнецов Н.С.",
+        "Weekday": "Пятница",
+        "LessonNumber": 1,
+        "Class": "7Я",
+        "Subgroup": "2",
+        "Subject": "Труд",
+        "Room": "219"
+    },
+    {
+        "Teacher": "Кузнецов Н.С.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 2,
+        "Class": "7Э",
+        "Subgroup": "2",
+        "Subject": "Труд",
+        "Room": "219"
+    },
+    {
+        "Teacher": "Кузнецов Н.С.",
+        "Weekday": "Среда",
+        "LessonNumber": 2,
+        "Class": "8Ю",
+        "Subgroup": "",
+        "Subject": "Физическая культура",
+        "Room": "СЗ"
+    },
+    {
+        "Teacher": "Кузнецов Н.С.",
+        "Weekday": "Четверг",
+        "LessonNumber": 2,
+        "Class": "7Я",
+        "Subgroup": "",
+        "Subject": "Физическая культура",
+        "Room": "СЗ"
+    },
+    {
+        "Teacher": "Кузнецов Н.С.",
+        "Weekday": "Пятница",
+        "LessonNumber": 2,
+        "Class": "7Я",
+        "Subgroup": "1",
+        "Subject": "Труд",
+        "Room": "219"
+    },
+    {
+        "Teacher": "Кузнецов Н.С.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 3,
+        "Class": "7Э",
+        "Subgroup": "1",
+        "Subject": "Труд",
+        "Room": "219"
+    },
+    {
+        "Teacher": "Кузнецов Н.С.",
+        "Weekday": "Четверг",
+        "LessonNumber": 3,
+        "Class": "8Я",
+        "Subgroup": "",
+        "Subject": "Физическая культура",
+        "Room": "СЗ"
+    },
+    {
+        "Teacher": "Кузнецов Н.С.",
+        "Weekday": "Пятница",
+        "LessonNumber": 3,
+        "Class": "7Ю",
+        "Subgroup": "1",
+        "Subject": "Труд",
+        "Room": "219"
+    },
+    {
+        "Teacher": "Кузнецов Н.С.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 4,
+        "Class": "7Ю",
+        "Subgroup": "2",
+        "Subject": "Труд",
+        "Room": "219"
+    },
+    {
+        "Teacher": "Кузнецов Н.С.",
+        "Weekday": "Вторник",
+        "LessonNumber": 4,
+        "Class": "7Я",
+        "Subgroup": "",
+        "Subject": "Физическая культура",
+        "Room": "СЗ"
+    },
+    {
+        "Teacher": "Кузнецов Н.С.",
+        "Weekday": "Четверг",
+        "LessonNumber": 4,
+        "Class": "7Э",
+        "Subgroup": "",
+        "Subject": "Физическая культура",
+        "Room": "СЗ"
+    },
+    {
+        "Teacher": "Кузнецов Н.С.",
+        "Weekday": "Пятница",
+        "LessonNumber": 4,
+        "Class": "7Ю",
+        "Subgroup": "2",
+        "Subject": "Труд",
+        "Room": "219"
+    },
+    {
+        "Teacher": "Кузнецов Н.С.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 5,
+        "Class": "7Ю",
+        "Subgroup": "1",
+        "Subject": "Труд",
+        "Room": "219"
+    },
+    {
+        "Teacher": "Кузнецов Н.С.",
+        "Weekday": "Вторник",
+        "LessonNumber": 5,
+        "Class": "8Э",
+        "Subgroup": "",
+        "Subject": "Физическая культура",
+        "Room": "СЗ"
+    },
+    {
+        "Teacher": "Кузнецов Н.С.",
+        "Weekday": "Среда",
+        "LessonNumber": 5,
+        "Class": "7Э",
+        "Subgroup": "",
+        "Subject": "Физическая культура",
+        "Room": "СЗ"
+    },
+    {
+        "Teacher": "Кузнецов Н.С.",
+        "Weekday": "Четверг",
+        "LessonNumber": 5,
+        "Class": "9Ю",
+        "Subgroup": "",
+        "Subject": "Физическая культура",
+        "Room": "СЗ"
+    },
+    {
+        "Teacher": "Кузнецов Н.С.",
+        "Weekday": "Пятница",
+        "LessonNumber": 5,
+        "Class": "7Э",
+        "Subgroup": "2",
+        "Subject": "Труд",
+        "Room": "219"
+    },
+    {
+        "Teacher": "Кузнецов Н.С.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 6,
+        "Class": "7Я",
+        "Subgroup": "2",
+        "Subject": "Труд",
+        "Room": "219"
+    },
+    {
+        "Teacher": "Кузнецов Н.С.",
+        "Weekday": "Вторник",
+        "LessonNumber": 6,
+        "Class": "7Ю",
+        "Subgroup": "",
+        "Subject": "Физическая культура",
+        "Room": "СЗ"
+    },
+    {
+        "Teacher": "Кузнецов Н.С.",
+        "Weekday": "Среда",
+        "LessonNumber": 6,
+        "Class": "9Э",
+        "Subgroup": "",
+        "Subject": "Физическая культура",
+        "Room": "СЗ"
+    },
+    {
+        "Teacher": "Кузнецов Н.С.",
+        "Weekday": "Четверг",
+        "LessonNumber": 6,
+        "Class": "7Ю",
+        "Subgroup": "",
+        "Subject": "Физическая культура",
+        "Room": "СЗ"
+    },
+    {
+        "Teacher": "Кузнецов Н.С.",
+        "Weekday": "Пятница",
+        "LessonNumber": 6,
+        "Class": "7Э",
+        "Subgroup": "1",
+        "Subject": "Труд",
+        "Room": "219"
+    },
+    {
+        "Teacher": "Кузнецов Н.С.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 7,
+        "Class": "7Я",
+        "Subgroup": "1",
+        "Subject": "Труд",
+        "Room": "219"
+    },
+    {
+        "Teacher": "Кузнецов Н.С.",
+        "Weekday": "Вторник",
+        "LessonNumber": 7,
+        "Class": "8Я",
+        "Subgroup": "",
+        "Subject": "Физическая культура",
+        "Room": "СЗ"
+    },
+    {
+        "Teacher": "Кузнецов Н.С.",
+        "Weekday": "Четверг",
+        "LessonNumber": 7,
+        "Class": "8Ю",
+        "Subgroup": "",
+        "Subject": "Физическая культура",
+        "Room": "СЗ"
+    },
+    {
+        "Teacher": "Кузнецов Н.С.",
+        "Weekday": "Пятница",
+        "LessonNumber": 7,
+        "Class": "11Я",
+        "Subgroup": "",
+        "Subject": "Физическая культура",
+        "Room": "СЗ"
+    },
+    {
+        "Teacher": "Миронова В.В.",
+        "Weekday": "Вторник",
+        "LessonNumber": 1,
+        "Class": "9Ю",
+        "Subgroup": "1",
+        "Subject": "Информатика",
+        "Room": "214"
+    },
+    {
+        "Teacher": "Миронова В.В.",
+        "Weekday": "Среда",
+        "LessonNumber": 1,
+        "Class": "10Э",
+        "Subgroup": "1",
+        "Subject": "Информатика",
+        "Room": "214"
+    },
+    {
+        "Teacher": "Миронова В.В.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 2,
+        "Class": "10Ю",
+        "Subgroup": "",
+        "Subject": "Информатика",
+        "Room": "214"
+    },
+    {
+        "Teacher": "Миронова В.В.",
+        "Weekday": "Вторник",
+        "LessonNumber": 2,
+        "Class": "9Э",
+        "Subgroup": "1",
+        "Subject": "Информатика",
+        "Room": "214"
+    },
+    {
+        "Teacher": "Миронова В.В.",
+        "Weekday": "Среда",
+        "LessonNumber": 2,
+        "Class": "10Э",
+        "Subgroup": "1",
+        "Subject": "Информатика",
+        "Room": "214"
+    },
+    {
+        "Teacher": "Миронова В.В.",
+        "Weekday": "Пятница",
+        "LessonNumber": 2,
+        "Class": "7Э",
+        "Subgroup": "",
+        "Subject": "Вероятность и статистика",
+        "Room": "204"
+    },
+    {
+        "Teacher": "Миронова В.В.",
+        "Weekday": "Четверг",
+        "LessonNumber": 3,
+        "Class": "11Я",
+        "Subgroup": "1",
+        "Subject": "Информатика",
+        "Room": "214"
+    },
+    {
+        "Teacher": "Миронова В.В.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 4,
+        "Class": "11Я",
+        "Subgroup": "1",
+        "Subject": "Информатика",
+        "Room": "214"
+    },
+    {
+        "Teacher": "Миронова В.В.",
+        "Weekday": "Четверг",
+        "LessonNumber": 4,
+        "Class": "11Я",
+        "Subgroup": "1",
+        "Subject": "Информатика",
+        "Room": "214"
+    },
+    {
+        "Teacher": "Миронова В.В.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 5,
+        "Class": "11Я",
+        "Subgroup": "1",
+        "Subject": "Информатика",
+        "Room": "214"
+    },
+    {
+        "Teacher": "Миронова В.В.",
+        "Weekday": "Вторник",
+        "LessonNumber": 5,
+        "Class": "11Я",
+        "Subgroup": "2",
+        "Subject": "Информатика",
+        "Room": "214"
+    },
+    {
+        "Teacher": "Миронова В.В.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 6,
+        "Class": "10Э",
+        "Subgroup": "1",
+        "Subject": "Информатика",
+        "Room": "214"
+    },
+    {
+        "Teacher": "Миронова В.В.",
+        "Weekday": "Вторник",
+        "LessonNumber": 6,
+        "Class": "11Я",
+        "Subgroup": "2",
+        "Subject": "Информатика",
+        "Room": "214"
+    },
+    {
+        "Teacher": "Миронова В.В.",
+        "Weekday": "Четверг",
+        "LessonNumber": 6,
+        "Class": "11Я",
+        "Subgroup": "2",
+        "Subject": "Информатика",
+        "Room": "214"
+    },
+    {
+        "Teacher": "Миронова В.В.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 7,
+        "Class": "10Э",
+        "Subgroup": "1",
+        "Subject": "Информатика",
+        "Room": "214"
+    },
+    {
+        "Teacher": "Миронова В.В.",
+        "Weekday": "Вторник",
+        "LessonNumber": 7,
+        "Class": "10Ю",
+        "Subgroup": "",
+        "Subject": "Индивидуальный проект",
+        "Room": "214"
+    },
+    {
+        "Teacher": "Миронова В.В.",
+        "Weekday": "Четверг",
+        "LessonNumber": 7,
+        "Class": "11Я",
+        "Subgroup": "2",
+        "Subject": "Информатика",
+        "Room": "214"
+    },
+    {
+        "Teacher": "Морозов С.В.",
+        "Weekday": "Вторник",
+        "LessonNumber": 1,
+        "Class": "7Ю",
+        "Subgroup": "",
+        "Subject": "Русский язык",
+        "Room": "212"
+    },
+    {
+        "Teacher": "Морозов С.В.",
+        "Weekday": "Среда",
+        "LessonNumber": 1,
+        "Class": "11Я",
+        "Subgroup": "",
+        "Subject": "Литература",
+        "Room": "212"
+    },
+    {
+        "Teacher": "Морозов С.В.",
+        "Weekday": "Четверг",
+        "LessonNumber": 1,
+        "Class": "7Э",
+        "Subgroup": "",
+        "Subject": "Русский язык",
+        "Room": "212"
+    },
+    {
+        "Teacher": "Морозов С.В.",
+        "Weekday": "Пятница",
+        "LessonNumber": 1,
+        "Class": "7Э",
+        "Subgroup": "",
+        "Subject": "Русский язык",
+        "Room": "212"
+    },
+    {
+        "Teacher": "Морозов С.В.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 2,
+        "Class": "7Я",
+        "Subgroup": "",
+        "Subject": "Русский язык",
+        "Room": "212"
+    },
+    {
+        "Teacher": "Морозов С.В.",
+        "Weekday": "Вторник",
+        "LessonNumber": 2,
+        "Class": "7Э",
+        "Subgroup": "",
+        "Subject": "Литература",
+        "Room": "212"
+    },
+    {
+        "Teacher": "Морозов С.В.",
+        "Weekday": "Четверг",
+        "LessonNumber": 2,
+        "Class": "11Я",
+        "Subgroup": "",
+        "Subject": "Литература",
+        "Room": "212"
+    },
+    {
+        "Teacher": "Морозов С.В.",
+        "Weekday": "Пятница",
+        "LessonNumber": 2,
+        "Class": "11Я",
+        "Subgroup": "",
+        "Subject": "Литература",
+        "Room": "212"
+    },
+    {
+        "Teacher": "Морозов С.В.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 3,
+        "Class": "7Я",
+        "Subgroup": "",
+        "Subject": "Литература",
+        "Room": "212"
+    },
+    {
+        "Teacher": "Морозов С.В.",
+        "Weekday": "Вторник",
+        "LessonNumber": 3,
+        "Class": "7Я",
+        "Subgroup": "",
+        "Subject": "Русский язык",
+        "Room": "212"
+    },
+    {
+        "Teacher": "Морозов С.В.",
+        "Weekday": "Четверг",
+        "LessonNumber": 3,
+        "Class": "7Э",
+        "Subgroup": "",
+        "Subject": "Литература",
+        "Room": "212"
+    },
+    {
+        "Teacher": "Морозов С.В.",
+        "Weekday": "Вторник",
+        "LessonNumber": 4,
+        "Class": "7Ю",
+        "Subgroup": "",
+        "Subject": "Литература",
+        "Room": "212"
+    },
+    {
+        "Teacher": "Морозов С.В.",
+        "Weekday": "Среда",
+        "LessonNumber": 4,
+        "Class": "7Я",
+        "Subgroup": "",
+        "Subject": "Русский язык",
+        "Room": "212"
+    },
+    {
+        "Teacher": "Морозов С.В.",
+        "Weekday": "Четверг",
+        "LessonNumber": 4,
+        "Class": "7Я",
+        "Subgroup": "",
+        "Subject": "Литература",
+        "Room": "212"
+    },
+    {
+        "Teacher": "Морозов С.В.",
+        "Weekday": "Пятница",
+        "LessonNumber": 4,
+        "Class": "7Я",
+        "Subgroup": "",
+        "Subject": "Русский язык",
+        "Room": "212"
+    },
+    {
+        "Teacher": "Морозов С.В.",
+        "Weekday": "Среда",
+        "LessonNumber": 5,
+        "Class": "7Ю",
+        "Subgroup": "",
+        "Subject": "Русский язык",
+        "Room": "212"
+    },
+    {
+        "Teacher": "Морозов С.В.",
+        "Weekday": "Четверг",
+        "LessonNumber": 5,
+        "Class": "7Ю",
+        "Subgroup": "",
+        "Subject": "Русский язык",
+        "Room": "212"
+    },
+    {
+        "Teacher": "Морозов С.В.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 6,
+        "Class": "7Э",
+        "Subgroup": "",
+        "Subject": "Русский язык",
+        "Room": "212"
+    },
+    {
+        "Teacher": "Морозов С.В.",
+        "Weekday": "Среда",
+        "LessonNumber": 6,
+        "Class": "7Ю",
+        "Subgroup": "",
+        "Subject": "Литература",
+        "Room": "212"
+    },
+    {
+        "Teacher": "Морозов С.В.",
+        "Weekday": "Пятница",
+        "LessonNumber": 6,
+        "Class": "7Ю",
+        "Subgroup": "",
+        "Subject": "Русский язык",
+        "Room": "212"
+    },
+    {
+        "Teacher": "Морозов С.В.",
+        "Weekday": "Вторник",
+        "LessonNumber": 7,
+        "Class": "7Э",
+        "Subgroup": "",
+        "Subject": "Русский язык",
+        "Room": "212"
+    },
+    {
+        "Teacher": "Обозненко А.М.",
+        "Weekday": "Среда",
+        "LessonNumber": 1,
+        "Class": "10Э",
+        "Subgroup": "2",
+        "Subject": "Информатика",
+        "Room": "308"
+    },
+    {
+        "Teacher": "Обозненко А.М.",
+        "Weekday": "Среда",
+        "LessonNumber": 2,
+        "Class": "10Э",
+        "Subgroup": "2",
+        "Subject": "Информатика",
+        "Room": "308"
+    },
+    {
+        "Teacher": "Обозненко А.М.",
+        "Weekday": "Вторник",
+        "LessonNumber": 3,
+        "Class": "9Э",
+        "Subgroup": "2",
+        "Subject": "Информатика",
+        "Room": "308"
+    },
+    {
+        "Teacher": "Обозненко А.М.",
+        "Weekday": "Среда",
+        "LessonNumber": 4,
+        "Class": "9Ю",
+        "Subgroup": "2",
+        "Subject": "Информатика",
+        "Room": "308"
+    },
+    {
+        "Teacher": "Обозненко А.М.",
+        "Weekday": "Среда",
+        "LessonNumber": 4,
+        "Class": "9Ю",
+        "Subgroup": "2",
+        "Subject": "Труд",
+        "Room": "308"
+    },
+    {
+        "Teacher": "Обозненко А.М.",
+        "Weekday": "Четверг",
+        "LessonNumber": 4,
+        "Class": "11Я",
+        "Subgroup": "2",
+        "Subject": "Программирование",
+        "Room": "219"
+    },
+    {
+        "Teacher": "Обозненко А.М.",
+        "Weekday": "Пятница",
+        "LessonNumber": 4,
+        "Class": "9Э",
+        "Subgroup": "2",
+        "Subject": "Труд",
+        "Room": "214"
+    },
+    {
+        "Teacher": "Обозненко А.М.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 5,
+        "Class": "11Я",
+        "Subgroup": "2",
+        "Subject": "Программирование",
+        "Room": "308"
+    },
+    {
+        "Teacher": "Обозненко А.М.",
+        "Weekday": "Среда",
+        "LessonNumber": 5,
+        "Class": "9Ю",
+        "Subgroup": "1",
+        "Subject": "Труд",
+        "Room": "308"
+    },
+    {
+        "Teacher": "Обозненко А.М.",
+        "Weekday": "Пятница",
+        "LessonNumber": 5,
+        "Class": "9Э",
+        "Subgroup": "1",
+        "Subject": "Труд",
+        "Room": "214"
+    },
+    {
+        "Teacher": "Обозненко А.М.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 6,
+        "Class": "10Э",
+        "Subgroup": "2",
+        "Subject": "Информатика",
+        "Room": "308"
+    },
+    {
+        "Teacher": "Обозненко А.М.",
+        "Weekday": "Вторник",
+        "LessonNumber": 6,
+        "Class": "11Я",
+        "Subgroup": "1",
+        "Subject": "Программирование",
+        "Room": "308"
+    },
+    {
+        "Teacher": "Обозненко А.М.",
+        "Weekday": "Четверг",
+        "LessonNumber": 6,
+        "Class": "11Я",
+        "Subgroup": "1",
+        "Subject": "Программирование",
+        "Room": "219"
+    },
+    {
+        "Teacher": "Обозненко А.М.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 7,
+        "Class": "10Э",
+        "Subgroup": "2",
+        "Subject": "Информатика",
+        "Room": "308"
+    },
+    {
+        "Teacher": "Обозненко А.М.",
+        "Weekday": "Вторник",
+        "LessonNumber": 7,
+        "Class": "10Э",
+        "Subgroup": "",
+        "Subject": "Индивидуальный проект",
+        "Room": "308"
+    },
+    {
+        "Teacher": "Обозненко А.М.",
+        "Weekday": "Пятница",
+        "LessonNumber": 7,
+        "Class": "10Э",
+        "Subgroup": "1",
+        "Subject": "Программирование",
+        "Room": "214"
+    },
+    {
+        "Teacher": "Обозненко А.М.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 8,
+        "Class": "10Э",
+        "Subgroup": "2",
+        "Subject": "Программирование",
+        "Room": "308"
+    },
+    {
+        "Teacher": "Овчинников М.А.",
+        "Weekday": "Среда",
+        "LessonNumber": 1,
+        "Class": "9Э",
+        "Subgroup": "",
+        "Subject": "Химия",
+        "Room": "307"
+    },
+    {
+        "Teacher": "Овчинников М.А.",
+        "Weekday": "Четверг",
+        "LessonNumber": 1,
+        "Class": "7Я",
+        "Subgroup": "",
+        "Subject": "Биология",
+        "Room": "306"
+    },
+    {
+        "Teacher": "Овчинников М.А.",
+        "Weekday": "Пятница",
+        "LessonNumber": 1,
+        "Class": "9Ю",
+        "Subgroup": "",
+        "Subject": "Биология",
+        "Room": "307"
+    },
+    {
+        "Teacher": "Овчинников М.А.",
+        "Weekday": "Пятница",
+        "LessonNumber": 1,
+        "Class": "11Я",
+        "Subgroup": "",
+        "Subject": "Химия",
+        "Room": "306"
+    },
+    {
+        "Teacher": "Овчинников М.А.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 2,
+        "Class": "7Ю",
+        "Subgroup": "",
+        "Subject": "Биология",
+        "Room": "306"
+    },
+    {
+        "Teacher": "Овчинников М.А.",
+        "Weekday": "Вторник",
+        "LessonNumber": 2,
+        "Class": "9Ю",
+        "Subgroup": "",
+        "Subject": "Биология",
+        "Room": "307"
+    },
+    {
+        "Teacher": "Овчинников М.А.",
+        "Weekday": "Четверг",
+        "LessonNumber": 2,
+        "Class": "9Э",
+        "Subgroup": "",
+        "Subject": "Биология",
+        "Room": "307"
+    },
+    {
+        "Teacher": "Овчинников М.А.",
+        "Weekday": "Вторник",
+        "LessonNumber": 3,
+        "Class": "11Я",
+        "Subgroup": "",
+        "Subject": "Биология",
+        "Room": "307"
+    },
+    {
+        "Teacher": "Овчинников М.А.",
+        "Weekday": "Среда",
+        "LessonNumber": 3,
+        "Class": "8Ю",
+        "Subgroup": "",
+        "Subject": "Биология",
+        "Room": "306"
+    },
+    {
+        "Teacher": "Овчинников М.А.",
+        "Weekday": "Пятница",
+        "LessonNumber": 3,
+        "Class": "9Э",
+        "Subgroup": "",
+        "Subject": "Биология",
+        "Room": "306"
+    },
+    {
+        "Teacher": "Овчинников М.А.",
+        "Weekday": "Среда",
+        "LessonNumber": 4,
+        "Class": "8Я",
+        "Subgroup": "",
+        "Subject": "Биология",
+        "Room": "306"
+    },
+    {
+        "Teacher": "Овчинников М.А.",
+        "Weekday": "Среда",
+        "LessonNumber": 4,
+        "Class": "9Э",
+        "Subgroup": "",
+        "Subject": "Химия",
+        "Room": "306"
+    },
+    {
+        "Teacher": "Овчинников М.А.",
+        "Weekday": "Четверг",
+        "LessonNumber": 4,
+        "Class": "9Ю",
+        "Subgroup": "",
+        "Subject": "Химия",
+        "Room": "306"
+    },
+    {
+        "Teacher": "Овчинников М.А.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 5,
+        "Class": "8Ю",
+        "Subgroup": "",
+        "Subject": "Биология",
+        "Room": "306"
+    },
+    {
+        "Teacher": "Овчинников М.А.",
+        "Weekday": "Четверг",
+        "LessonNumber": 5,
+        "Class": "8Я",
+        "Subgroup": "",
+        "Subject": "Биология",
+        "Room": "306"
+    },
+    {
+        "Teacher": "Овчинников М.А.",
+        "Weekday": "Пятница",
+        "LessonNumber": 5,
+        "Class": "10ЭЮ 1гр",
+        "Subgroup": "",
+        "Subject": "Биология",
+        "Room": "306"
+    },
+    {
+        "Teacher": "Овчинников М.А.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 6,
+        "Class": "8Э",
+        "Subgroup": "",
+        "Subject": "Биология",
+        "Room": "306"
+    },
+    {
+        "Teacher": "Овчинников М.А.",
+        "Weekday": "Вторник",
+        "LessonNumber": 6,
+        "Class": "7Э",
+        "Subgroup": "",
+        "Subject": "Биология",
+        "Room": "306"
+    },
+    {
+        "Teacher": "Овчинников М.А.",
+        "Weekday": "Среда",
+        "LessonNumber": 6,
+        "Class": "10ЭЮ 2гр",
+        "Subgroup": "",
+        "Subject": "Биология",
+        "Room": "306"
+    },
+    {
+        "Teacher": "Овчинников М.А.",
+        "Weekday": "Четверг",
+        "LessonNumber": 6,
+        "Class": "7Э",
+        "Subgroup": "",
+        "Subject": "Биология",
+        "Room": "306"
+    },
+    {
+        "Teacher": "Овчинников М.А.",
+        "Weekday": "Пятница",
+        "LessonNumber": 6,
+        "Class": "10ЭЮ 1гр",
+        "Subgroup": "",
+        "Subject": "Химия",
+        "Room": "306"
+    },
+    {
+        "Teacher": "Овчинников М.А.",
+        "Weekday": "Среда",
+        "LessonNumber": 7,
+        "Class": "8Э",
+        "Subgroup": "",
+        "Subject": "Биология",
+        "Room": "306"
+    },
+    {
+        "Teacher": "Овчинников М.А.",
+        "Weekday": "Среда",
+        "LessonNumber": 7,
+        "Class": "10ЭЮ 2гр",
+        "Subgroup": "",
+        "Subject": "Химия",
+        "Room": "306"
+    },
+    {
+        "Teacher": "Овчинников М.А.",
+        "Weekday": "Пятница",
+        "LessonNumber": 7,
+        "Class": "9Ю",
+        "Subgroup": "",
+        "Subject": "Химия",
+        "Room": "306"
+    },
+    {
+        "Teacher": "Петросян К.А.",
+        "Weekday": "Среда",
+        "LessonNumber": 1,
+        "Class": "10Ю",
+        "Subgroup": "2",
+        "Subject": "Иностранный Язык",
+        "Room": "220"
+    },
+    {
+        "Teacher": "Петросян К.А.",
+        "Weekday": "Пятница",
+        "LessonNumber": 1,
+        "Class": "10Ю",
+        "Subgroup": "2",
+        "Subject": "Иностранный Язык",
+        "Room": "303"
+    },
+    {
+        "Teacher": "Петросян К.А.",
+        "Weekday": "Среда",
+        "LessonNumber": 2,
+        "Class": "10Ю",
+        "Subgroup": "2",
+        "Subject": "Иностранный Язык",
+        "Room": "220"
+    },
+    {
+        "Teacher": "Петросян К.А.",
+        "Weekday": "Пятница",
+        "LessonNumber": 2,
+        "Class": "10Э",
+        "Subgroup": "2",
+        "Subject": "Иностранный Язык",
+        "Room": "303"
+    },
+    {
+        "Teacher": "Петросян К.А.",
+        "Weekday": "Среда",
+        "LessonNumber": 3,
+        "Class": "10Э",
+        "Subgroup": "2",
+        "Subject": "Иностранный Язык",
+        "Room": "220"
+    },
+    {
+        "Teacher": "Петросян К.А.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 5,
+        "Class": "10Ю",
+        "Subgroup": "2",
+        "Subject": "Иностранный Язык",
+        "Room": "204"
+    },
+    {
+        "Teacher": "Петросян К.А.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 6,
+        "Class": "10Ю",
+        "Subgroup": "2",
+        "Subject": "Иностранный Язык",
+        "Room": "204"
+    },
+    {
+        "Teacher": "Платонова С.А.",
+        "Weekday": "Четверг",
+        "LessonNumber": 1,
+        "Class": "8Ю",
+        "Subgroup": "",
+        "Subject": "Физика",
+        "Room": "211"
+    },
+    {
+        "Teacher": "Платонова С.А.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 2,
+        "Class": "8Ю",
+        "Subgroup": "",
+        "Subject": "Физика",
+        "Room": "211"
+    },
+    {
+        "Teacher": "Платонова С.А.",
+        "Weekday": "Вторник",
+        "LessonNumber": 2,
+        "Class": "8Я",
+        "Subgroup": "",
+        "Subject": "Физика",
+        "Room": "211"
+    },
+    {
+        "Teacher": "Платонова С.А.",
+        "Weekday": "Среда",
+        "LessonNumber": 2,
+        "Class": "8Э",
+        "Subgroup": "",
+        "Subject": "Физика",
+        "Room": "211"
+    },
+    {
+        "Teacher": "Платонова С.А.",
+        "Weekday": "Четверг",
+        "LessonNumber": 2,
+        "Class": "8Я",
+        "Subgroup": "",
+        "Subject": "Физика",
+        "Room": "211"
+    },
+    {
+        "Teacher": "Платонова С.А.",
+        "Weekday": "Среда",
+        "LessonNumber": 3,
+        "Class": "7Я",
+        "Subgroup": "",
+        "Subject": "Физика",
+        "Room": "211"
+    },
+    {
+        "Teacher": "Платонова С.А.",
+        "Weekday": "Четверг",
+        "LessonNumber": 3,
+        "Class": "7Я",
+        "Subgroup": "",
+        "Subject": "Физика",
+        "Room": "211"
+    },
+    {
+        "Teacher": "Платонова С.А.",
+        "Weekday": "Среда",
+        "LessonNumber": 4,
+        "Class": "11Я",
+        "Subgroup": "1",
+        "Subject": "Физика",
+        "Room": "211"
+    },
+    {
+        "Teacher": "Платонова С.А.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 5,
+        "Class": "10Ю",
+        "Subgroup": "",
+        "Subject": "Физика",
+        "Room": "211"
+    },
+    {
+        "Teacher": "Платонова С.А.",
+        "Weekday": "Среда",
+        "LessonNumber": 5,
+        "Class": "11Я",
+        "Subgroup": "1",
+        "Subject": "Физика",
+        "Room": "211"
+    },
+    {
+        "Teacher": "Платонова С.А.",
+        "Weekday": "Четверг",
+        "LessonNumber": 5,
+        "Class": "8Э",
+        "Subgroup": "",
+        "Subject": "Физика",
+        "Room": "211"
+    },
+    {
+        "Teacher": "Платонова С.А.",
+        "Weekday": "Среда",
+        "LessonNumber": 6,
+        "Class": "11Я",
+        "Subgroup": "2",
+        "Subject": "Физика",
+        "Room": "211"
+    },
+    {
+        "Teacher": "Платонова С.А.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 7,
+        "Class": "11Я",
+        "Subgroup": "1",
+        "Subject": "Физика",
+        "Room": "211"
+    },
+    {
+        "Teacher": "Стенин А.В.",
+        "Weekday": "Среда",
+        "LessonNumber": 1,
+        "Class": "7Ю",
+        "Subgroup": "2",
+        "Subject": "Информатика",
+        "Room": "218"
+    },
+    {
+        "Teacher": "Стенин А.В.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 2,
+        "Class": "8Э",
+        "Subgroup": "2",
+        "Subject": "Программирование",
+        "Room": "218"
+    },
+    {
+        "Teacher": "Стенин А.В.",
+        "Weekday": "Среда",
+        "LessonNumber": 2,
+        "Class": "7Ю",
+        "Subgroup": "1",
+        "Subject": "Информатика",
+        "Room": "218"
+    },
+    {
+        "Teacher": "Стенин А.В.",
+        "Weekday": "Пятница",
+        "LessonNumber": 2,
+        "Class": "8Э",
+        "Subgroup": "1",
+        "Subject": "Информатика",
+        "Room": "218"
+    },
+    {
+        "Teacher": "Стенин А.В.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 3,
+        "Class": "8Э",
+        "Subgroup": "1",
+        "Subject": "Программирование",
+        "Room": "218"
+    },
+    {
+        "Teacher": "Стенин А.В.",
+        "Weekday": "Вторник",
+        "LessonNumber": 3,
+        "Class": "8Ю",
+        "Subgroup": "1",
+        "Subject": "Информатика",
+        "Room": "218"
+    },
+    {
+        "Teacher": "Стенин А.В.",
+        "Weekday": "Пятница",
+        "LessonNumber": 3,
+        "Class": "8Э",
+        "Subgroup": "2",
+        "Subject": "Информатика",
+        "Room": "218"
+    },
+    {
+        "Teacher": "Стенин А.В.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 4,
+        "Class": "8Я",
+        "Subgroup": "1",
+        "Subject": "Информатика",
+        "Room": "218"
+    },
+    {
+        "Teacher": "Стенин А.В.",
+        "Weekday": "Вторник",
+        "LessonNumber": 4,
+        "Class": "8Ю",
+        "Subgroup": "2",
+        "Subject": "Информатика",
+        "Room": "218"
+    },
+    {
+        "Teacher": "Стенин А.В.",
+        "Weekday": "Среда",
+        "LessonNumber": 4,
+        "Class": "7Э",
+        "Subgroup": "1",
+        "Subject": "Информатика",
+        "Room": "218"
+    },
+    {
+        "Teacher": "Стенин А.В.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 5,
+        "Class": "8Я",
+        "Subgroup": "2",
+        "Subject": "Информатика",
+        "Room": "218"
+    },
+    {
+        "Teacher": "Стенин А.В.",
+        "Weekday": "Вторник",
+        "LessonNumber": 5,
+        "Class": "8Я",
+        "Subgroup": "1",
+        "Subject": "Программирование",
+        "Room": "218"
+    },
+    {
+        "Teacher": "Стенин А.В.",
+        "Weekday": "Среда",
+        "LessonNumber": 5,
+        "Class": "7Я",
+        "Subgroup": "2",
+        "Subject": "Информатика",
+        "Room": "218"
+    },
+    {
+        "Teacher": "Стенин А.В.",
+        "Weekday": "Среда",
+        "LessonNumber": 6,
+        "Class": "7Я",
+        "Subgroup": "1",
+        "Subject": "Информатика",
+        "Room": "218"
+    },
+    {
+        "Teacher": "Стенин А.В.",
+        "Weekday": "Четверг",
+        "LessonNumber": 6,
+        "Class": "7Я",
+        "Subgroup": "",
+        "Subject": "Логика",
+        "Room": "218"
+    },
+    {
+        "Teacher": "Стенин А.В.",
+        "Weekday": "Пятница",
+        "LessonNumber": 6,
+        "Class": "8Ю",
+        "Subgroup": "1",
+        "Subject": "Программирование",
+        "Room": "218"
+    },
+    {
+        "Teacher": "Стенин А.В.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 7,
+        "Class": "7Ю",
+        "Subgroup": "2",
+        "Subject": "Информатика",
+        "Room": "218"
+    },
+    {
+        "Teacher": "Стенин А.В.",
+        "Weekday": "Четверг",
+        "LessonNumber": 7,
+        "Class": "7Ю",
+        "Subgroup": "1",
+        "Subject": "Информатика",
+        "Room": "218"
+    },
+    {
+        "Teacher": "Стенин А.В.",
+        "Weekday": "Пятница",
+        "LessonNumber": 7,
+        "Class": "8Ю",
+        "Subgroup": "2",
+        "Subject": "Программирование",
+        "Room": "218"
+    },
+    {
+        "Teacher": "Стрейкмане Э.Р.",
+        "Weekday": "Среда",
+        "LessonNumber": 1,
+        "Class": "9Ю",
+        "Subgroup": "",
+        "Subject": "Русский язык",
+        "Room": "302"
+    },
+    {
+        "Teacher": "Стрейкмане Э.Р.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 2,
+        "Class": "9Э",
+        "Subgroup": "",
+        "Subject": "Русский язык",
+        "Room": "302"
+    },
+    {
+        "Teacher": "Стрейкмане Э.Р.",
+        "Weekday": "Вторник",
+        "LessonNumber": 2,
+        "Class": "11Я",
+        "Subgroup": "",
+        "Subject": "Русский язык",
+        "Room": "302"
+    },
+    {
+        "Teacher": "Стрейкмане Э.Р.",
+        "Weekday": "Среда",
+        "LessonNumber": 2,
+        "Class": "9Ю",
+        "Subgroup": "",
+        "Subject": "Литература",
+        "Room": "302"
+    },
+    {
+        "Teacher": "Стрейкмане Э.Р.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 3,
+        "Class": "9Э",
+        "Subgroup": "",
+        "Subject": "Литература",
+        "Room": "302"
+    },
+    {
+        "Teacher": "Стрейкмане Э.Р.",
+        "Weekday": "Вторник",
+        "LessonNumber": 3,
+        "Class": "9Ю",
+        "Subgroup": "",
+        "Subject": "Русский язык",
+        "Room": "302"
+    },
+    {
+        "Teacher": "Стрейкмане Э.Р.",
+        "Weekday": "Среда",
+        "LessonNumber": 3,
+        "Class": "9Э",
+        "Subgroup": "",
+        "Subject": "Русский язык",
+        "Room": "302"
+    },
+    {
+        "Teacher": "Стрейкмане Э.Р.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 4,
+        "Class": "9Ю",
+        "Subgroup": "",
+        "Subject": "Русский язык",
+        "Room": "302"
+    },
+    {
+        "Teacher": "Стрейкмане Э.Р.",
+        "Weekday": "Вторник",
+        "LessonNumber": 4,
+        "Class": "11Я",
+        "Subgroup": "",
+        "Subject": "Русский язык",
+        "Room": "302"
+    },
+    {
+        "Teacher": "Стрейкмане Э.Р.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 5,
+        "Class": "9Ю",
+        "Subgroup": "",
+        "Subject": "Литература",
+        "Room": "302"
+    },
+    {
+        "Teacher": "Стрейкмане Э.Р.",
+        "Weekday": "Вторник",
+        "LessonNumber": 5,
+        "Class": "9Э",
+        "Subgroup": "",
+        "Subject": "Русский язык",
+        "Room": "302"
+    },
+    {
+        "Teacher": "Стрейкмане Э.Р.",
+        "Weekday": "Среда",
+        "LessonNumber": 6,
+        "Class": "9Э",
+        "Subgroup": "",
+        "Subject": "Литература",
+        "Room": "302"
+    },
+    {
+        "Teacher": "Стрейкмане Э.Р.",
+        "Weekday": "Среда",
+        "LessonNumber": 7,
+        "Class": "9Ю",
+        "Subgroup": "",
+        "Subject": "Литература",
+        "Room": "302"
+    },
+    {
+        "Teacher": "Стрейкмане Э.Р.",
+        "Weekday": "Четверг",
+        "LessonNumber": 7,
+        "Class": "9Э",
+        "Subgroup": "",
+        "Subject": "Литература",
+        "Room": "302"
+    },
+    {
+        "Teacher": "Трекалов А.А.",
+        "Weekday": "Среда",
+        "LessonNumber": 1,
+        "Class": "8Ю",
+        "Subgroup": "",
+        "Subject": "Русский язык",
+        "Room": "303"
+    },
+    {
+        "Teacher": "Трекалов А.А.",
+        "Weekday": "Четверг",
+        "LessonNumber": 1,
+        "Class": "8Ю",
+        "Subgroup": "",
+        "Subject": "Русский язык",
+        "Room": "303"
+    },
+    {
+        "Teacher": "Трекалов А.А.",
+        "Weekday": "Пятница",
+        "LessonNumber": 1,
+        "Class": "10ЭЮ 2гр",
+        "Subgroup": "",
+        "Subject": "Русский язык",
+        "Room": "303"
+    },
+    {
+        "Teacher": "Трекалов А.А.",
+        "Weekday": "Среда",
+        "LessonNumber": 2,
+        "Class": "10ЭЮ 2гр",
+        "Subgroup": "",
+        "Subject": "Литература",
+        "Room": "303"
+    },
+    {
+        "Teacher": "Трекалов А.А.",
+        "Weekday": "Пятница",
+        "LessonNumber": 2,
+        "Class": "10ЭЮ 2гр",
+        "Subgroup": "",
+        "Subject": "Русский язык",
+        "Room": "303"
+    },
+    {
+        "Teacher": "Трекалов А.А.",
+        "Weekday": "Среда",
+        "LessonNumber": 3,
+        "Class": "10ЭЮ 1гр",
+        "Subgroup": "",
+        "Subject": "Литература",
+        "Room": "303"
+    },
+    {
+        "Teacher": "Трекалов А.А.",
+        "Weekday": "Четверг",
+        "LessonNumber": 3,
+        "Class": "10ЭЮ 1гр",
+        "Subgroup": "",
+        "Subject": "Русский язык",
+        "Room": "303"
+    },
+    {
+        "Teacher": "Трекалов А.А.",
+        "Weekday": "Пятница",
+        "LessonNumber": 3,
+        "Class": "10ЭЮ 2гр",
+        "Subgroup": "",
+        "Subject": "Литература",
+        "Room": "303"
+    },
+    {
+        "Teacher": "Трекалов А.А.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 4,
+        "Class": "8Ю",
+        "Subgroup": "",
+        "Subject": "Литература",
+        "Room": "303"
+    },
+    {
+        "Teacher": "Трекалов А.А.",
+        "Weekday": "Среда",
+        "LessonNumber": 4,
+        "Class": "10ЭЮ 1гр",
+        "Subgroup": "",
+        "Subject": "Литература",
+        "Room": "303"
+    },
+    {
+        "Teacher": "Трекалов А.А.",
+        "Weekday": "Четверг",
+        "LessonNumber": 4,
+        "Class": "10ЭЮ 1гр",
+        "Subgroup": "",
+        "Subject": "Русский язык",
+        "Room": "303"
+    },
+    {
+        "Teacher": "Трекалов А.А.",
+        "Weekday": "Пятница",
+        "LessonNumber": 4,
+        "Class": "10ЭЮ 2гр",
+        "Subgroup": "",
+        "Subject": "Литература",
+        "Room": "303"
+    },
+    {
+        "Teacher": "Трекалов А.А.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 5,
+        "Class": "8Э",
+        "Subgroup": "",
+        "Subject": "Литература",
+        "Room": "303"
+    },
+    {
+        "Teacher": "Трекалов А.А.",
+        "Weekday": "Среда",
+        "LessonNumber": 5,
+        "Class": "10ЭЮ 1гр",
+        "Subgroup": "",
+        "Subject": "Литература",
+        "Room": "303"
+    },
+    {
+        "Teacher": "Трекалов А.А.",
+        "Weekday": "Четверг",
+        "LessonNumber": 5,
+        "Class": "8Ю",
+        "Subgroup": "",
+        "Subject": "Русский язык",
+        "Room": "303"
+    },
+    {
+        "Teacher": "Трекалов А.А.",
+        "Weekday": "Пятница",
+        "LessonNumber": 5,
+        "Class": "8Э",
+        "Subgroup": "",
+        "Subject": "Русский язык",
+        "Room": "303"
+    },
+    {
+        "Teacher": "Трекалов А.А.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 6,
+        "Class": "8Я",
+        "Subgroup": "",
+        "Subject": "Литература",
+        "Room": "303"
+    },
+    {
+        "Teacher": "Трекалов А.А.",
+        "Weekday": "Вторник",
+        "LessonNumber": 6,
+        "Class": "8Э",
+        "Subgroup": "",
+        "Subject": "Русский язык",
+        "Room": "303"
+    },
+    {
+        "Teacher": "Трекалов А.А.",
+        "Weekday": "Среда",
+        "LessonNumber": 6,
+        "Class": "8Я",
+        "Subgroup": "",
+        "Subject": "Русский язык",
+        "Room": "303"
+    },
+    {
+        "Teacher": "Трекалов А.А.",
+        "Weekday": "Четверг",
+        "LessonNumber": 6,
+        "Class": "8Я",
+        "Subgroup": "",
+        "Subject": "Литература",
+        "Room": "303"
+    },
+    {
+        "Teacher": "Трекалов А.А.",
+        "Weekday": "Пятница",
+        "LessonNumber": 6,
+        "Class": "8Э",
+        "Subgroup": "",
+        "Subject": "Литература",
+        "Room": "303"
+    },
+    {
+        "Teacher": "Трекалов А.А.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 7,
+        "Class": "8Я",
+        "Subgroup": "",
+        "Subject": "Русский язык",
+        "Room": "303"
+    },
+    {
+        "Teacher": "Трекалов А.А.",
+        "Weekday": "Вторник",
+        "LessonNumber": 7,
+        "Class": "8Ю",
+        "Subgroup": "",
+        "Subject": "Литература",
+        "Room": "303"
+    },
+    {
+        "Teacher": "Трекалов А.А.",
+        "Weekday": "Среда",
+        "LessonNumber": 7,
+        "Class": "8Я",
+        "Subgroup": "",
+        "Subject": "Русский язык",
+        "Room": "303"
+    },
+    {
+        "Teacher": "Трекалов А.А.",
+        "Weekday": "Четверг",
+        "LessonNumber": 7,
+        "Class": "8Э",
+        "Subgroup": "",
+        "Subject": "Русский язык",
+        "Room": "303"
+    },
+    {
+        "Teacher": "Щербакова С.Н.",
+        "Weekday": "Среда",
+        "LessonNumber": 1,
+        "Class": "7Я",
+        "Subgroup": "",
+        "Subject": "Геометрия",
+        "Room": "301"
+    },
+    {
+        "Teacher": "Щербакова С.Н.",
+        "Weekday": "Пятница",
+        "LessonNumber": 1,
+        "Class": "8Э",
+        "Subgroup": "",
+        "Subject": "Геометрия",
+        "Room": "301"
+    },
+    {
+        "Teacher": "Щербакова С.Н.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 2,
+        "Class": "8Ю",
+        "Subgroup": "",
+        "Subject": "Алгебра",
+        "Room": "301"
+    },
+    {
+        "Teacher": "Щербакова С.Н.",
+        "Weekday": "Среда",
+        "LessonNumber": 2,
+        "Class": "7Э",
+        "Subgroup": "",
+        "Subject": "Алгебра",
+        "Room": "301"
+    },
+    {
+        "Teacher": "Щербакова С.Н.",
+        "Weekday": "Четверг",
+        "LessonNumber": 2,
+        "Class": "7Э",
+        "Subgroup": "",
+        "Subject": "Алгебра",
+        "Room": "301"
+    },
+    {
+        "Teacher": "Щербакова С.Н.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 3,
+        "Class": "8Ю",
+        "Subgroup": "",
+        "Subject": "Геометрия",
+        "Room": "301"
+    },
+    {
+        "Teacher": "Щербакова С.Н.",
+        "Weekday": "Вторник",
+        "LessonNumber": 3,
+        "Class": "7Э",
+        "Subgroup": "",
+        "Subject": "Алгебра",
+        "Room": "301"
+    },
+    {
+        "Teacher": "Щербакова С.Н.",
+        "Weekday": "Среда",
+        "LessonNumber": 3,
+        "Class": "8Э",
+        "Subgroup": "",
+        "Subject": "Геометрия",
+        "Room": "301"
+    },
+    {
+        "Teacher": "Щербакова С.Н.",
+        "Weekday": "Четверг",
+        "LessonNumber": 3,
+        "Class": "8Ю",
+        "Subgroup": "",
+        "Subject": "Алгебра",
+        "Room": "301"
+    },
+    {
+        "Teacher": "Щербакова С.Н.",
+        "Weekday": "Пятница",
+        "LessonNumber": 3,
+        "Class": "8Ю",
+        "Subgroup": "",
+        "Subject": "Геометрия",
+        "Room": "301"
+    },
+    {
+        "Teacher": "Щербакова С.Н.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 4,
+        "Class": "8Э",
+        "Subgroup": "",
+        "Subject": "Алгебра",
+        "Room": "301"
+    },
+    {
+        "Teacher": "Щербакова С.Н.",
+        "Weekday": "Вторник",
+        "LessonNumber": 4,
+        "Class": "8Э",
+        "Subgroup": "",
+        "Subject": "Алгебра",
+        "Room": "301"
+    },
+    {
+        "Teacher": "Щербакова С.Н.",
+        "Weekday": "Среда",
+        "LessonNumber": 4,
+        "Class": "8Ю",
+        "Subgroup": "",
+        "Subject": "Геометрия",
+        "Room": "301"
+    },
+    {
+        "Teacher": "Щербакова С.Н.",
+        "Weekday": "Четверг",
+        "LessonNumber": 4,
+        "Class": "8Э",
+        "Subgroup": "",
+        "Subject": "Геометрия",
+        "Room": "301"
+    },
+    {
+        "Teacher": "Щербакова С.Н.",
+        "Weekday": "Пятница",
+        "LessonNumber": 4,
+        "Class": "8Ю",
+        "Subgroup": "",
+        "Subject": "Алгебра",
+        "Room": "301"
+    },
+    {
+        "Teacher": "Щербакова С.Н.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 5,
+        "Class": "7Я",
+        "Subgroup": "",
+        "Subject": "Алгебра",
+        "Room": "301"
+    },
+    {
+        "Teacher": "Щербакова С.Н.",
+        "Weekday": "Вторник",
+        "LessonNumber": 5,
+        "Class": "7Я",
+        "Subgroup": "",
+        "Subject": "Алгебра",
+        "Room": "301"
+    },
+    {
+        "Teacher": "Щербакова С.Н.",
+        "Weekday": "Среда",
+        "LessonNumber": 5,
+        "Class": "8Ю",
+        "Subgroup": "",
+        "Subject": "Вероятность и статистика",
+        "Room": "301"
+    },
+    {
+        "Teacher": "Щербакова С.Н.",
+        "Weekday": "Четверг",
+        "LessonNumber": 5,
+        "Class": "7Я",
+        "Subgroup": "",
+        "Subject": "Геометрия",
+        "Room": "301"
+    },
+    {
+        "Teacher": "Щербакова С.Н.",
+        "Weekday": "Пятница",
+        "LessonNumber": 5,
+        "Class": "7Я",
+        "Subgroup": "",
+        "Subject": "Геометрия",
+        "Room": "301"
+    },
+    {
+        "Teacher": "Щербакова С.Н.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 6,
+        "Class": "8Ю",
+        "Subgroup": "",
+        "Subject": "Алгебра",
+        "Room": "301"
+    },
+    {
+        "Teacher": "Щербакова С.Н.",
+        "Weekday": "Вторник",
+        "LessonNumber": 6,
+        "Class": "7Я",
+        "Subgroup": "",
+        "Subject": "Вероятность и статистика",
+        "Room": "301"
+    },
+    {
+        "Teacher": "Щербакова С.Н.",
+        "Weekday": "Среда",
+        "LessonNumber": 6,
+        "Class": "8Э",
+        "Subgroup": "",
+        "Subject": "Вероятность и статистика",
+        "Room": "301"
+    },
+    {
+        "Teacher": "Щербакова С.Н.",
+        "Weekday": "Четверг",
+        "LessonNumber": 6,
+        "Class": "8Э",
+        "Subgroup": "",
+        "Subject": "Алгебра",
+        "Room": "301"
+    },
+    {
+        "Teacher": "Щербакова С.Н.",
+        "Weekday": "Пятница",
+        "LessonNumber": 6,
+        "Class": "7Я",
+        "Subgroup": "",
+        "Subject": "Алгебра",
+        "Room": "301"
+    },
+    {
+        "Teacher": "Щербакова С.Н.",
+        "Weekday": "Среда",
+        "LessonNumber": 7,
+        "Class": "7Я",
+        "Subgroup": "",
+        "Subject": "Математическое моделирование",
+        "Room": "301"
+    },
+    {
+        "Teacher": "Юрова А.В.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 2,
+        "Class": "8Э",
+        "Subgroup": "1",
+        "Subject": "Иностранный Язык",
+        "Room": "309"
+    },
+    {
+        "Teacher": "Юрова А.В.",
+        "Weekday": "Пятница",
+        "LessonNumber": 2,
+        "Class": "8Э",
+        "Subgroup": "2",
+        "Subject": "Иностранный Язык",
+        "Room": "302"
+    },
+    {
+        "Teacher": "Юрова А.В.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 3,
+        "Class": "8Э",
+        "Subgroup": "2",
+        "Subject": "Иностранный Язык",
+        "Room": "309"
+    },
+    {
+        "Teacher": "Юрова А.В.",
+        "Weekday": "Вторник",
+        "LessonNumber": 3,
+        "Class": "8Ю",
+        "Subgroup": "2",
+        "Subject": "Иностранный Язык",
+        "Room": "310"
+    },
+    {
+        "Teacher": "Юрова А.В.",
+        "Weekday": "Пятница",
+        "LessonNumber": 3,
+        "Class": "8Э",
+        "Subgroup": "1",
+        "Subject": "Иностранный Язык",
+        "Room": "302"
+    },
+    {
+        "Teacher": "Юрова А.В.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 4,
+        "Class": "8Я",
+        "Subgroup": "2",
+        "Subject": "Иностранный Язык",
+        "Room": "310"
+    },
+    {
+        "Teacher": "Юрова А.В.",
+        "Weekday": "Вторник",
+        "LessonNumber": 4,
+        "Class": "8Ю",
+        "Subgroup": "1",
+        "Subject": "Иностранный Язык",
+        "Room": "310"
+    },
+    {
+        "Teacher": "Юрова А.В.",
+        "Weekday": "Среда",
+        "LessonNumber": 4,
+        "Class": "8Э",
+        "Subgroup": "2",
+        "Subject": "Иностранный Язык",
+        "Room": "302"
+    },
+    {
+        "Teacher": "Юрова А.В.",
+        "Weekday": "Пятница",
+        "LessonNumber": 4,
+        "Class": "8Я",
+        "Subgroup": "2",
+        "Subject": "Иностранный Язык",
+        "Room": "310"
+    },
+    {
+        "Teacher": "Юрова А.В.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 5,
+        "Class": "8Я",
+        "Subgroup": "1",
+        "Subject": "Иностранный Язык",
+        "Room": "310"
+    },
+    {
+        "Teacher": "Юрова А.В.",
+        "Weekday": "Вторник",
+        "LessonNumber": 5,
+        "Class": "8Я",
+        "Subgroup": "2",
+        "Subject": "Иностранный Язык",
+        "Room": "310"
+    },
+    {
+        "Teacher": "Юрова А.В.",
+        "Weekday": "Среда",
+        "LessonNumber": 5,
+        "Class": "8Э",
+        "Subgroup": "1",
+        "Subject": "Иностранный Язык",
+        "Room": "310"
+    },
+    {
+        "Teacher": "Юрова А.В.",
+        "Weekday": "Пятница",
+        "LessonNumber": 5,
+        "Class": "8Я",
+        "Subgroup": "1",
+        "Subject": "Иностранный Язык",
+        "Room": "310"
+    },
+    {
+        "Teacher": "Юрова А.В.",
+        "Weekday": "Среда",
+        "LessonNumber": 6,
+        "Class": "8Я",
+        "Subgroup": "1",
+        "Subject": "Иностранный Язык",
+        "Room": "310"
+    },
+    {
+        "Teacher": "Юрова А.В.",
+        "Weekday": "Четверг",
+        "LessonNumber": 6,
+        "Class": "8Ю",
+        "Subgroup": "2",
+        "Subject": "Иностранный Язык",
+        "Room": "310"
+    },
+    {
+        "Teacher": "Юрова А.В.",
+        "Weekday": "Пятница",
+        "LessonNumber": 6,
+        "Class": "8Ю",
+        "Subgroup": "2",
+        "Subject": "Иностранный Язык",
+        "Room": "310"
+    },
+    {
+        "Teacher": "Юрова А.В.",
+        "Weekday": "Среда",
+        "LessonNumber": 7,
+        "Class": "8Ю",
+        "Subgroup": "1",
+        "Subject": "Иностранный Язык",
+        "Room": "310"
+    },
+    {
+        "Teacher": "Хурманенок Д.А.",
+        "Weekday": "Понедельник",
+        "LessonNumber": 7,
+        "Class": "10Ю",
+        "Subgroup": "",
+        "Subject": "Экономика",
+        "Room": "211"
+    },
+    {
+        "Teacher": "Малахова Е.С.",
+        "Weekday": "Среда",
+        "LessonNumber": 7,
+        "Class": "10Ю",
+        "Subgroup": "",
+        "Subject": "Индивидуальный проект",
+        "Room": "219"
     }
 ]

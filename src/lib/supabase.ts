@@ -9,7 +9,14 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
 export type Tables = Database["public"]["Tables"];
 export type TeacherRow = Tables["teachers"]["Row"];
 export type SubjectRow = Tables["subjects"]["Row"];
-export type TimeSlotRow = Tables["time_slots"]["Row"] & {
-  teacher: { name: string } | null;
+export type TimeSlotRow = {
+  id: string;
+  day: string;
+  lesson_id: string;
+  subject: string;
+  teacher_id: string;
+  room: string;
+  class_id: string;
+  is_extracurricular?: boolean;
 };
 export type ClassRow = Tables["classes"]["Row"];

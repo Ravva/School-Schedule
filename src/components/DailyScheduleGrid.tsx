@@ -14,37 +14,50 @@ interface DailyScheduleGridProps {
   date?: Date;
 }
 
+// Update the component to use lesson_id instead of start/end time
+// Add this interface near the top of the file
+interface TimeSlotWithDetails extends TimeSlotRow {
+  lesson?: {
+    start_time: string;
+    end_time: string;
+  };
+  teacher?: {
+    name: string;
+  } | null;
+}
+
 const DailyScheduleGrid = ({ date = new Date() }: DailyScheduleGridProps) => {
-  console.log("DailyScheduleGrid rendering"); // Log at the beginning of render
-  const [timeSlots, setTimeSlots] = useState<TimeSlotRow[]>([]);
+  // Update the timeSlots state to use the new interface
+  const [timeSlots, setTimeSlots] = useState<TimeSlotWithDetails[]>([]);
+  
   const [teachers, setTeachers] = useState<TeacherRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedTeacher, setSelectedTeacher] = useState<string>("all");
   const [selectedRoom, setSelectedRoom] = useState<string>("all");
-
+  // Add state for lessons
+  const [lessons, setLessons] = useState<any[]>([]);
+  
   useEffect(() => {
     fetchData();
   }, [date]);
-
+  
   const fetchData = async () => {
-    console.log("fetchData called"); // Log at the beginning of fetchData
     try {
-      console.log("Date:", date, "Formatted Day:", date.toLocaleDateString("en-US", { weekday: "long" }).toLowerCase());
-      const [timeSlotsData, teachersData] = await Promise.all([
+      const [timeSlotsData, teachersData, lessonsData] = await Promise.all([
         supabase
           .from("time_slots")
           .select("*")
-          .eq("day", date.toLocaleDateString("en-US", { weekday: "long" }).toLowerCase())
-          .order("start_time"),
+          .eq("day", date.toLocaleDateString("en-US", { weekday: "long" }).toLowerCase()),
         supabase.from("teachers").select("*").order("name"),
+        supabase.from("lessons").select("*").order("lesson_number"),
       ]);
-
+  
       if (timeSlotsData.error) throw timeSlotsData.error;
       if (teachersData.error) throw teachersData.error;
-
-      console.log("timeSlotsData:", timeSlotsData.data);
-      console.log("teachersData:", teachersData.data);
-
+      if (lessonsData.error) throw lessonsData.error;
+  
+      setLessons(lessonsData.data || []);
+  
       const timeSlotsWithTeachers = await Promise.all(
         timeSlotsData.data?.map(async (slot) => {
           const { data: teacherData, error: teacherError } = await supabase
@@ -52,18 +65,25 @@ const DailyScheduleGrid = ({ date = new Date() }: DailyScheduleGridProps) => {
             .select("name")
             .eq("id", slot.teacher_id)
             .single();
-
-          if (teacherError) {
-            console.error("Error fetching teacher:", teacherError);
-            return { ...slot, teacher: null };
-          }
-
-          return { ...slot, teacher: teacherData ? { name: teacherData.name } : null };
+  
+          // Get lesson times from lessons table
+          const lesson = lessonsData.data?.find(l => l.id === slot.lesson_id);
+  
+          return {
+            ...slot,
+            teacher: teacherData ? { name: teacherData.name } : null,
+            lesson: lesson ? {
+              start_time: lesson.start_time,
+              end_time: lesson.end_time
+            } : undefined
+          };
         }) || []
       );
-
-      setTimeSlots(timeSlotsWithTeachers);
-      console.log("timeSlots:", timeSlotsWithTeachers); // Log the timeSlots data
+  
+      setTimeSlots(timeSlotsWithTeachers.map(slot => ({
+        ...slot,
+        room: slot.room_id // Map room_id to room to match TimeSlotWithDetails interface
+      })));
       setTeachers(teachersData.data || []);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -71,10 +91,10 @@ const DailyScheduleGrid = ({ date = new Date() }: DailyScheduleGridProps) => {
       setLoading(false);
     }
   };
-
+  
     const filteredTimeSlots = timeSlots.filter((slot) => {
     if (selectedTeacher !== "all" && slot.teacher_id !== selectedTeacher) return false;
-    if (selectedRoom !== "all" && slot.room !== selectedRoom) return false;
+    if (selectedRoom !== "all" && (slot as any).room !== selectedRoom) return false;
     return true;
   });
   return (
@@ -110,7 +130,7 @@ const DailyScheduleGrid = ({ date = new Date() }: DailyScheduleGridProps) => {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Rooms</SelectItem>
-              {Array.from(new Set(timeSlots.map((slot) => slot.room))).map((room) => (
+              {Array.from(new Set(timeSlots.map((slot) => (slot as any).room))).map((room) => (
                 <SelectItem key={room} value={room}>
                   Room {room}
                 </SelectItem>
@@ -120,18 +140,19 @@ const DailyScheduleGrid = ({ date = new Date() }: DailyScheduleGridProps) => {
         </div>
       </div>
 
-      <ScrollArea className="h-[700px] w-full rounded-md border border-slate-200">
+      <ScrollArea className="h-full w-full rounded-md border border-slate-200">
         <div className="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {loading ? (
             <div>Loading...</div>
           ) : (
             filteredTimeSlots.map((slot) => (
+              // Update the LessonCard rendering
               <LessonCard
                 key={slot.id}
-                startTime={slot.start_time}
-                endTime={slot.end_time}
+                startTime={slot.lesson?.start_time || ""}
+                endTime={slot.lesson?.end_time || ""}
                 subject={slot.subject}
-                teacher={slot.teacher?.name ?? "No Teacher"}
+                teacher={(slot as any).teacher?.name ?? "No Teacher"}
                 room={slot.room}
                 isExtracurricular={slot.is_extracurricular}
               />

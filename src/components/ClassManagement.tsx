@@ -128,15 +128,20 @@ const ClassManagement = () => {
       alert("Please select a class literal.");
       return;
     }
-    if (newClass.grade < 1 || newClass.grade > 11) {
+    if (!newClass.grade || newClass.grade < 1 || newClass.grade > 11) {
       alert("Grade must be between 1 and 11.");
       return;
     }
-    if (newClass.literal.length !== 1) {
-      alert("Literal must be a single character.");
+    if (newClass.literal.length > 10) {  // Changed from length !== 1
+      alert("Literal must not exceed 10 characters.");
       return;
     }
-    const className = `${newClass.grade}${newClass.literal}`;
+    // Generate class name before insert
+    const className = generateClassName(newClass.grade, newClass.literal);
+    if (!className) {
+      alert("Invalid class name combination.");
+      return;
+    }
 
     try {
       const { error } = await supabase.from("classes").insert([
@@ -144,8 +149,8 @@ const ClassManagement = () => {
           name: className,
           grade: newClass.grade,
           literal: newClass.literal,
-          supervisor_teacher_id: newClass.supervisor_teacher_id,
-          room_id: newClass.room_id,
+          supervisor_teacher_id: newClass.supervisor_teacher_id || null,
+          room_id: newClass.room_id || null,
         },
       ]);
 
@@ -160,6 +165,7 @@ const ClassManagement = () => {
       });
     } catch (error) {
       console.error("Error creating class:", error);
+      alert("Failed to create class. Please try again.");
     }
   };
 
@@ -174,8 +180,8 @@ const ClassManagement = () => {
       alert("Grade must be between 1 and 11.");
       return;
     }
-    if (editingClass.literal.length !== 1) {
-      alert("Literal must be a single character.");
+    if (editingClass.literal.length > 10) {  // Changed from length !== 1
+      alert("Literal must not exceed 10 characters.");
       return;
     }
     const className = `${editingClass.grade}${editingClass.literal}`;
@@ -376,12 +382,12 @@ const ClassManagement = () => {
               value={classData ? classData.literal || "" : ""}
               onChange={(e) => {
                 const value = e.target.value;
-                if (value.length <= 1) {
+                if (value.length <= 10) {  // Changed from 1 to 10
                   handleLiteralChange(e);
                 }
               }}
               placeholder="Enter literal"
-              maxLength={1}
+              maxLength={10}  // Changed from 1 to 10
             />
           </div>
         </div>
@@ -654,7 +660,7 @@ const generateClassName = (grade: number, literal?: string | null) => {
   if (!grade || grade < 1 || grade > 11) {
     return "";
   }
-  if (literal && literal.length !== 1) {
+  if (literal && literal.length > 10) {  // Changed from length !== 1
     return "";
   }
   return literal ? `${grade}${literal}` : `${grade}`;
