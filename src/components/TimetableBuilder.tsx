@@ -1,5 +1,21 @@
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "./ui/alert-dialog";
+import { Calendar } from "./ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { format } from "date-fns";
+import { ru } from 'date-fns/locale';
+import { CalendarIcon } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus, Edit, Trash2  } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import { useToast } from "./ui/use-toast";
 import {
@@ -72,6 +88,9 @@ interface Room {
 
 const TimetableBuilder = () => {
   const { toast } = useToast();
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [periodToDelete, setPeriodToDelete] = useState<string | null>(null);
+  const [editingPeriod, setEditingPeriod] = useState<AcademicPeriod | null>(null);
   const [loading, setLoading] = useState(true);
   const [academicPeriods, setAcademicPeriods] = useState<AcademicPeriod[]>([]);
   const [selectedPeriod, setSelectedPeriod] = useState<string>("");
@@ -114,6 +133,7 @@ const TimetableBuilder = () => {
         }
       }
       setLoading(false);
+
     };
 
     const fetchClasses = async () => {
@@ -201,6 +221,16 @@ const TimetableBuilder = () => {
     fetchRooms();
     fetchTimeSlots();
   }, [toast]);
+
+  useEffect(() => {
+    if (isEditMode && editingPeriod) {
+      setNewPeriod({
+        name: editingPeriod.name,
+        start_date: editingPeriod.start_date,
+        end_date: editingPeriod.end_date,
+      });
+    }
+  }, [isEditMode, editingPeriod]);
 
   const generateSchedule = async () => {
     try {
@@ -393,106 +423,247 @@ const TimetableBuilder = () => {
         </div>
       ) : (
         <>
-          <div className="flex justify-between items-center mb-6">
             <div className="flex items-center gap-4">
               <h2 className="text-2xl font-bold text-slate-900">
                 Timetable Builder
               </h2>
-              <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
-                <SelectTrigger className="w-[200px]">
-                  <SelectValue placeholder="Select period" />
-                </SelectTrigger>
-                <SelectContent>
-                  {academicPeriods.map((period) => (
-                    <SelectItem key={period.id} value={period.id}>
-                      {period.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex gap-2">
-              <Button
-                onClick={generateSchedule}
-                disabled={!selectedPeriod || !selectedClass || isGenerating}
-              >
-                {isGenerating ? "Generating..." : "Generate Schedule"}
-              </Button>
-              <Dialog open={isAddPeriodOpen} onOpenChange={setIsAddPeriodOpen}>
-                <DialogTrigger asChild>
-                  <Button>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Period
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Add Academic Period</DialogTitle>
-                    <DialogDescription>
-                      Create a new academic period for timetable planning.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="grid gap-4 py-4">
-                    <div className="grid gap-2">
-                      <Label htmlFor="name">Period Name</Label>
-                      <Input
-                        id="name"
-                        value={newPeriod.name}
-                        onChange={(e) =>
-                          setNewPeriod({ ...newPeriod, name: e.target.value })
-                        }
-                      />
+              <div className="flex items-center gap-2">
+                <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue placeholder="Select period" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {academicPeriods.map((period) => (
+                      <div key={period.id} className="flex items-center justify-between p-2">
+                        <SelectItem value={period.id}>
+                          {period.name}
+                        </SelectItem>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setEditingPeriod(period);
+                              setIsEditMode(true);
+                              setIsAddPeriodOpen(true);
+                            }}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <Trash2 className="h-4 w-4 text-red-500" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>
+                                  Are you absolutely sure?
+                                </AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This action cannot be undone. This will permanently delete academic period and remove all data from database.
+                                </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={async () => {
+                                      try {
+                                        const { error } = await supabase
+                                          .from("academic_periods")
+                                          .delete()
+                                          .eq("id", period.id);
+
+                                        if (error) throw error;
+
+                                        const { data } = await supabase
+                                          .from("academic_periods")
+                                          .select("*");
+                                        setAcademicPeriods(data || []);
+
+                                        if (selectedPeriod === period.id) {
+                                          setSelectedPeriod("");
+                                        }
+
+                                        toast({
+                                          title: "Success",
+                                          description: "Academic period deleted successfully",
+                                        });
+                                      } catch (error: any) {
+                                        toast({
+                                          variant: "destructive",
+                                          title: "Error",
+                                          description: error.message,
+                                        });
+                                      }
+                                    }}
+                                  >
+                                    Delete
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
+                        </div>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              <div className="flex gap-2"> <Dialog
+                  open={isAddPeriodOpen}
+                  onOpenChange={(open) => {
+                    setIsAddPeriodOpen(open);
+                    if (!open) {
+                      setIsEditMode(false);
+                      setEditingPeriod(null);
+                      setNewPeriod({
+                        name: "",
+                        start_date: "",
+                        end_date: "",
+                      });
+                    } else if (isEditMode && editingPeriod) {
+                      setNewPeriod({
+                        name: editingPeriod.name,
+                        start_date: editingPeriod.start_date,
+                        end_date: editingPeriod.end_date,
+                      });
+                    }
+                  }}
+                >
+                  <DialogTrigger asChild>
+                    <Button>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Period
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>{isEditMode ? 'Edit' : 'Add'} Academic Period</DialogTitle>
+                      <DialogDescription>
+                        {isEditMode ? 'Modify' : 'Create'} an academic period for timetable planning.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      <div className="grid gap-2">
+                        <Label htmlFor="name">Period Name</Label>
+                        <Input
+                          id="name"
+                          value={newPeriod.name}
+                          onChange={(e) =>
+                            setNewPeriod({ ...newPeriod, name: e.target.value })
+                          }
+                        />
+                      </div>
+                     <div className="grid gap-2">
+                        <Label>Start Date</Label>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              className={`w-full justify-start text-left font-normal ${!newPeriod.start_date && "text-muted-foreground"}`}
+                            >
+                              <CalendarIcon className="mr-2 h-4 w-4" />
+                              {newPeriod.start_date ? 
+                                format(new Date(newPeriod.start_date.split('.').reverse().join('-')), "PPP", { locale: ru }) 
+                                : "Выберите дату"}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0">
+                            <Calendar
+                              mode="single"
+                              selected={newPeriod.start_date ? new Date(newPeriod.start_date.split('.').reverse().join('-')) : undefined}
+                              onSelect={(date) => {
+                                setNewPeriod({
+                                  ...newPeriod,
+                                  start_date: date ? date.toLocaleDateString('ru-RU') : "",
+                                });
+                                const button = document.activeElement as HTMLElement;
+                                button?.blur();
+                              }}
+                              initialFocus
+                              locale={ru}
+                            />
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                      <div className="grid gap-2">
+                        <Label>End Date</Label>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              className={`w-full justify-start text-left font-normal ${!newPeriod.end_date && "text-muted-foreground"}`}
+                            >
+                              <CalendarIcon className="mr-2 h-4 w-4" />
+                              {newPeriod.end_date ? 
+                                format(new Date(newPeriod.end_date.split('.').reverse().join('-')), "PPP", { locale: ru }) 
+                                : "Выберите дату"}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0">
+                          <Calendar
+                              mode="single"
+                              selected={newPeriod.end_date ? new Date(newPeriod.end_date.split('.').reverse().join('-')) : undefined}
+                              onSelect={(date) => {
+                                setNewPeriod({
+                                  ...newPeriod,
+                                  end_date: date ? date.toLocaleDateString('ru-RU') : "",
+                                });
+                                const button = document.activeElement as HTMLElement;
+                                button?.blur();
+                              }}
+                              initialFocus
+                              locale={ru}
+                            />
+                          </PopoverContent>
+                        </Popover>
+                      </div>
                     </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="start_date">Start Date</Label>
-                      <Input
-                        id="start_date"
-                        type="date"
-                        value={newPeriod.start_date}
-                        onChange={(e) =>
-                          setNewPeriod({
-                            ...newPeriod,
-                            start_date: e.target.value,
-                          })
-                        }
-                      />
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="end_date">End Date</Label>
-                      <Input
-                        id="end_date"
-                        type="date"
-                        value={newPeriod.end_date}
-                        onChange={(e) =>
-                          setNewPeriod({
-                            ...newPeriod,
-                            end_date: e.target.value,
-                          })
-                        }
-                      />
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <Button
-                      onClick={async () => {
-                        try {
-                          const { error } = await supabase
-                            .from("academic_periods")
-                            .insert([
-                              {
-                                name: newPeriod.name,
-                                start_date: newPeriod.start_date,
-                                end_date: newPeriod.end_date,
-                              },
-                            ]);
-                          if (error) throw error;
-                          // Refetch academic periods
-                          const { data } = await supabase
-                            .from("academic_periods")
-                            .select("*");
+                    <DialogFooter>
+                      <Button
+                        onClick={async () => {
+                          try {
+                            // Convert dates from DD.MM.YYYY to YYYY-MM-DD
+                            const formatDate = (dateStr: string) => {
+                              return dateStr.split('.').reverse().join('-');
+                            };
+
+                            const periodData = {
+                              name: newPeriod.name,
+                              start_date: formatDate(newPeriod.start_date),
+                              end_date: formatDate(newPeriod.end_date),
+                            };
+
+                            if (isEditMode && editingPeriod) {
+                              const { error } = await supabase
+                                .from("academic_periods")
+                                .update(periodData)
+                                .eq("id", editingPeriod.id);
+                              if (error) throw error;
+                            } else {
+                              const { error } = await supabase
+                                .from("academic_periods")
+                                .insert([periodData]);
+                              if (error) throw error;
+                            }
+
+                            // Rest of the code remains the same
+                            const { data } = await supabase
+                              .from("academic_periods")
+                              .select("*");
                           setAcademicPeriods(data || []);
 
                           setIsAddPeriodOpen(false);
+                          setIsEditMode(false);
+                          setEditingPeriod(null);
                           setNewPeriod({
                             name: "",
                             start_date: "",
@@ -501,7 +672,7 @@ const TimetableBuilder = () => {
 
                           toast({
                             title: "Success",
-                            description: "Academic period added successfully",
+                            description: `Academic period ${isEditMode ? 'updated' : 'added'} successfully`,
                           });
                         } catch (error: any) {
                           toast({
@@ -512,34 +683,56 @@ const TimetableBuilder = () => {
                         }
                       }}
                     >
-                      Add Period
+                      {isEditMode ? 'Update' : 'Add'} Period
                     </Button>
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
+              <Button
+                onClick={generateSchedule}
+                disabled={!selectedPeriod || !selectedClass || isGenerating}
+              >
+                {isGenerating ? "Generating..." : "Generate Schedule"}
+              </Button>
             </div>
-          </div>
-
-          {selectedPeriod && (
-            <Tabs
-              value={selectedClass}
-              onValueChange={setSelectedClass}
-              className="mt-6"
-            >
+            </div>
+            {selectedPeriod && (
+              <Tabs
+                value={selectedClass}
+                onValueChange={setSelectedClass}
+                className="mt-6"
+              >
               <TabsList className="w-full justify-start h-auto flex-wrap gap-2 bg-transparent">
-                {classes.map((cls) => (
-                  <TabsTrigger
-                    key={cls.id}
-                    value={cls.id}
-                    className="data-[state=active]:bg-slate-900 data-[state=active]:text-white"
-                  >
-                    {cls.name}
-                  </TabsTrigger>
-                ))}
+                {classes
+                  .sort((a, b) => {
+                    // First sort by grade
+                    if (a.grade !== b.grade) {
+                      return a.grade - b.grade;
+                    }
+                    // Then sort by literal
+                    return a.literal.localeCompare(b.literal);
+                  })
+                  .map((cls) => (
+                    <TabsTrigger
+                      key={cls.id}
+                      value={cls.id}
+                      className="data-[state=active]:bg-slate-900 data-[state=active]:text-white"
+                    >
+                      {cls.name}
+                    </TabsTrigger>
+                  ))}
               </TabsList>
 
-              {classes.map((cls) => (
-                <TabsContent key={cls.id} value={cls.id}>
+              {classes
+                .sort((a, b) => {
+                  // Apply the same sorting for the content
+                  if (a.grade !== b.grade) {
+                    return a.grade - b.grade;
+                  }
+                  return a.literal.localeCompare(b.literal);
+                })
+                .map((cls) => (
+                  <TabsContent key={cls.id} value={cls.id}>
                   <div className="p-4 mt-4 bg-white rounded-lg">
                     <h3 className="text-lg font-semibold mb-4">
                       Timetable for {cls.name}
@@ -620,7 +813,7 @@ const TimetableBuilder = () => {
                 </TabsContent>
               ))}
             </Tabs>
-          )}
+            )}
         </>
       )}
     </div>
