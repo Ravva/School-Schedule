@@ -56,8 +56,17 @@ interface RoomAssignmentFormProps {
   subjects: Subject[];
   teachers: Teacher[];
   classes: Class[];
+<<<<<<< HEAD
+  onAdd?: (
+    room: Omit<Room, "id" | "created_at"> & {
+      subject_ids: string[];
+    },
+  ) => void;
+  onUpdate?: (room: Room & { subject_ids: string[] }) => void;
+=======
   onAdd?: (room: RoomFormState) => void;
   onUpdate?: (room: RoomFormState) => void;
+>>>>>>> 7e234037e4f2039004b9866ef2628eec9b159a71
   onClose: () => void;
 }
 
@@ -84,10 +93,22 @@ const RoomAssignmentForm: React.FC<RoomAssignmentFormProps> = ({
 }) => {
   const initialRoomState: RoomFormState =
     mode === "add"
-      ? {
+      ? ({
           room_number: "",
           teacher_ids: [],  // Changed from teacher_id to teacher_ids
           subject_ids: [],
+<<<<<<< HEAD
+        } as AddRoomState)
+      : ({
+          ...initialRoom,
+          subject_ids: initialRoom?.subjects?.map((s) => s.id) ?? [],
+          teachers: initialRoom?.teachers ?? null,
+          subjects: initialRoom?.subjects ?? [],
+          classes: initialRoom?.classes ?? null,
+        } as RoomState);
+
+  const [room, setRoom] = useState<RoomState | AddRoomState>(initialRoomState);
+=======
         }
       : {
           ...initialRoom,
@@ -99,6 +120,7 @@ const RoomAssignmentForm: React.FC<RoomAssignmentFormProps> = ({
         };
 
   const [room, setRoom] = useState<RoomFormState>(initialRoomState);
+>>>>>>> 7e234037e4f2039004b9866ef2628eec9b159a71
   const [showSubjectDropdown, setShowSubjectDropdown] = useState(false);
   const [showTeacherDropdown, setShowTeacherDropdown] = useState(false);
 
@@ -202,6 +224,34 @@ return (
             <Label>Subjects</Label>
             <div className="relative">
               <div className="flex flex-wrap gap-1 p-2 border rounded-md min-h-[38px]">
+<<<<<<< HEAD
+                {("subject_ids" in room ? room.subject_ids : []).map(
+                  (subjectId) => (
+                    <Badge key={subjectId} className="gap-1">
+                      {getSubjectName(subjectId)}
+                      <button
+                        onClick={() =>
+                          setRoom((prevRoom) => ({
+                            ...prevRoom,
+                            subject_ids:
+                              "subject_ids" in prevRoom
+                                ? prevRoom.subject_ids.filter(
+                                    (id) => id !== subjectId,
+                                  )
+                                : [],
+                          }))
+                        }
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  ),
+                )}
+                <button
+                  className="text-sm text-slate-500 hover:text-slate-700"
+                  onClick={() => setShowSubjectDropdown(!showSubjectDropdown)}
+                >
+=======
                 {room.subject_ids.map((subjectId) => (
                   <Badge key={subjectId} className="gap-1">
                     {getSubjectName(subjectId)}
@@ -214,6 +264,7 @@ return (
                   </Badge>
                 ))}
                 <button className="text-sm text-slate-500 hover:text-slate-700" onClick={() => setShowSubjectDropdown(!showSubjectDropdown)}>
+>>>>>>> 7e234037e4f2039004b9866ef2628eec9b159a71
                   + Add Subject
                 </button>
               </div>
@@ -221,7 +272,15 @@ return (
                 <div className="absolute z-10 w-full mt-1 bg-white border rounded-md shadow-lg">
                   <ScrollArea className="h-[200px]">
                     {subjects
+<<<<<<< HEAD
+                      .filter(
+                        (subject) =>
+                          !("subject_ids" in room) ||
+                          !room.subject_ids.includes(subject.id),
+                      )
+=======
                       .filter((subject) => !room.subject_ids.includes(subject.id))
+>>>>>>> 7e234037e4f2039004b9866ef2628eec9b159a71
                       .map((subject) => (
                         <button
                           key={subject.id}
@@ -291,7 +350,16 @@ const RoomAssignments = () => {
           teacher_rooms(
             teacher:teachers(*)
           )
+<<<<<<< HEAD
         `)
+=======
+<<<<<<< HEAD
+          `,
+=======
+        `
+>>>>>>> 7e234037e4f2039004b9866ef2628eec9b159a71
+        )
+>>>>>>> 99d3921e67c7ae309b6bb71d186bd11a89b1256d
         .order("room_number");
 
       if (roomsError) throw roomsError;
@@ -307,11 +375,17 @@ const RoomAssignments = () => {
 
       // Combine the data
       const combinedRooms: RoomAssignment[] = (roomsData || []).map((room) => {
+<<<<<<< HEAD
+        const relatedSubjects = room.room_subjects.map(
+          (rs: any) => rs.subjects,
+        );
+=======
         const relatedSubjects = room.room_subjects.map((rs: any) => rs.subjects);
 
         // Extract teachers from time_slots, handling null/undefined
 const relatedTeachers: Teacher[] = (room.teacher_rooms || []).map((tr) => tr.teacher).filter((teacher): teacher is Teacher => teacher !== null);
 
+>>>>>>> 7e234037e4f2039004b9866ef2628eec9b159a71
 
         // Find classes associated with the room
         const relatedClasses = classesData?.filter((cls) => cls.room_id === room.id) || [];
@@ -341,6 +415,16 @@ const relatedTeachers: Teacher[] = (room.teacher_rooms || []).map((tr) => tr.tea
     fetchData();
   }, []);
 
+<<<<<<< HEAD
+  const handleAddRoom = async (
+    newRoom: Omit<Room, "id" | "created_at"> & {
+      subject_ids: string[];
+    },
+  ) => {
+    try {
+      // First insert the room
+      const { data, error } = await supabase
+=======
   const handleAddRoom = async (newRoom: RoomFormState) => {
     try {
       const { subject_ids, teacher_ids, ...roomData } = newRoom;
@@ -356,20 +440,26 @@ const relatedTeachers: Teacher[] = (room.teacher_rooms || []).map((tr) => tr.tea
 
       // Insert the new room and get its ID
       const { data: insertedRoom, error: insertError } = await supabase
+>>>>>>> 7e234037e4f2039004b9866ef2628eec9b159a71
         .from("rooms")
-        .insert([roomToInsert])
-        .select("id");
+        .insert([
+          {
+            room_number: newRoom.room_number.trim(),
+            teacher_id: newRoom.teacher_id === "" ? null : newRoom.teacher_id,
+          },
+        ])
+        .select();
 
-      if (insertError) {
-        console.error("Insert error:", insertError);
-        throw insertError;
+      if (error) {
+        console.error("Insert error:", error);
+        throw error;
       }
 
-      const roomId = insertedRoom![0].id;
+      const roomId = data![0].id;
 
       // Insert related subjects
-      if (subject_ids.length > 0) {
-        const roomSubjectsToInsert = subject_ids.map((subjectId) => ({
+      if (newRoom.subject_ids.length > 0) {
+        const roomSubjectsToInsert = newRoom.subject_ids.map((subjectId) => ({
           room_id: roomId,
           subject_id: subjectId,
         }));
@@ -380,6 +470,12 @@ const relatedTeachers: Teacher[] = (room.teacher_rooms || []).map((tr) => tr.tea
         if (insertSubjectsError) throw insertSubjectsError;
       }
 
+<<<<<<< HEAD
+      toast({
+        title: "Success",
+        description: "Room added successfully",
+      });
+=======
       // Insert related teachers via time_slots
       if (teacher_ids.length > 0) {
         const timeSlotsToInsert = teacher_ids.map((teacherId) => ({
@@ -393,6 +489,7 @@ const relatedTeachers: Teacher[] = (room.teacher_rooms || []).map((tr) => tr.tea
 
         if (insertTimeSlotsError) throw insertTimeSlotsError;
       }
+>>>>>>> 7e234037e4f2039004b9866ef2628eec9b159a71
 
       fetchData(); // Refresh data
     } catch (error: any) {
@@ -404,9 +501,23 @@ const relatedTeachers: Teacher[] = (room.teacher_rooms || []).map((tr) => tr.tea
     }
   };
 
+<<<<<<< HEAD
+  const handleUpdateRoom = async (
+    updatedRoom: Room & { subject_ids: string[] },
+  ) => {
+    try {
+      const { id, subject_ids, created_at, ...roomData } = updatedRoom;
+
+      // Create a new object with only the necessary fields for updating the 'rooms' table
+      const roomUpdateData = {
+        room_number: roomData.room_number,
+        teacher_id: roomData.teacher_id,
+      };
+=======
   const handleUpdateRoom = async (updatedRoom: RoomFormState) => {
     try {
       const { id, subject_ids, teacher_ids, created_at, ...roomData } = updatedRoom;
+>>>>>>> 7e234037e4f2039004b9866ef2628eec9b159a71
 
       if (id) {
         // First, update the room_subjects
