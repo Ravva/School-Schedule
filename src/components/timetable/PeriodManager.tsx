@@ -125,22 +125,31 @@ export function PeriodManager({
                       <AlertDialogAction
                         onClick={async () => {
                           try {
+                            // First delete all related time slots
+                            const { error: timeSlotsError } = await supabase
+                              .from("time_slots")
+                              .delete()
+                              .eq("academic_period_id", period.id);
+                            
+                            if (timeSlotsError) throw timeSlotsError;
+                            
+                            // Then delete the academic period
                             const { error } = await supabase
                               .from("academic_periods")
                               .delete()
                               .eq("id", period.id);
-
+                            
                             if (error) throw error;
-
+                            
                             const { data } = await supabase
                               .from("academic_periods")
                               .select("*");
                             onPeriodsUpdate(data || []);
-
+                            
                             if (selectedPeriod === period.id) {
                               onPeriodChange("");
                             }
-
+                            
                             toast({
                               title: "Success",
                               description:

@@ -37,10 +37,19 @@ import {
 } from "./ui/select";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
-// Update the WEEKDAYS constant to match your database values
-const WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { PeriodManager } from "./timetable/PeriodManager";
+import { ImportJSON } from "./ImportJSON";
 
-// Update the weekdayMap to ensure consistent casing
+const WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+// First, add a reverse weekday map for English to Russian conversion
+const reverseWeekdayMap: { [key: string]: string } = {
+  "Monday": "Понедельник",
+  "Tuesday": "Вторник",
+  "Wednesday": "Среда",
+  "Thursday": "Четверг",
+  "Friday": "Пятница",
+};
 const weekdayMap: { [key: string]: string } = {
   "Понедельник": "Monday",
   "Вторник": "Tuesday",
@@ -48,16 +57,16 @@ const weekdayMap: { [key: string]: string } = {
   "Четверг": "Thursday",
   "Пятница": "Friday",
 };
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { PeriodManager } from "./timetable/PeriodManager";
-import { ImportJSON } from "./ImportJSON";
+
 interface TimeSlot {
   day: string;
   lesson_id: string;
-  subject: string; // Changed from subject_id to subject
+  subject: string;
   teacher_id: string;
   room_id: string;
   class_id: string;
+  subgroup?: number;
+  academic_period_id: string;  // Add this field
 }
 
 interface AcademicPeriod {
@@ -95,6 +104,7 @@ interface Room {
   id: string;
   name: string;
 }
+
 const TimetableBuilder = () => {
   const { toast } = useToast();
   const [periodToDelete, setPeriodToDelete] = useState<string | null>(null);
@@ -115,231 +125,209 @@ const TimetableBuilder = () => {
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [rooms, setRooms] = useState<Room[]>([]);
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
-  const [selectedSubjects, setSelectedSubjects] = useState<{
-    [key: string]: string;
-  }>({});
-  const [selectedTeachers, setSelectedTeachers] = useState<{
-    [key: string]: string;
-  }>({});
-  const [selectedRooms, setSelectedRooms] = useState<{ [key: string]: string }>(
-    {},
-  );
+  const [selectedSubjects, setSelectedSubjects] = useState<{[key: string]: string}>({});
+  const [selectedTeachers, setSelectedTeachers] = useState<{[key: string]: string}>({});
+  const [selectedRooms, setSelectedRooms] = useState<{[key: string]: string}>({});
   const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
     const fetchAcademicPeriods = async () => {
-      const { data, error } = await supabase
-        .from("academic_periods")
-        .select("*");
-  
+      const { data, error } = await supabase.from("academic_periods").select("*");
       if (error) {
         console.error("Error fetching academic periods:", error);
       } else {
         setAcademicPeriods(data || []);
-        if (data?.length) {
+        // Auto-select the first period if available
+        if (data && data.length > 0) {
           setSelectedPeriod(data[0].id);
         }
       }
       setLoading(false);
     };
-  
+
     const fetchClasses = async () => {
       const { data, error } = await supabase.from("classes").select("*");
-  
       if (error) {
         console.error("Error fetching classes:", error);
       } else {
         setClasses(data || []);
       }
     };
-  
+
     const fetchLessons = async () => {
       const { data, error } = await supabase.from("lessons").select("*");
-  
       if (error) {
         console.error("Error fetching lessons:", error);
       } else {
         setLessons(data || []);
       }
     };
-  
+
     const fetchSubjects = async () => {
       const { data, error } = await supabase.from("subjects").select("*");
-  
       if (error) {
         console.error("Error fetching subjects:", error);
       } else {
         setSubjects(data || []);
       }
     };
-  
+
     const fetchTeachers = async () => {
       const { data, error } = await supabase.from("teachers").select("*");
-  
       if (error) {
         console.error("Error fetching teachers:", error);
       } else {
         setTeachers(data || []);
       }
     };
-  
+
     const fetchRooms = async () => {
-      const { data, error } = await supabase
-        .from("rooms")
-        .select("id, room_number");
-  
+      const { data, error } = await supabase.from("rooms").select("*");
       if (error) {
         console.error("Error fetching rooms:", error);
       } else {
-        // Map the fetched data to match the Room interface
-        const formattedRooms =
-          data?.map((room) => ({
-            id: room.id,
-            name: room.room_number, // Assuming room_number is the name of the room
-          })) || [];
+        const formattedRooms = (data || []).map(room => ({
+          id: room.id,
+          name: room.room_number
+        }));
         setRooms(formattedRooms);
       }
     };
-  
-    const fetchTimeSlots = async () => {
-      const { data, error } = await supabase.from("time_slots").select("*");
-      if (error) {
-        console.error("Error fetching time slots:", error);
-      } else {
-        // Correctly map the fetched data to TimeSlot interface
-        const formattedTimeSlots =
-          data?.map((ts) => ({
-            day: ts.day,
-            lesson_id: ts.lesson_id,
-            subject: ts.subject, // Using 'subject' to match the TimeSlot interface
-            teacher_id: ts.teacher_id,
-            room_id: ts.room_id,
-            class_id: ts.class_id,
-          })) || [];
-        setTimeSlots(formattedTimeSlots);
-      }
+
+    const fetchAllData = async () => {
+      await Promise.all([
+        fetchAcademicPeriods(),
+        fetchClasses(),
+        fetchLessons(),
+        fetchSubjects(),
+        fetchTeachers(),
+        fetchRooms()
+      ]);
     };
-  
-    fetchAcademicPeriods();
-    fetchClasses();
-    fetchLessons();
-    fetchSubjects();
-    fetchTeachers();
-    fetchRooms();
-    fetchTimeSlots();
-  }, [toast]);
-  
+
+    fetchAllData();
+  }, []); // Empty dependency array - runs only on mount
+
+// Separate useEffect for timeSlots
+// Add this state to track loading state for time slots
+const [isLoadingTimeSlots, setIsLoadingTimeSlots] = useState(false);
+
+// Update the useEffect for timeSlots
+useEffect(() => {
+  const fetchTimeSlots = async () => {
+    if (!selectedPeriod || !selectedClass) {
+      setTimeSlots([]);
+      return;
+    }
+    
+    setIsLoadingTimeSlots(true);
+    try {
+      const { data, error } = await supabase
+        .from("time_slots")
+        .select("*")
+        .eq("academic_period_id", selectedPeriod)
+        .eq("class_id", selectedClass);
+    
+      if (error) throw error;
+      setTimeSlots(data || []);
+    } catch (error) {
+      console.error("Error fetching time slots:", error);
+      setTimeSlots([]);
+    } finally {
+      setIsLoadingTimeSlots(false);
+    }
+  };
+
+  fetchTimeSlots();
+}, [selectedPeriod, selectedClass]);
+
   const generateSchedule = async () => {
     try {
       setIsGenerating(true);
-  
-      // First get syllabus data for the class
+
       const { data: syllabusData, error: syllabusError } = await supabase
         .from("syllabus")
         .select("*, subjects(*), teachers(*)")
         .eq("class_id", selectedClass);
-  
+
       if (syllabusError) throw syllabusError;
-  
-      // Get subject-teacher assignments as fallback
+
       const { data: subjectTeachers, error: stError } = await supabase
         .from("subject_teachers")
         .select("*, subjects(*), teachers(*)")
         .eq("class_id", selectedClass);
-  
+
       if (stError) throw stError;
-  
-      if (
-        !syllabusData?.length &&
-        (!subjectTeachers || !subjectTeachers.length)
-      ) {
-        throw new Error(
-          "No teacher assignments found for this class. Please set up the syllabus first.",
-        );
+
+      if (!syllabusData?.length && (!subjectTeachers || !subjectTeachers.length)) {
+        throw new Error("No teacher assignments found for this class. Please set up the syllabus first.");
       }
-  
-      // Clear existing schedule
+
       const { error: deleteError } = await supabase
         .from("time_slots")
         .delete()
-        .eq("class_id", selectedClass);
-  
+        .eq("class_id", selectedClass)
+        .eq("academic_period_id", selectedPeriod);
+
       if (deleteError) throw deleteError;
-  
+
       const newTimeSlots: TimeSlot[] = [];
-  
-      // Create a map to track how many hours have been assigned for each subject
       const subjectHoursAssigned = new Map<string, number>();
-  
-      // Initialize the map with syllabus data
+
       syllabusData?.forEach((syllabus) => {
         subjectHoursAssigned.set(syllabus.subject_id, 0);
       });
-  
-      // Create a list of available slots
+
       const availableSlots = [];
       for (const day of WEEKDAYS) {
         for (const lesson of lessons) {
           availableSlots.push({ day, lesson });
         }
       }
-  
-      // Shuffle available slots for random distribution
+
       availableSlots.sort(() => Math.random() - 0.5);
-  
-      // Process each syllabus entry
+
       for (const syllabus of syllabusData || []) {
         const hoursNeeded = syllabus.amount_of_academic_hours_per_week || 0;
         let currentHours = subjectHoursAssigned.get(syllabus.subject_id) || 0;
-  
-        // Ensure we assign the correct number of time slots
+
         while (currentHours < hoursNeeded) {
-          // Find available slots for this subject
           for (const slot of availableSlots) {
             if (currentHours >= hoursNeeded) break;
-  
-            // Check if this slot is already used
+
             const isSlotUsed = newTimeSlots.some(
-              (ts) => ts.day === slot.day && ts.lesson_id === slot.lesson.id,
+              (ts) => ts.day === slot.day && ts.lesson_id === slot.lesson.id
             );
-  
+
             if (isSlotUsed) continue;
-  
-            // Check if teacher is available in this slot
+
             const isTeacherBusy = newTimeSlots.some(
               (ts) =>
                 ts.day === slot.day &&
                 ts.lesson_id === slot.lesson.id &&
-                ts.teacher_id === syllabus.teacher_id,
+                ts.teacher_id === syllabus.teacher_id
             );
             if (isTeacherBusy) continue;
-  
-            // Get available rooms
+
             const usedRoomIds = newTimeSlots
-              .filter(
-                (ts) => ts.day === slot.day && ts.lesson_id === slot.lesson.id,
-              )
+              .filter((ts) => ts.day === slot.day && ts.lesson_id === slot.lesson.id)
               .map((ts) => ts.room_id);
-  
+
             const roomsQuery = supabase.from("rooms").select("*");
-            const { data: availableRooms, error: rError } =
-              await (usedRoomIds.length > 0
+            const { data: availableRooms, error: rError } = await (
+              usedRoomIds.length > 0
                 ? roomsQuery.not("id", "in", usedRoomIds)
-                : roomsQuery);
-  
+                : roomsQuery
+            );
+
             if (rError) throw rError;
             if (!availableRooms?.length) continue;
-  
-            const randomRoom =
-              availableRooms[Math.floor(Math.random() * availableRooms.length)];
-  
-            // Get the subject name
-            const subjectName = subjects.find(
-              (s) => s.id === syllabus.subject_id,
-            )?.name;
+
+            const randomRoom = availableRooms[Math.floor(Math.random() * availableRooms.length)];
+
+            const subjectName = subjects.find((s) => s.id === syllabus.subject_id)?.name;
             if (!subjectName) continue;
-  
-            // Add the time slot
+
             newTimeSlots.push({
               day: slot.day,
               lesson_id: slot.lesson.id,
@@ -347,56 +335,37 @@ const TimetableBuilder = () => {
               teacher_id: syllabus.teacher_id,
               room_id: randomRoom.id,
               class_id: selectedClass,
+              academic_period_id: selectedPeriod  // Add this field
             });
-  
-            // Update assigned hours
+
             currentHours++;
             subjectHoursAssigned.set(syllabus.subject_id, currentHours);
           }
         }
       }
-  
-      // Insert time slots one by one to better handle conflicts
+
       for (const slot of newTimeSlots) {
         const { error: insertError } = await supabase
           .from("time_slots")
           .insert({
-            day: slot.day,
-            lesson_id: slot.lesson_id,
-            subject: slot.subject,
-            teacher_id: slot.teacher_id,
-            room_id: slot.room_id,
-            class_id: slot.class_id,
+            ...slot,
+            academic_period_id: selectedPeriod,
             created_at: new Date().toISOString(),
           });
-  
-        if (insertError) {
-          console.error("Error inserting time slot:", insertError);
-          throw insertError;
-        }
+
+        if (insertError) throw insertError;
       }
-  
-      // Fetch updated time slots
+
       const { data: updatedTimeSlots, error: fetchError } = await supabase
         .from("time_slots")
         .select("*")
-        .eq("class_id", selectedClass);
-  
+        .eq("class_id", selectedClass)
+        .eq("academic_period_id", selectedPeriod);
+
       if (fetchError) throw fetchError;
-  
-      // Update state with formatted time slots
-      const formattedTimeSlots =
-        updatedTimeSlots?.map((ts) => ({
-          day: ts.day,
-          lesson_id: ts.lesson_id,
-          subject: ts.subject,
-          teacher_id: ts.teacher_id,
-          room_id: ts.room_id,
-          class_id: ts.class_id,
-        })) || [];
-  
-      setTimeSlots(formattedTimeSlots);
-  
+
+      setTimeSlots(updatedTimeSlots || []);
+
       toast({
         title: "Success",
         description: "Schedule generated successfully",
@@ -411,6 +380,7 @@ const TimetableBuilder = () => {
       setIsGenerating(false);
     }
   };
+
   return (
     <div className="p-6 bg-slate-100 rounded-lg shadow-lg">
       {loading ? (
@@ -419,70 +389,69 @@ const TimetableBuilder = () => {
         </div>
       ) : (
         <>
-<div className="flex items-center gap-4">
-  <h2 className="text-2xl font-bold text-slate-900">
-    Timetable Builder
-  </h2>
-  <div className="flex items-center gap-2">
-    <PeriodManager
-      academicPeriods={academicPeriods}
-      selectedPeriod={selectedPeriod}
-      onPeriodChange={setSelectedPeriod}
-      onPeriodsUpdate={setAcademicPeriods}
-    />
-  </div>
-  <div className="flex gap-2">
-    <Button
-      onClick={generateSchedule}
-      disabled={!selectedPeriod || !selectedClass || isGenerating}
-    >
-      {isGenerating ? "Generating..." : "Generate Schedule"}
-    </Button>
-    <ImportJSON
-      selectedClass={selectedClass}
-      teachers={teachers}
-      rooms={rooms}
-      classes={classes}
-      weekdayMap={weekdayMap}
-      onImportComplete={() => {
-        const fetchTimeSlots = async () => {
-          const { data, error } = await supabase
-            .from("time_slots")
-            .select("*")
-            .eq("class_id", selectedClass);
-          
-          if (error) {
-            console.error("Error fetching time slots:", error);
-          } else {
-            setTimeSlots(data || []);
-          }
-        };
-        fetchTimeSlots();
-      }}
-    />
-  </div>
-</div>
-        {selectedPeriod && (
-          <Tabs
-            value={selectedClass}
-            onValueChange={setSelectedClass}
-            className="mt-6"
-          >
-            <TabsList className="w-full justify-start h-auto flex-wrap gap-2 bg-transparent">
-              {classes
-                .sort((a, b) => {
-                  // First sort by grade
-                  if (a.grade !== b.grade) {
-                    return a.grade - b.grade;
+          <div className="flex items-center gap-4">
+            <h2 className="text-2xl font-bold text-slate-900">
+              Timetable Builder
+            </h2>
+            <div className="flex items-center gap-2">
+              <PeriodManager
+                academicPeriods={academicPeriods}
+                selectedPeriod={selectedPeriod}
+                onPeriodChange={setSelectedPeriod}
+                onPeriodsUpdate={setAcademicPeriods}
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button
+                onClick={generateSchedule}
+                disabled={!selectedPeriod || !selectedClass || isGenerating}
+              >
+                {isGenerating ? "Generating..." : "Generate Schedule"}
+              </Button>
+              <ImportJSON
+                selectedClass={selectedClass}
+                teachers={teachers}
+                rooms={rooms}
+                classes={classes}
+                lessons={lessons}
+                weekdayMap={weekdayMap}
+                selectedPeriod={selectedPeriod}
+                onImportComplete={async () => {
+                  try {
+                    const { data, error } = await supabase
+                      .from("time_slots")
+                      .select("*")
+                      .eq("class_id", selectedClass)
+                      .eq("academic_period_id", selectedPeriod);
+                    
+                    if (error) throw error;
+                    setTimeSlots(data || []);
+                  } catch (error) {
+                    console.error("Error refreshing time slots:", error);
                   }
-                  // Then sort by literal
-                  return a.literal.localeCompare(b.literal);
-                })
-                .map((cls) => (
-                  <TabsTrigger
-                    key={cls.id}
-                    value={cls.id}
-                    className="data-[state=active]:bg-slate-900 data-[state=active]:text-white"
+                }}
+              />
+            </div>
+          </div>
+          {selectedPeriod && (
+            <Tabs
+              value={selectedClass}
+              onValueChange={setSelectedClass}
+              className="mt-6"
+            >
+              <TabsList className="w-full justify-start h-auto flex-wrap gap-2 bg-transparent">
+                {classes
+                  .sort((a, b) => {
+                    if (a.grade !== b.grade) {
+                      return a.grade - b.grade;
+                    }
+                    return a.literal.localeCompare(b.literal);
+                  })
+                  .map((cls) => (
+                    <TabsTrigger
+                      key={cls.id}
+                      value={cls.id}
+                      className="data-[state=active]:bg-slate-900 data-[state=active]:text-white"
                   >
                     {cls.name}
                   </TabsTrigger>
@@ -491,7 +460,6 @@ const TimetableBuilder = () => {
 
             {classes
               .sort((a, b) => {
-                // Apply the same sorting for the content
                 if (a.grade !== b.grade) {
                   return a.grade - b.grade;
                 }
@@ -531,60 +499,73 @@ const TimetableBuilder = () => {
                                 </tr>
                               </thead>
                               <tbody>
-                                {lessons
-                                  .sort(
-                                    (a, b) =>
-                                      a.lesson_number - b.lesson_number,
-                                  )
-                                  .map((lesson) => {
-                                    const timeSlot = timeSlots.find(
-                                      (ts) =>
-                                        ts.lesson_id === lesson.id &&
-                                        ts.day === day &&
-                                        ts.class_id === cls.id,
-                                    );
-                                    // Determine the background color based on flags
-                                    const subject = subjects.find(
-                                      (s) => s.name === timeSlot?.subject,
-                                    );
-                                    const bgColor = subject
-                                      ? false // Assuming is_extracurricular is not available, default to false
-                                        ? "bg-purple-50"
-                                        : false
-                                          ? "bg-green-50"
-                                          : ""
-                                      : "";
-                                    return (
-                                      <tr
-                                        key={`${day}-${lesson.id}`}
-                                        className={`border-b last:border-0 ${bgColor}`}
-                                      >
+                              {lessons
+  .sort((a, b) => a.lesson_number - b.lesson_number)
+  .map((lesson) => {
+    const timeSlotsForLesson = timeSlots.filter(
+      (ts) =>
+        ts.lesson_id === lesson.id &&
+        ts.day === reverseWeekdayMap[day] && // Only check for Russian day name
+        ts.class_id === cls.id &&
+        ts.academic_period_id === selectedPeriod
+    );
+    const bgColor = timeSlotsForLesson.length > 1 ? "bg-green-50" : "";
+    return (
+      <tr
+        key={`${day}-${lesson.id}`}
+        className={`border-b last:border-0 ${bgColor}`}
+      >
                                         <td className="py-3 text-center pr-2">
                                           {lesson.lesson_number}
                                         </td>
                                         <td className="py-3 text-left px-2">
-                                          {lesson.start_time.slice(0, 5)}-
-                                          {lesson.end_time.slice(0, 5)}
+                                          {lesson.start_time.slice(0, 5)}-{lesson.end_time.slice(0, 5)}
+                                        </td>
+                                          <td className="py-3 text-left px-2">
+                                          {timeSlotsForLesson.length > 0 ? (
+                                            timeSlotsForLesson.length > 1 ? (
+                                              <div className="grid grid-cols-2 gap-2">
+                                                <div className="border-r pr-2">
+                                                  {timeSlotsForLesson.find(ts => ts.subgroup === 1)?.subject || "-"}
+                                                </div>
+                                                <div className="pl-2">
+                                                  {timeSlotsForLesson.find(ts => ts.subgroup === 2)?.subject || "-"}
+                                                </div>
+                                              </div>
+                                            ) : (
+                                              timeSlotsForLesson[0].subject
+                                            )
+                                          ) : (
+                                            "-"
+                                          )}
                                         </td>
                                         <td className="py-3 text-left px-2">
-                                          {timeSlot ? timeSlot.subject : "-"}
+                                          {timeSlotsForLesson.length > 1 ? (
+                                            <div className="grid grid-cols-2 gap-2">
+                                              <div className="border-r pr-2">
+                                                {teachers.find(t => t.id === timeSlotsForLesson.find(ts => ts.subgroup === 1)?.teacher_id)?.name || "-"}
+                                              </div>
+                                              <div className="pl-2">
+                                                {teachers.find(t => t.id === timeSlotsForLesson.find(ts => ts.subgroup === 2)?.teacher_id)?.name || "-"}
+                                              </div>
+                                            </div>
+                                          ) : (
+                                            teachers.find(t => t.id === timeSlotsForLesson[0]?.teacher_id)?.name || "-"
+                                          )}
                                         </td>
                                         <td className="py-3 text-left px-2">
-                                          {timeSlot
-                                            ? teachers.find(
-                                                (t) =>
-                                                  t.id ===
-                                                  timeSlot.teacher_id,
-                                              )?.name
-                                            : "-"}
-                                        </td>
-                                        <td className="py-3 text-left px-2">
-                                          {timeSlot
-                                            ? rooms.find(
-                                                (r) =>
-                                                  r.id === timeSlot.room_id,
-                                              )?.name
-                                            : "-"}
+                                          {timeSlotsForLesson.length > 1 ? (
+                                            <div className="grid grid-cols-2 gap-2">
+                                              <div className="border-r pr-2">
+                                                {rooms.find(r => r.id === timeSlotsForLesson.find(ts => ts.subgroup === 1)?.room_id)?.name || "-"}
+                                              </div>
+                                              <div className="pl-2">
+                                                {rooms.find(r => r.id === timeSlotsForLesson.find(ts => ts.subgroup === 2)?.room_id)?.name || "-"}
+                                              </div>
+                                            </div>
+                                          ) : (
+                                            rooms.find(r => r.id === timeSlotsForLesson[0]?.room_id)?.name || "-"
+                                          )}
                                         </td>
                                       </tr>
                                     );
@@ -601,9 +582,9 @@ const TimetableBuilder = () => {
           </Tabs>
         )}
       </>
-      )}
-    </div>
-  );
+    )}
+  </div>
+);
 };
 
 export default TimetableBuilder;

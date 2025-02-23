@@ -1,5 +1,6 @@
 import React, { Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
+import { Toaster } from "sonner";
 import Home from "./components/home";
 import TeacherManagement from "./components/TeacherManagement";
 import SubjectManagement from "./components/SubjectManagement";
@@ -7,7 +8,6 @@ import RoomManagement from "./components/RoomManagement";
 import ClassManagement from "./components/ClassManagement";
 import LessonManagement from "./components/LessonManagement";
 import TimetableBuilder from "./components/TimetableBuilder";
-import Ttes from "./components/Ttes";
 const SyllabusManagement = React.lazy(
   () => import("./components/SyllabusManagement"),
 );
@@ -25,6 +25,7 @@ function App() {
         <Route path="/syllabus" element={<SyllabusManagement />} />
         <Route path="/builder" element={<TimetableBuilder />} />
       </Routes>
+      <Toaster />
     </Suspense>
   );
 }

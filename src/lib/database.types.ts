@@ -399,6 +399,7 @@ export type Database = {
           is_extracurricular: boolean | null
           lesson_id: string | null
           room_id: string | null
+          subgroup: number | null
           subject: string | null
           teacher_id: string | null
         }
@@ -411,6 +412,7 @@ export type Database = {
           is_extracurricular?: boolean | null
           lesson_id?: string | null
           room_id?: string | null
+          subgroup?: number | null
           subject?: string | null
           teacher_id?: string | null
         }
@@ -423,6 +425,7 @@ export type Database = {
           is_extracurricular?: boolean | null
           lesson_id?: string | null
           room_id?: string | null
+          subgroup?: number | null
           subject?: string | null
           teacher_id?: string | null
         }

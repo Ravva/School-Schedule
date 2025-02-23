@@ -10,8 +10,10 @@ interface ImportJSONProps {
   teachers: { id: string; name: string; }[];
   rooms: { id: string; name: string; }[];
   classes: { id: string; name: string; }[];
+  lessons: { id: string; lesson_number: number; }[];
   onImportComplete: () => void;
   weekdayMap: { [key: string]: string };
+  selectedPeriod: string;
 }
 
 interface TimeTableLesson {
@@ -29,8 +31,10 @@ export function ImportJSON({
   teachers, 
   rooms, 
   classes, 
+  lessons,
   onImportComplete,
-  weekdayMap 
+  weekdayMap,
+  selectedPeriod,  // Add this to destructuring
 }: ImportJSONProps) {
   const { toast } = useToast();
   const [isImporting, setIsImporting] = useState(false);
@@ -118,6 +122,11 @@ export function ImportJSON({
         onClose={() => setShowPreview(false)}
         onConfirm={handleConfirmImport}
         data={previewData}
+        selectedClass={selectedClass}
+        teachers={teachers}
+        rooms={rooms}
+        lessons={lessons}
+        selectedPeriod={selectedPeriod}  // Add this prop
       />
     </>
   );

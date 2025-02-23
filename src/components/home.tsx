@@ -64,8 +64,6 @@ const Home = ({
       <Sidebar
         activeView={activeView}
         onViewChange={setActiveView}
-        selectedFilter={selectedFilter}
-        onFilterChange={setSelectedFilter}
       />
       <main className="flex-1 overflow-auto">{renderMainContent()}</main>
     </div>
