@@ -41,8 +41,11 @@ type Teacher = Database["public"]["Tables"]["teachers"]["Row"];
 type Class = Database["public"]["Tables"]["classes"]["Row"];
 
 // Type for fetching rooms with related data
+// Update the RoomAssignment type to reflect the new data structure
 type RoomAssignment = Room & {
-  teachers: Teacher[];
+  teacher_rooms: {
+    teacher: Teacher;
+  }[];
   subjects: Subject[];
   classes: Class[] | null;
 };
@@ -90,7 +93,7 @@ const RoomAssignmentForm: React.FC<RoomAssignmentFormProps> = ({
           ...initialRoom,
           id: initialRoom?.id,
           room_number: initialRoom?.room_number || "",
-          teacher_ids: initialRoom?.teachers ? initialRoom.teachers.map(t => t.id) : [],  // Changed to support multiple teachers
+          teacher_ids: initialRoom?.teacher_rooms ? initialRoom.teacher_rooms.map(tr => tr.teacher.id) : [],  // Changed to support multiple teachers
           subject_ids: initialRoom?.subjects.map((s) => s.id) || [],
           created_at: initialRoom?.created_at
         };
@@ -173,6 +176,7 @@ return (
                 <div className="absolute z-10 w-full mt-1 bg-white border rounded-md shadow-lg">
                   <ScrollArea className="h-[200px]">
                     {teachers
+                      .sort((a, b) => a.name.localeCompare(b.name)) // Sort teachers by name
                       .filter((teacher) => !room.teacher_ids.includes(teacher.id))
                       .map((teacher) => (
                         <button
@@ -268,7 +272,7 @@ const RoomAssignments = () => {
       if (subjectsError) throw subjectsError;
       setSubjects(subjectsData || []);
 
-      // Fetch teachers
+      // Fetch teachers with sorting
       const { data: teachersData, error: teachersError } = await supabase
         .from("teachers")
         .select("*")
@@ -276,21 +280,18 @@ const RoomAssignments = () => {
       if (teachersError) throw teachersError;
       setTeachers(teachersData || []);
 
-      // Fetch rooms with related subjects and teachers
+      // Fetch rooms with related data
       const { data: roomsData, error: roomsError } = await supabase
         .from("rooms")
-        .select(
-          `
+        .select(`
           *,
           room_subjects!room_subjects_room_id_fkey(
             subjects(*)
           ),
-          time_slots!time_slots_room_id_fkey(
-            teacher_id,
-            teachers!time_slots_teacher_id_fkey(*)
+          teacher_rooms(
+            teacher:teachers(*)
           )
-        `
-        )
+        `)
         .order("room_number");
 
       if (roomsError) throw roomsError;
@@ -309,7 +310,7 @@ const RoomAssignments = () => {
         const relatedSubjects = room.room_subjects.map((rs: any) => rs.subjects);
 
         // Extract teachers from time_slots, handling null/undefined
-        const relatedTeachers: Teacher[] = (room.time_slots || []).map((ts: any) => ts.teachers).filter((teacher): teacher is Teacher => teacher !== null);
+const relatedTeachers: Teacher[] = (room.teacher_rooms || []).map((tr) => tr.teacher).filter((teacher): teacher is Teacher => teacher !== null);
 
 
         // Find classes associated with the room
@@ -408,8 +409,6 @@ const RoomAssignments = () => {
       const { id, subject_ids, teacher_ids, created_at, ...roomData } = updatedRoom;
 
       if (id) {
-
-
         // First, update the room_subjects
         // Delete existing room_subjects entries
         const { error: deleteSubjectsError } = await supabase
@@ -432,22 +431,25 @@ const RoomAssignments = () => {
           if (insertSubjectsError) throw insertSubjectsError;
         }
 
-        // Update time_slots for teacher assignments
-        await supabase
-          .from("time_slots")
+        // Update teacher_rooms for teacher assignments
+        // First delete existing teacher_rooms
+        const { error: deleteTeachersError } = await supabase
+          .from("teacher_rooms")
           .delete()
           .eq("room_id", id);
 
+        if (deleteTeachersError) throw deleteTeachersError;
+
+        // Insert new teacher_rooms
         if (teacher_ids.length > 0) {
-          const timeSlots = teacher_ids.map(teacherId => ({
+          const teacherRoomsToInsert = teacher_ids.map(teacherId => ({
             room_id: id,
             teacher_id: teacherId,
-            day: "Monday", // Default day
           }));
 
           const { error: insertTeachersError } = await supabase
-            .from("time_slots")
-            .insert(timeSlots);
+            .from("teacher_rooms")
+            .insert(teacherRoomsToInsert);
 
           if (insertTeachersError) throw insertTeachersError;
         }
@@ -459,7 +461,6 @@ const RoomAssignments = () => {
           .eq("id", id);
 
         if (updateError) throw updateError;
-
 
         await fetchData(); // Refresh data and clear editing state
         setEditingRoom(null);
@@ -556,9 +557,11 @@ const RoomAssignments = () => {
                   <TableCell>{room.room_number}</TableCell>
                   <TableCell>
                     <div className="flex flex-wrap gap-1">
-                      {room.teachers.map((teacher) => (
-                        <Badge key={teacher.id}>{teacher.name}</Badge>
-                      ))}
+                      {room.teacher_rooms
+                        .sort((a, b) => a.teacher.name.localeCompare(b.teacher.name))
+                        .map((tr) => (
+                          <Badge key={tr.teacher.id}>{tr.teacher.name}</Badge>
+                        ))}
                     </div>
                   </TableCell>
                   <TableCell>
