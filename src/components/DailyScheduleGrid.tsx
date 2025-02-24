@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { supabase, type TimeSlotRow, type TeacherRow } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase";
 import {
   Table,
   TableBody,
@@ -18,17 +18,18 @@ import {
 
 import { Database } from "@/lib/database.types";
 
+type TimeSlot = Database["public"]["Tables"]["time_slots"]["Row"];
 type Lesson = Database["public"]["Tables"]["lessons"]["Row"];
 type Teacher = Database["public"]["Tables"]["teachers"]["Row"];
 type Class = Database["public"]["Tables"]["classes"]["Row"];
 type Room = Database["public"]["Tables"]["rooms"]["Row"];
+type AcademicPeriod = Database["public"]["Tables"]["academic_periods"]["Row"];
 
 interface DailyScheduleGridProps {
   date?: Date;
 }
 
-interface TimeSlotWithDetails
-  extends Omit<TimeSlotRow, "lesson" | "teacher" | "class"> {
+interface TimeSlotWithDetails extends TimeSlot {
   lesson: Lesson | null;
   teacher: Teacher | null;
   class: Class | null;
@@ -37,185 +38,93 @@ interface TimeSlotWithDetails
 
 const DailyScheduleGrid = ({ date = new Date() }: DailyScheduleGridProps) => {
   const [timeSlots, setTimeSlots] = useState<TimeSlotWithDetails[]>([]);
-  const [teachers, setTeachers] = useState<TeacherRow[]>([]);
-  const [classes, setClasses] = useState<any[]>([]);
-  const [academicPeriods, setAcademicPeriods] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedTeacher, setSelectedTeacher] = useState<string>("all");
   const [selectedRoom, setSelectedRoom] = useState<string>("all");
   const [selectedClass, setSelectedClass] = useState<string>("all");
-  const [selectedPeriod, setSelectedPeriod] = useState<string>("");  // Changed from "all" to ""
-  const [lessons, setLessons] = useState<any[]>([]);
+  const [selectedPeriod, setSelectedPeriod] = useState<string>("");
+  const [academicPeriods, setAcademicPeriods] = useState<AcademicPeriod[]>([]);
+  const [classes, setClasses] = useState<Class[]>([]);
 
-  // Modify the fetchWithRetry function
-  // Remove the first fetchWithRetry and keep only this one
-  const fetchWithRetry = async <T,>(
-    queryFn: () => Promise<T>,
-    retries = 3,
-    delay = 1000
-  ): Promise<T> => {
-    try {
-      return await queryFn();
-    } catch (error) {
-      if (retries > 0) {
-        await new Promise((resolve) => setTimeout(resolve, delay));
-        return fetchWithRetry(queryFn, retries - 1, delay * 2);
-      }
-      throw error;
-    }
+  // Map English day names to Russian
+  const dayMap: { [key: string]: string } = {
+    Monday: "Понедельник",
+    Tuesday: "Вторник",
+    Wednesday: "Среда",
+    Thursday: "Четверг",
+    Friday: "Пятница",
+    Saturday: "Суббота",
+    Sunday: "Воскресенье",
   };
 
   const fetchData = async () => {
-        try {
-          const dayName = date.toLocaleDateString("en-US", { weekday: "long" });
-          //console.log('Querying for day:', dayName);
-    
-          const [
-            timeSlotsData,
-            teachersData,
-            lessonsData,
-            classesData,
-            roomsData,
-            academicPeriodsData,
-        ] = await Promise.all([
-          fetchWithRetry(() =>
-            supabase
-              .from("time_slots")
-              .select(
-                `
-                  *,
-                  lesson:lesson_id (*),
-                  teacher:teacher_id (*),
-                  class:class_id (*),
-                  room:room_id (*)
-                `
-              )
-              .eq("day", dayName.toLowerCase())
-              .then((result) => result)
-          ),
-          fetchWithRetry(() =>
-            supabase
-              .from("teachers")
-              .select("*")
-              .order("name")
-              .then((result) => result)
-          ),
-          fetchWithRetry(() =>
-            supabase
-              .from("lessons")
-              .select("*")
-              .order("lesson_number")
-              .then((result) => result)
-          ),
-          fetchWithRetry(() =>
-            supabase
-              .from("classes")
-              .select("*")
-              .order("name")
-              .then((result) => result)
-          ),
-          fetchWithRetry(() =>
-            supabase
-              .from("rooms")
-              .select("*")
-              .order("room_number")
-              .then((result) => result)
-          ),
-          fetchWithRetry(() =>
-            supabase
-              .from("academic_periods")
-              .select("*")
-              .order("name")
-              .then((result) => result)
-          ),
-        ]);
-
-        if (timeSlotsData.error) throw timeSlotsData.error;
-        if (teachersData.error) throw teachersData.error;
-        if (lessonsData.error) throw lessonsData.error;
-        if (classesData.error) throw classesData.error;
-        if (roomsData.error) throw roomsData.error;
-        if (academicPeriodsData.error) throw academicPeriodsData.error;
-
-      const formattedTimeSlots: TimeSlotWithDetails[] = (
-        timeSlotsData.data || []
-      ).map((slot) => {
-        return {
-          id: slot.id,
-          day: slot.day,
-          lesson_id: slot.lesson_id,
-          subject: slot.subject,
-          teacher_id: slot.teacher_id,
-          room: slot.room,
-          class_id: slot.class_id,
-          subgroup: slot.subgroup,
-          academic_period_id: slot.academic_period_id,
-          created_at: slot.created_at,
-          is_extracurricular: slot.is_extracurricular,
-          lesson: slot.lesson,
-          teacher: slot.teacher,
-          class: slot.class,
-        };
+    try {
+      const englishDayName = date.toLocaleDateString("en-US", {
+        weekday: "long",
       });
+      const dayName = dayMap[englishDayName];
 
-        const sortedClasses = (classesData.data || []).sort((a, b) => {
-          const gradeA = parseInt(a.name.match(/\d+/)?.[0] || "0");
-          const gradeB = parseInt(b.name.match(/\d+/)?.[0] || "0");
-          if (gradeA !== gradeB) return gradeA - gradeB;
-          return a.name.localeCompare(b.name);
-        });
+      console.log("Fetching data for day:", dayName);
 
-          setTimeSlots(formattedTimeSlots);
-          setTeachers(teachersData.data || []);
-          setClasses(sortedClasses);
-          setLessons(lessonsData.data || []);
-          setAcademicPeriods(academicPeriodsData.data || []); // Fix: Use academicPeriodsData instead of periodsData
-        } catch (error) {
-         // console.error("Error fetching data:", error);
-          setLoading(false);
-        } finally {
-          setLoading(false);
-        }
-      };
-      useEffect(() => {
-        fetchData();
-      }, [date, selectedTeacher, selectedRoom, selectedClass, selectedPeriod]);
+      const { data: timeSlotsData, error: timeSlotsError } = await supabase
+        .from("time_slots")
+        .select(
+          `
+          *,
+          lesson:lesson_id(*),
+          teacher:teacher_id(*),
+          class:class_id(*),
+          room:room_id(*)
+        `,
+        )
+        .eq("day", dayName)
+        .order("lesson_id");
 
-      const filteredTimeSlots = timeSlots.filter((slot) => {
-        console.log("Checking slot:", {
-          slot,
-          teacherMatch:
-            selectedTeacher === "all" || slot.teacher_id === selectedTeacher,
-          roomMatch: selectedRoom === "all" || slot.room?.id === selectedRoom,
-          classMatch: selectedClass === "all" || slot.class_id === selectedClass,
-          periodMatch:
-            !selectedPeriod || slot.academic_period_id === selectedPeriod,
-        });
+      console.log("Time slots data:", timeSlotsData);
 
-        if (selectedTeacher !== "all" && slot.teacher_id !== selectedTeacher)
-          return false;
-        if (selectedRoom !== "all" && slot.room?.id !== selectedRoom)
-          return false;
-        if (selectedClass !== "all" && slot.class_id !== selectedClass)
-          return false;
-        if (selectedPeriod && slot.academic_period_id !== selectedPeriod)
-          return false;
-        return true;
-      });
+      if (timeSlotsError) throw timeSlotsError;
 
-      return (
-        <div className="w-full h-full bg-white p-6">
-          {/* Debug section */}
-          <div className="mb-4 p-2 bg-gray-100 rounded text-sm">
-            <p>Debug Info:</p>
-            <p>Date: {date.toLocaleDateString()}</p>
-            <p>Day: {date.toLocaleDateString("en-US", { weekday: "long" })}</p>
-            <p>Total Time Slots: {timeSlots.length}</p>
-            <p>Filtered Time Slots: {filteredTimeSlots.length}</p>
-            <p>Loading: {loading ? "Yes" : "No"}</p>
-          </div>
+      const { data: academicPeriodsData, error: periodsError } = await supabase
+        .from("academic_periods")
+        .select("*")
+        .order("name");
 
-      {/* Rest of your component */}
+      if (periodsError) throw periodsError;
+
+      const { data: classesData, error: classesError } = await supabase
+        .from("classes")
+        .select("*")
+        .order("name");
+
+      if (classesError) throw classesError;
+
+      setTimeSlots((timeSlotsData as TimeSlotWithDetails[]) || []);
+      setAcademicPeriods(academicPeriodsData || []);
+      setClasses(classesData || []);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [date]);
+
+  const filteredTimeSlots = timeSlots.filter((slot) => {
+    if (selectedTeacher !== "all" && slot.teacher_id !== selectedTeacher)
+      return false;
+    if (selectedRoom !== "all" && slot.room_id !== selectedRoom) return false;
+    if (selectedClass !== "all" && slot.class_id !== selectedClass)
+      return false;
+    if (selectedPeriod && slot.academic_period_id !== selectedPeriod)
+      return false;
+    return true;
+  });
+
+  return (
+    <div className="w-full h-full bg-white p-6">
       <div className="mb-6 flex justify-between items-center">
         <h2 className="text-2xl font-bold text-slate-900">
           {date.toLocaleDateString("en-US", {
@@ -253,10 +162,9 @@ const DailyScheduleGrid = ({ date = new Date() }: DailyScheduleGridProps) => {
               ))}
             </SelectContent>
           </Select>
-
-          {/* Existing teacher and room filters */}
         </div>
       </div>
+
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -285,18 +193,23 @@ const DailyScheduleGrid = ({ date = new Date() }: DailyScheduleGridProps) => {
               </TableRow>
             ) : (
               filteredTimeSlots
-                .sort((a, b) => (a.lesson?.lesson_number || 0) - (b.lesson?.lesson_number || 0))
+                .sort((a, b) => {
+                  const aNum = a.lesson?.lesson_number || 0;
+                  const bNum = b.lesson?.lesson_number || 0;
+                  return aNum - bNum;
+                })
                 .map((slot) => (
                   <TableRow key={slot.id}>
                     <TableCell>{slot.lesson?.lesson_number}</TableCell>
                     <TableCell>
-                      {slot.lesson?.start_time?.slice(0, 5)} - {slot.lesson?.end_time?.slice(0, 5)}
+                      {slot.lesson?.start_time?.slice(0, 5)} -{" "}
+                      {slot.lesson?.end_time?.slice(0, 5)}
                     </TableCell>
                     <TableCell>{slot.subject}</TableCell>
                     <TableCell>{slot.teacher?.name}</TableCell>
                     <TableCell>{slot.class?.name}</TableCell>
                     <TableCell>{slot.room?.room_number}</TableCell>
-                    <TableCell>{slot.subgroup || '-'}</TableCell>
+                    <TableCell>{slot.subgroup || "-"}</TableCell>
                   </TableRow>
                 ))
             )}
