@@ -56,15 +56,12 @@ const DailyScheduleGrid = ({ date = new Date() }: DailyScheduleGridProps) => {
     Saturday: "Суббота",
     Sunday: "Воскресенье",
   };
-
   const fetchData = async () => {
     try {
       const englishDayName = date.toLocaleDateString("en-US", {
         weekday: "long",
       });
       const dayName = dayMap[englishDayName];
-
-      console.log("Fetching data for day:", dayName);
 
       const { data: timeSlotsData, error: timeSlotsError } = await supabase
         .from("time_slots")
@@ -79,8 +76,6 @@ const DailyScheduleGrid = ({ date = new Date() }: DailyScheduleGridProps) => {
         )
         .eq("day", dayName)
         .order("lesson_id");
-
-      console.log("Time slots data:", timeSlotsData);
 
       if (timeSlotsError) throw timeSlotsError;
 
@@ -98,7 +93,7 @@ const DailyScheduleGrid = ({ date = new Date() }: DailyScheduleGridProps) => {
 
       if (classesError) throw classesError;
 
-      setTimeSlots((timeSlotsData as TimeSlotWithDetails[]) || []);
+      setTimeSlots(timeSlotsData as unknown as TimeSlotWithDetails[]);
       setAcademicPeriods(academicPeriodsData || []);
       setClasses(classesData || []);
     } catch (error) {
@@ -169,8 +164,8 @@ const DailyScheduleGrid = ({ date = new Date() }: DailyScheduleGridProps) => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[100px]">Lesson №</TableHead>
-              <TableHead>Time</TableHead>
+              <TableHead className="w-[50px]">№</TableHead>
+              <TableHead className="w-[120px]">Time</TableHead>
               <TableHead>Subject</TableHead>
               <TableHead>Teacher</TableHead>
               <TableHead>Class</TableHead>

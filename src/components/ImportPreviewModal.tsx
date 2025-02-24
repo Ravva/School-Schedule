@@ -50,12 +50,38 @@ export function ImportPreviewModal({
       try {
         setIsImporting(true);
   
-      // First, check if period exists
-      const { data: periodData, error: periodError } = await supabase
-        .from("academic_periods")
-        .select("id")
-        .eq("id", selectedPeriod)
-        .single();
+        // Get unique class names from the data
+        const uniqueClasses = [...new Set(data.map(row => row.Class))];
+  
+        // Fetch all class IDs at once
+        const { data: classesData, error: classesError } = await supabase
+          .from("classes")
+          .select("id, name")
+          .in("name", uniqueClasses);
+  
+        if (classesError || !classesData) {
+          throw new Error("Failed to fetch class data");
+        }
+  
+        // Create a map of class names to their IDs
+        const classIdMap = Object.fromEntries(
+          classesData.map(c => [c.name, c.id])
+        );
+  
+        // Check if all classes were found
+        const missingClasses = uniqueClasses.filter(
+          className => !classIdMap[className]
+        );
+        if (missingClasses.length > 0) {
+          throw new Error(`Classes not found: ${missingClasses.join(", ")}`);
+        }
+  
+        // First, check if period exists
+        const { data: periodData, error: periodError } = await supabase
+          .from("academic_periods")
+          .select("id")
+          .eq("id", selectedPeriod)
+          .single();
   
       if (periodError || !periodData) {
         throw new Error("Selected academic period not found");
@@ -72,7 +98,7 @@ export function ImportPreviewModal({
       const { error: deleteError } = await supabase
         .from("time_slots")
         .delete()
-        .eq("class_id", selectedClass)
+        .in("class_id", Object.values(classIdMap))
         .eq("academic_period_id", selectedPeriod);
   
       if (deleteError) throw deleteError;
@@ -94,10 +120,9 @@ export function ImportPreviewModal({
           subject: row.Subject,
           teacher_id: teacher.id,
           room_id: room.id,
-          class_id: selectedClass,
+          class_id: classIdMap[row.Class], // Use the correct class ID from the map
           academic_period_id: selectedPeriod,
           created_at: new Date().toISOString(),
-          // Only include subgroup if it exists
           ...(row.Subgroup ? { subgroup: parseInt(row.Subgroup) } : {})
         };
   
@@ -130,7 +155,7 @@ export function ImportPreviewModal({
   const { data: updatedTimeSlots, error: fetchError } = await supabase
     .from("time_slots")
     .select("*")
-    .eq("class_id", selectedClass)
+    .in("class_id", Object.values(classIdMap))  // Update the fetch query at the end
     .eq("academic_period_id", selectedPeriod);
   
   if (fetchError) throw fetchError;

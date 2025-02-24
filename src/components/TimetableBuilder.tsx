@@ -487,13 +487,13 @@ useEffect(() => {
                                   <th className="pb-2 font-medium text-left px-2">
                                     Time
                                   </th>
-                                  <th className="pb-2 font-medium text-left px-2">
+                                  <th className="pb-2 font-medium text-center px-2">
                                     Subject
                                   </th>
-                                  <th className="pb-2 font-medium text-left px-2">
+                                  <th className="pb-2 font-medium text-center px-2">
                                     Teacher
                                   </th>
-                                  <th className="pb-2 font-medium text-left px-2">
+                                  <th className="pb-2 font-medium text-center px-2">
                                     Room
                                   </th>
                                 </tr>
@@ -509,6 +509,10 @@ useEffect(() => {
         ts.class_id === cls.id &&
         ts.academic_period_id === selectedPeriod
     );
+    // Hide rows with lesson number 7+ if they have no subject data
+    if (lesson.lesson_number >= 7 && timeSlotsForLesson.length === 0) {
+      return null;
+    }
     const bgColor = timeSlotsForLesson.length > 1 ? "bg-green-50" : "";
     return (
       <tr
@@ -521,31 +525,31 @@ useEffect(() => {
                                         <td className="py-3 text-left px-2">
                                           {lesson.start_time.slice(0, 5)}-{lesson.end_time.slice(0, 5)}
                                         </td>
-                                          <td className="py-3 text-left px-2">
+                                          <td className="py-3 text-center px-2">
                                           {timeSlotsForLesson.length > 0 ? (
                                             timeSlotsForLesson.length > 1 ? (
                                               <div className="grid grid-cols-2 gap-2">
-                                                <div className="border-r pr-2">
-                                                  {timeSlotsForLesson.find(ts => ts.subgroup === 1)?.subject || "-"}
+                                                <div className="border-r pr-2 text-center">
+                                                  {timeSlotsForLesson.find(ts => ts.subgroup === 1)?.subject + "(1)" || "-"}
                                                 </div>
-                                                <div className="pl-2">
-                                                  {timeSlotsForLesson.find(ts => ts.subgroup === 2)?.subject || "-"}
+                                                <div className="pl-2 text-center">
+                                                  {timeSlotsForLesson.find(ts => ts.subgroup === 2)?.subject + "(2)" || "-"}
                                                 </div>
                                               </div>
                                             ) : (
-                                              timeSlotsForLesson[0].subject
+                                              timeSlotsForLesson[0].subject + (timeSlotsForLesson[0].subgroup ? `(${timeSlotsForLesson[0].subgroup})` : "")
                                             )
                                           ) : (
                                             "-"
                                           )}
                                         </td>
-                                        <td className="py-3 text-left px-2">
+                                        <td className="py-3 text-center px-2">
                                           {timeSlotsForLesson.length > 1 ? (
                                             <div className="grid grid-cols-2 gap-2">
-                                              <div className="border-r pr-2">
+                                              <div className="border-r pr-2 text-center">
                                                 {teachers.find(t => t.id === timeSlotsForLesson.find(ts => ts.subgroup === 1)?.teacher_id)?.name || "-"}
                                               </div>
-                                              <div className="pl-2">
+                                              <div className="pl-2 text-center">
                                                 {teachers.find(t => t.id === timeSlotsForLesson.find(ts => ts.subgroup === 2)?.teacher_id)?.name || "-"}
                                               </div>
                                             </div>
@@ -553,13 +557,13 @@ useEffect(() => {
                                             teachers.find(t => t.id === timeSlotsForLesson[0]?.teacher_id)?.name || "-"
                                           )}
                                         </td>
-                                        <td className="py-3 text-left px-2">
+                                        <td className="py-3 text-center px-2">
                                           {timeSlotsForLesson.length > 1 ? (
                                             <div className="grid grid-cols-2 gap-2">
-                                              <div className="border-r pr-2">
+                                              <div className="border-r pr-2 text-center">
                                                 {rooms.find(r => r.id === timeSlotsForLesson.find(ts => ts.subgroup === 1)?.room_id)?.name || "-"}
                                               </div>
-                                              <div className="pl-2">
+                                              <div className="pl-2 text-center">
                                                 {rooms.find(r => r.id === timeSlotsForLesson.find(ts => ts.subgroup === 2)?.room_id)?.name || "-"}
                                               </div>
                                             </div>
