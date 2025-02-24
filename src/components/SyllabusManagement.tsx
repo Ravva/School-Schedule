@@ -44,6 +44,7 @@ import {
   SelectValue,
 } from "./ui/select";
 import { useToast } from "./ui/use-toast";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "./ui/alert-dialog";
 
 type Syllabus = Database["public"]["Tables"]["syllabus"]["Row"];
 type Class = Database["public"]["Tables"]["classes"]["Row"];
@@ -454,7 +455,112 @@ const SyllabusManagement = () => {
     // Reset the input
     event.target.value = "";
   };
+  const [showTeacherPreview, setShowTeacherPreview] = useState(false);
+  const [teacherPreviews, setTeacherPreviews] = useState<
+    { id: string; name: string; existing: boolean; className: string; subjectName: string }[]
+  >([]);
 
+  // Add this type definition near the other type definitions at the top
+  type TimeSlot = Database["public"]["Tables"]["time_slots"]["Row"];
+    // Update the handleSyncTeachers function
+  const handleSyncTeachers = async () => {
+    try {
+      const { data: timeSlots, error: timeSlotError } = await supabase
+        .from("time_slots")
+        .select(`
+          teacher_id,
+          class_id,
+          subject_id,
+          classes (
+            name
+          ),
+          subjects (
+            name
+          )
+        `);
+    if (timeSlotError) throw timeSlotError;
+    if (!timeSlots) return;
+    const existingTeacherIds = new Set(teachers.map((t) => t.id));
+    const uniqueTeacherData = timeSlots.reduce((acc, slot) => {
+      const teacherId = (slot as any).teacher_id as string | null;
+      if (teacherId) {
+        const classData = (slot as any).classes as { name: string } | null;
+        const subjectData = (slot as any).subjects as { name: string } | null;
+        acc[teacherId] = {
+          class_name: classData?.name || "",
+          subject_name: subjectData?.name || "",
+        };
+      }
+      return acc;
+    }, {} as { [key: string]: { class_name: string; subject_name: string } });
+    // Generate previews, checking for existing teachers by ID
+    const previews = Object.entries(uniqueTeacherData).map(
+      ([teacherId, data]) => {
+        return {
+          id: teacherId,
+          name:
+            teachers.find((t) => t.id === teacherId)?.name || teacherId, // Use existing name if found, otherwise teacherId
+          existing: existingTeacherIds.has(teacherId),
+          className: data.class_name,
+          subjectName: data.subject_name,
+        };
+      },
+    );
+    setTeacherPreviews(previews);
+    setShowTeacherPreview(true);
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error syncing teachers",
+        description: error.message,
+      });
+    }
+  };
+  const handleConfirmSync = async () => {
+    try {
+      // Prepare new teachers for insertion, using id for identification
+      const newTeachers = teacherPreviews
+        .filter((preview) => !preview.existing)
+        .map((preview) => ({
+          id: preview.id, // Include the ID
+          name: preview.name,
+        }));
+
+      if (newTeachers.length > 0) {
+        // Attempt to insert new teachers
+        const { error: insertError } = await supabase
+          .from("teachers")
+          .insert(newTeachers);
+
+        if (insertError) {
+          // Check if the error is a duplicate key violation
+          if (insertError.code === "23505") {
+            // Handle duplicate key error (e.g., show a user-friendly message)
+            throw new Error(
+              "Some teachers already exist with the provided IDs. Please ensure teacher IDs are unique.",
+            );
+          } else {
+            // Handle other types of errors
+            throw new Error(`Error inserting teachers: ${insertError.message}`);
+          }
+        }
+
+        fetchData(); // Refresh data after successful insertion
+        toast({
+          title: "Success",
+          description: `${newTeachers.length} teachers synchronized successfully`,
+        });
+      }
+
+      setShowTeacherPreview(false);
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error saving teachers",
+        description: error.message,
+      });
+    }
+  };
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -539,9 +645,61 @@ const SyllabusManagement = () => {
                 Import JSON
               </Button>
             </div>
+            <Button
+              variant="outline"
+              onClick={handleSyncTeachers}
+            >
+              <Upload className="mr-2" />
+              Sync Teachers
+            </Button>
           </div>
         </div>
       </CardHeader>
+      {/* ... existing CardHeader and CardContent ... */}
+      <AlertDialog open={showTeacherPreview} onOpenChange={setShowTeacherPreview}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Sync Teachers Preview</AlertDialogTitle>
+            <AlertDialogDescription>
+              The following teachers will be synchronized:
+              <div className="mt-4 max-h-[300px] overflow-y-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Teacher Name</TableHead>
+                      <TableHead>Class</TableHead>
+                      <TableHead>Subject</TableHead>
+                      <TableHead>Status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {teacherPreviews.map((preview, index) => (
+                      <TableRow key={index}>
+                        <TableCell>{preview.name}</TableCell>
+                        <TableCell>{preview.className}</TableCell>
+                        <TableCell>{preview.subjectName}</TableCell>
+                        <TableCell>
+                          {preview.existing ? (
+                            <span className="text-yellow-600">Already exists</span>
+                          ) : (
+                            <span className="text-green-600">Will be added</span>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmSync}>
+              Confirm Sync
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       <CardContent>
         <div className="rounded-md border">
           <Table>
