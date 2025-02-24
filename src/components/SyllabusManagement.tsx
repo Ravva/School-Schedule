@@ -28,6 +28,7 @@ import {
   ChevronUp,
   ChevronsUpDown,
   Upload,
+  RefreshCw,
 } from "lucide-react";
 import { Checkbox } from "./ui/checkbox";
 import {
@@ -50,11 +51,20 @@ type Syllabus = Database["public"]["Tables"]["syllabus"]["Row"];
 type Class = Database["public"]["Tables"]["classes"]["Row"];
 type Teacher = Database["public"]["Tables"]["teachers"]["Row"];
 type Subject = Database["public"]["Tables"]["subjects"]["Row"];
+type TimeSlot = Database["public"]["Tables"]["time_slots"]["Row"];
 
 type SyllabusData = Syllabus & {
   teachers: Teacher | null;
   subjects: Subject | null;
   classes: Class | null;
+};
+
+type TimeSlotWithRelations = {
+  teacher_id: string;
+  class_id: string;
+  subject_id: string;
+  classes: { id: string; name: string } | null;
+  subjects: { id: string; name: string } | null;
 };
 
 type Column = {
@@ -456,108 +466,173 @@ const SyllabusManagement = () => {
     event.target.value = "";
   };
   const [showTeacherPreview, setShowTeacherPreview] = useState(false);
-  const [teacherPreviews, setTeacherPreviews] = useState<
-    { id: string; name: string; existing: boolean; className: string; subjectName: string }[]
-  >([]);
+  const [teacherPreviews, setTeacherPreviews] = useState<TeacherPreview[]>([]);
 
   // Add this type definition near the other type definitions at the top
-  type TimeSlot = Database["public"]["Tables"]["time_slots"]["Row"];
-    // Update the handleSyncTeachers function
+  type TeacherPreview = {
+    id: string;
+    teacherId: string;
+    teacherName: string;
+    className: string;
+    subjectName: string;
+    classId: string;
+    subjectId: string;
+    existing: boolean;
+  };
+
+  // Update the handleSyncTeachers function
   const handleSyncTeachers = async () => {
     try {
+      // Fetch time slots with related data, including teacher names
       const { data: timeSlots, error: timeSlotError } = await supabase
         .from("time_slots")
         .select(`
+          id,
           teacher_id,
+          subject,
           class_id,
-          subject_id,
-          classes (
+          academic_period_id,
+          teachers (
+            id,
             name
           ),
-          subjects (
+          classes (
+            id,
             name
           )
         `);
-    if (timeSlotError) throw timeSlotError;
-    if (!timeSlots) return;
-    const existingTeacherIds = new Set(teachers.map((t) => t.id));
-    const uniqueTeacherData = timeSlots.reduce((acc, slot) => {
-      const teacherId = (slot as any).teacher_id as string | null;
-      if (teacherId) {
-        const classData = (slot as any).classes as { name: string } | null;
-        const subjectData = (slot as any).subjects as { name: string } | null;
-        acc[teacherId] = {
-          class_name: classData?.name || "",
-          subject_name: subjectData?.name || "",
-        };
-      }
-      return acc;
-    }, {} as { [key: string]: { class_name: string; subject_name: string } });
-    // Generate previews, checking for existing teachers by ID
-    const previews = Object.entries(uniqueTeacherData).map(
-      ([teacherId, data]) => {
-        return {
-          id: teacherId,
-          name:
-            teachers.find((t) => t.id === teacherId)?.name || teacherId, // Use existing name if found, otherwise teacherId
-          existing: existingTeacherIds.has(teacherId),
-          className: data.class_name,
-          subjectName: data.subject_name,
-        };
-      },
-    );
-    setTeacherPreviews(previews);
-    setShowTeacherPreview(true);
+
+      if (timeSlotError) throw timeSlotError;
+      if (!timeSlots) return;
+
+      // Get subject IDs from subjects table
+      const { data: subjectsData, error: subjectsError } = await supabase
+        .from("subjects")
+        .select("id, name");
+
+      if (subjectsError) throw subjectsError;
+      if (!subjectsData) return;
+
+      // Create a map of subject names to IDs
+      const subjectMap = new Map(subjectsData.map(s => [s.name, s.id]));
+
+      // Create a map of existing syllabus entries
+      const existingSyllabusMap = new Set(
+        syllabuses.map(s => `${s.class_id}-${s.subject_id}-${s.teacher_id}`)
+      );
+
+      // Group time slots by unique class-subject-teacher combination
+      const teacherAssignments = timeSlots.reduce((acc, slot) => {
+        if (!slot.teacher_id || !slot.teachers || !slot.classes || !slot.subject) {
+          console.log("Skipping incomplete slot:", slot);
+          return acc;
+        }
+        
+        const subjectId = subjectMap.get(slot.subject);
+        if (!subjectId) {
+          console.log("Subject not found:", slot.subject);
+          return acc;
+        }
+
+        const key = `${slot.class_id}-${subjectId}-${slot.teacher_id}`;
+        
+        if (!acc.has(key)) {
+          acc.set(key, {
+            id: crypto.randomUUID(), // Generate unique ID for preview
+            teacherId: slot.teacher_id,
+            teacherName: slot.teachers.name,
+            className: slot.classes.name,
+            subjectName: slot.subject,
+            classId: slot.class_id,
+            subjectId: subjectId,
+            existing: existingSyllabusMap.has(key)
+          });
+        }
+        return acc;
+      }, new Map());
+
+      // Convert to array and sort by class name and subject
+      const previews = Array.from(teacherAssignments.values())
+        .sort((a, b) => 
+          a.className.localeCompare(b.className) || 
+          a.subjectName.localeCompare(b.subjectName)
+        );
+
+      // Log for debugging
+      console.log("Total time slots:", timeSlots.length);
+      console.log("Unique teacher assignments:", previews.length);
+      console.log("New assignments:", previews.filter(p => !p.existing).length);
+
+      setTeacherPreviews(previews);
+      setShowTeacherPreview(true);
     } catch (error: any) {
+      console.error("Sync error:", error);
       toast({
         variant: "destructive",
         title: "Error syncing teachers",
-        description: error.message,
+        description: error.message || "Failed to sync teachers",
       });
     }
   };
   const handleConfirmSync = async () => {
     try {
-      // Prepare new teachers for insertion, using id for identification
-      const newTeachers = teacherPreviews
-        .filter((preview) => !preview.existing)
-        .map((preview) => ({
-          id: preview.id, // Include the ID
-          name: preview.name,
-        }));
+      // First, get existing syllabus entries to preserve hours
+      const { data: existingSyllabus, error: syllabusError } = await supabase
+        .from("syllabus")
+        .select('*');
 
-      if (newTeachers.length > 0) {
-        // Attempt to insert new teachers
+      if (syllabusError) throw syllabusError;
+
+      // Create a map of existing entries with their hours
+      const existingHoursMap = new Map(
+        existingSyllabus?.map(entry => [
+          `${entry.teacher_id}-${entry.class_id}-${entry.subject_id}`,
+          entry.amount_of_academic_hours_per_week
+        ])
+      );
+
+      // Filter out previews that already exist in syllabus
+      const newAssignments = teacherPreviews.filter(preview => !preview.existing);
+
+      // Prepare syllabus entries for new assignments
+      const syllabusEntries = newAssignments.map(preview => {
+        const key = `${preview.teacherId}-${preview.classId}-${preview.subjectId}`;
+        return {
+          teacher_id: preview.teacherId,
+          class_id: preview.classId,
+          subject_id: preview.subjectId,
+          // Use existing hours if available, otherwise default to the existing value
+          amount_of_academic_hours_per_week: existingHoursMap.get(key) || 0
+        };
+      });
+
+      // Insert new entries in batches
+      const BATCH_SIZE = 50;
+      for (let i = 0; i < syllabusEntries.length; i += BATCH_SIZE) {
+        const batch = syllabusEntries.slice(i, i + BATCH_SIZE);
         const { error: insertError } = await supabase
-          .from("teachers")
-          .insert(newTeachers);
+          .from("syllabus")
+          .insert(batch);
 
         if (insertError) {
-          // Check if the error is a duplicate key violation
-          if (insertError.code === "23505") {
-            // Handle duplicate key error (e.g., show a user-friendly message)
-            throw new Error(
-              "Some teachers already exist with the provided IDs. Please ensure teacher IDs are unique.",
-            );
-          } else {
-            // Handle other types of errors
-            throw new Error(`Error inserting teachers: ${insertError.message}`);
-          }
+          console.error("Syllabus insert error:", insertError);
+          throw insertError;
         }
-
-        fetchData(); // Refresh data after successful insertion
-        toast({
-          title: "Success",
-          description: `${newTeachers.length} teachers synchronized successfully`,
-        });
       }
 
+      toast({
+        title: "Success",
+        description: `Successfully synchronized ${syllabusEntries.length} new teacher assignments`,
+      });
+
+      await fetchData();
       setShowTeacherPreview(false);
     } catch (error: any) {
+      console.error("Sync error:", error);
       toast({
         variant: "destructive",
         title: "Error saving teachers",
-        description: error.message,
+        description: error.message || "Failed to sync teachers",
       });
     }
   };
@@ -645,45 +720,37 @@ const SyllabusManagement = () => {
                 Import JSON
               </Button>
             </div>
-            <Button
-              variant="outline"
-              onClick={handleSyncTeachers}
-            >
-              <Upload className="mr-2" />
-              Sync Teachers
+            <Button onClick={handleSyncTeachers}>
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Sync Teachers from Timetable
             </Button>
           </div>
         </div>
       </CardHeader>
-      {/* ... existing CardHeader and CardContent ... */}
       <AlertDialog open={showTeacherPreview} onOpenChange={setShowTeacherPreview}>
-        <AlertDialogContent>
+        <AlertDialogContent className="max-w-3xl">
           <AlertDialogHeader>
-            <AlertDialogTitle>Sync Teachers Preview</AlertDialogTitle>
+            <AlertDialogTitle>Sync Teachers from Timetable</AlertDialogTitle>
             <AlertDialogDescription>
-              The following teachers will be synchronized:
-              <div className="mt-4 max-h-[300px] overflow-y-auto">
+              Review teacher assignments from the timetable:
+              <div className="mt-4 max-h-[400px] overflow-y-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Teacher Name</TableHead>
                       <TableHead>Class</TableHead>
                       <TableHead>Subject</TableHead>
+                      <TableHead>Teacher</TableHead>
                       <TableHead>Status</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {teacherPreviews.map((preview, index) => (
-                      <TableRow key={index}>
-                        <TableCell>{preview.name}</TableCell>
+                    {teacherPreviews.map((preview, idx) => (
+                      <TableRow key={idx}>
                         <TableCell>{preview.className}</TableCell>
                         <TableCell>{preview.subjectName}</TableCell>
-                        <TableCell>
-                          {preview.existing ? (
-                            <span className="text-yellow-600">Already exists</span>
-                          ) : (
-                            <span className="text-green-600">Will be added</span>
-                          )}
+                        <TableCell>{preview.teacherName}</TableCell>
+                        <TableCell className={preview.existing ? "text-gray-400" : "text-green-600"}>
+                          {preview.existing ? "Already exists" : "Importing"}
                         </TableCell>
                       </TableRow>
                     ))}
