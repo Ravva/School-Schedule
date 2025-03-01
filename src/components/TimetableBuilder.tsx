@@ -1,3 +1,4 @@
+import { TimeSlotForm } from "./TimeSlotForm";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,11 +23,10 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
-} from "./ui/dialog";
+  DialogTrigger
+} from "@/components/ui/dialog";
 import { Button } from "./ui/button";
 import {
   Select,
@@ -58,7 +58,9 @@ const weekdayMap: { [key: string]: string } = {
   "Пятница": "Friday",
 };
 
+// Интерфейс для существующих записей
 interface TimeSlot {
+  id: string;
   day: string;
   lesson_id: string;
   subject: string;
@@ -66,7 +68,24 @@ interface TimeSlot {
   room_id: string;
   class_id: string;
   subgroup?: number;
-  academic_period_id: string;  // Add this field
+  academic_period_id: string;
+  created_at?: string;
+  subjects?: {  // Add this
+    is_extracurricular: boolean;
+  };
+}
+
+// Интерфейс для новых записей (без id)
+interface NewTimeSlot {
+  day: string;
+  lesson_id: string;
+  subject: string;
+  teacher_id: string;
+  room_id: string;
+  class_id: string;
+  subgroup?: number;
+  academic_period_id: string;
+  created_at?: string;
 }
 
 interface AcademicPeriod {
@@ -129,6 +148,84 @@ const TimetableBuilder = () => {
   const [selectedTeachers, setSelectedTeachers] = useState<{[key: string]: string}>({});
   const [selectedRooms, setSelectedRooms] = useState<{[key: string]: string}>({});
   const [isGenerating, setIsGenerating] = useState(false);
+  const [editingTimeSlot, setEditingTimeSlot] = useState<EditingTimeSlot | null>(null);
+
+  // Добавим новый тип для редактируемого слота
+  type EditingTimeSlot = {
+    isSubgroups: boolean;
+    slots: TimeSlot[];  // Заменили TimeSlotRow на TimeSlot
+    lessonNumber: number;
+    day: string;
+  };
+
+  const handleUpdateTimeSlot = async (updatedData: any) => {
+    try {
+      setEditingTimeSlot(null); // Close dialog immediately
+
+      if (updatedData.slots[0].id === 'new') {
+        const { error } = await supabase
+          .from("time_slots")
+          .insert({
+            day: updatedData.slots[0].day,
+            lesson_id: updatedData.slots[0].lesson_id,
+            subject: updatedData.slots[0].subject,
+            teacher_id: updatedData.slots[0].teacher_id,
+            room_id: updatedData.slots[0].room_id,
+            class_id: selectedClass,
+            academic_period_id: selectedPeriod,
+            created_at: new Date().toISOString(),
+            subgroup: updatedData.slots[0].subgroup
+          });
+
+        if (error) throw error;
+      } else {
+        // Update existing slots (your existing update logic)
+        if (updatedData.isSubgroups) {
+          for (const slot of updatedData.slots) {
+            const { error } = await supabase
+              .from("time_slots")
+              .update({
+                subject: slot.subject,
+                teacher_id: slot.teacher_id,
+                room_id: slot.room_id,
+                subgroup: slot.subgroup
+              })
+              .eq("id", slot.id);
+
+            if (error) throw error;
+          }
+        } else {
+          const { error } = await supabase
+            .from("time_slots")
+            .update({
+              subject: updatedData.slots[0].subject,
+              teacher_id: updatedData.slots[0].teacher_id,
+              room_id: updatedData.slots[0].room_id,
+              subgroup: updatedData.slots[0].subgroup
+            })
+            .eq("id", updatedData.slots[0].id);
+
+          if (error) throw error;
+        }
+      }
+      
+      // Refresh the time slots
+      const { data: updatedTimeSlots } = await supabase
+        .from("time_slots")
+        .select("*")
+        .eq("class_id", selectedClass)
+        .eq("academic_period_id", selectedPeriod);
+      
+      setTimeSlots(updatedTimeSlots || []);
+    } catch (error: any) {
+      console.error("Error updating time slot:", error);
+      toast({
+        variant: "destructive",
+        title: "Error updating time slot",
+        description: error.message
+      });
+    }
+  };
 
   useEffect(() => {
     const fetchAcademicPeriods = async () => {
@@ -224,12 +321,26 @@ useEffect(() => {
     try {
       const { data, error } = await supabase
         .from("time_slots")
-        .select("*")
+        .select(`
+          *,
+          subjects!inner (
+            is_extracurricular
+          )
+        `)
         .eq("academic_period_id", selectedPeriod)
         .eq("class_id", selectedClass);
-    
+
       if (error) throw error;
-      setTimeSlots(data || []);
+
+      // Transform the data to include subjects info
+      const transformedData = (data || []).map(slot => ({
+        ...slot,
+        subjects: {
+          is_extracurricular: data.find(s => s.subject === slot.subject)?.subjects?.is_extracurricular || false
+        }
+      }));
+
+      setTimeSlots(transformedData);
     } catch (error) {
       console.error("Error fetching time slots:", error);
       setTimeSlots([]);
@@ -271,7 +382,7 @@ useEffect(() => {
 
       if (deleteError) throw deleteError;
 
-      const newTimeSlots: TimeSlot[] = [];
+      const newTimeSlots: NewTimeSlot[] = [];
       const subjectHoursAssigned = new Map<string, number>();
 
       syllabusData?.forEach((syllabus) => {
@@ -335,7 +446,7 @@ useEffect(() => {
               teacher_id: syllabus.teacher_id,
               room_id: randomRoom.id,
               class_id: selectedClass,
-              academic_period_id: selectedPeriod  // Add this field
+              academic_period_id: selectedPeriod
             });
 
             currentHours++;
@@ -394,6 +505,37 @@ useEffect(() => {
     subgroupGrid: "grid grid-cols-2 gap-2 h-full",
     subgroupCell: "h-full flex items-center justify-center",
     subgroupDivider: "border-r"
+  };
+
+  // В компоненте TimetableBuilder обновим обработку данных перед открытием формы
+  const handleEditTimeSlot = (timeSlotsForLesson: TimeSlot[], lesson: Lesson, day: string) => {
+    let formattedSlots: TimeSlot[];
+    
+    if (timeSlotsForLesson.length === 0) {
+      formattedSlots = [{
+        id: 'new',
+        day: reverseWeekdayMap[day],
+        lesson_id: lesson.id,
+        subject: '',
+        teacher_id: '',
+        room_id: '',
+        class_id: selectedClass,
+        academic_period_id: selectedPeriod,
+        created_at: new Date().toISOString()
+      }];
+    } else {
+      formattedSlots = timeSlotsForLesson.map(slot => ({
+        ...slot,
+        subject: slot.subject || '',
+      }));
+    }
+
+    setEditingTimeSlot({
+      isSubgroups: timeSlotsForLesson.length > 1,
+      slots: formattedSlots,
+      lessonNumber: lesson.lesson_number,
+      day: day
+    });
   };
 
   return (
@@ -511,6 +653,7 @@ useEffect(() => {
                                   <th className={`${tableStyles.headerCell} ${tableStyles.roomCol}`}>
                                     Room
                                   </th>
+                                  <th className={`${tableStyles.headerCell} w-[10%]`}>Actions</th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -524,11 +667,20 @@ useEffect(() => {
         ts.class_id === cls.id &&
         ts.academic_period_id === selectedPeriod
     );
-    // Hide rows with lesson number 7+ if they have no subject data
+
     if (lesson.lesson_number >= 7 && timeSlotsForLesson.length === 0) {
       return null;
     }
-    const bgColor = timeSlotsForLesson.length > 1 ? "bg-green-50" : "";
+
+    const isExtracurricular = timeSlotsForLesson.length > 0 && 
+      timeSlotsForLesson[0].subjects?.is_extracurricular;
+
+    const bgColor = timeSlotsForLesson.length > 1 
+      ? "bg-green-50" 
+      : isExtracurricular 
+        ? "bg-purple-50" 
+        : "";
+
     return (
       <tr
         key={`${day}-${lesson.id}`}
@@ -593,6 +745,48 @@ useEffect(() => {
                                               {rooms.find(r => r.id === timeSlotsForLesson[0]?.room_id)?.name || "-"}
                                             </div>
                                           )}
+                                        </td>
+                                        <td className={`${tableStyles.cell} text-right`}>
+                                          <Dialog 
+                                            open={editingTimeSlot !== null} 
+                                            onOpenChange={(open) => !open && setEditingTimeSlot(null)}
+                                          >
+                                            <DialogTrigger asChild>
+                                              <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={(e) => {
+                                                  e.preventDefault();
+                                                  e.stopPropagation();
+                                                  handleEditTimeSlot(timeSlotsForLesson, lesson, day);
+                                                }}
+                                              >
+                                                <Edit className="h-4 w-4" />
+                                              </Button>
+                                            </DialogTrigger>
+                                            {editingTimeSlot && (
+                                              <DialogContent className="max-w-2xl">
+                                                <DialogHeader>
+                                                  <DialogTitle>
+                                                    Edit Lesson - {reverseWeekdayMap[editingTimeSlot?.day || ""]} - Урок {editingTimeSlot?.lessonNumber}
+                                                  </DialogTitle>
+                                                  <DialogDescription>
+                                                    Edit the details for this time slot
+                                                  </DialogDescription>
+                                                </DialogHeader>
+                                                <TimeSlotForm
+                                                  timeSlot={editingTimeSlot}
+                                                  subjects={subjects}
+                                                  teachers={teachers}
+                                                  rooms={rooms}
+                                                  onSubmit={handleUpdateTimeSlot}
+                                                  onCancel={() => setEditingTimeSlot(null)}
+                                                  selectedPeriod={selectedPeriod}
+                                                  selectedClass={selectedClass}
+                                                />
+                                              </DialogContent>
+                                            )}
+                                          </Dialog>
                                         </td>
                                       </tr>
                                     );
