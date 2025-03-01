@@ -3,24 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-// Определяем базовые интерфейсы
-interface Subject {
-  id: string;
-  name: string;
-}
-
-interface Teacher {
-  id: string;
-  name: string;
-  subjects: string[];
-  rooms?: Room[]; // Add optional rooms array to Teacher interface
-}
-
-interface Room {
-  id: string;
-  name: string;
-}
+import { Switch } from "@/components/ui/switch";
+import { Teacher, Room, Subject } from "@/types/supabase-override";
 
 // Определяем интерфейс TimeSlot
 interface TimeSlot {
@@ -70,7 +54,31 @@ export const TimeSlotForm: React.FC<TimeSlotFormProps> = ({
   const handleSubmit = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    onSubmit(formData);
+
+    const cleanedFormData = {
+      ...formData,
+      slots: formData.slots.map(slot => ({
+        ...slot,
+        teacher_id: slot.teacher_id || '',  // Изменено с null на ''
+        room_id: slot.room_id || '',        // Изменено с null на ''
+        subject: slot.subject || ''         // Изменено с null на ''
+      })).filter(slot => 
+        // Фильтруем слоты с пустыми значениями
+        slot.day && 
+        slot.lesson_id && 
+        slot.subject && 
+        slot.teacher_id && 
+        slot.room_id
+      )
+    };
+
+    // Проверяем, что после фильтрации остался хотя бы один слот
+    if (cleanedFormData.slots.length === 0) {
+      console.error('Invalid form data - no valid slots', cleanedFormData);
+      return;
+    }
+
+    onSubmit(cleanedFormData);
   };
 
   const SubgroupForm = ({ subgroup }: { subgroup: number | null }) => {
@@ -108,10 +116,9 @@ export const TimeSlotForm: React.FC<TimeSlotFormProps> = ({
             value={slot.subject || ''}
             onValueChange={(value) => {
               updateSlotData(subgroup, "subject", value);
-              // Clear teacher selection when subject changes
-              updateSlotData(subgroup, "teacher_id", '');
-              // Clear room selection when subject changes
-              updateSlotData(subgroup, "room_id", '');
+              // Clear teacher and room selections when subject changes
+              updateSlotData(subgroup, "teacher_id", null);
+              updateSlotData(subgroup, "room_id", null);
             }}
           >
             <SelectTrigger>
@@ -130,11 +137,10 @@ export const TimeSlotForm: React.FC<TimeSlotFormProps> = ({
         <div>
           <Label>Teacher</Label>
           <Select
-            value={slot.teacher_id}
+            value={slot.teacher_id || ''}
             onValueChange={(value) => {
-              updateSlotData(subgroup, "teacher_id", value);
-              // Clear room selection when teacher changes
-              updateSlotData(subgroup, "room_id", '');
+              updateSlotData(subgroup, "teacher_id", value || null);
+              updateSlotData(subgroup, "room_id", null);
             }}
           >
             <SelectTrigger>
@@ -154,7 +160,7 @@ export const TimeSlotForm: React.FC<TimeSlotFormProps> = ({
           <Label>Room</Label>
           <Select
             value={slot.room_id || ''}
-            onValueChange={(value) => updateSlotData(subgroup, "room_id", value)}
+            onValueChange={(value) => updateSlotData(subgroup, "room_id", value || null)}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select room" />
@@ -162,7 +168,7 @@ export const TimeSlotForm: React.FC<TimeSlotFormProps> = ({
             <SelectContent>
               {availableRooms.map((room) => (
                 <SelectItem key={room.id} value={room.id}>
-                  {room.name}
+                  {room.room_number}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -172,14 +178,61 @@ export const TimeSlotForm: React.FC<TimeSlotFormProps> = ({
     );
   };
 
-  const updateSlotData = (subgroup: number | null, field: string, value: string) => {
+  // Add toggle for subgroups
+  const toggleSubgroups = () => {
+    setFormData(prev => {
+      if (!prev) return prev;
+
+      if (prev.isSubgroups) {
+        // Converting from subgroups to single group
+        return {
+          ...prev,
+          isSubgroups: false,
+          slots: [{
+            ...prev.slots[0],
+            id: prev.slots[0].id,
+            subgroup: null,
+            day: prev.slots[0].day,
+            lesson_id: prev.slots[0].lesson_id,
+            subject: prev.slots[0].subject,
+            teacher_id: prev.slots[0].teacher_id,
+            room_id: prev.slots[0].room_id,
+            class_id: prev.slots[0].class_id,
+            academic_period_id: prev.slots[0].academic_period_id
+          }]
+        };
+      } else {
+        // Converting from single to subgroups
+        // Копируем значения из первой подгруппы, но оставляем вторую пустой
+        return {
+          ...prev,
+          isSubgroups: true,
+          slots: [
+            { ...prev.slots[0], subgroup: 1 },
+            { 
+              ...prev.slots[0], 
+              subgroup: 2,
+              // Оставляем поля пустыми для второй подгруппы
+              subject: null,
+              teacher_id: null,
+              room_id: null 
+            }
+          ]
+        };
+      }
+    });
+  };
+
+  const updateSlotData = (subgroup: number | null, field: string, value: string | null) => {
     setFormData(prev => {
       if (!prev) return prev;
       return {
         ...prev,
         slots: prev.slots.map(slot => {
           if (slot.subgroup === subgroup || (!subgroup && !slot.subgroup)) {
-            return { ...slot, [field]: value };
+            // Если значение пустое, установим null для полей teacher_id и room_id
+            const finalValue = (field === 'teacher_id' || field === 'room_id') && !value ? null : value;
+            return { ...slot, [field]: finalValue };
           }
           return slot;
         })
@@ -187,10 +240,39 @@ export const TimeSlotForm: React.FC<TimeSlotFormProps> = ({
     });
   };
 
+  const handleClear = () => {
+    // Очищаем все поля, сохраняя только day и lesson_id
+    const clearedSlots = formData.slots.map(slot => ({
+      ...slot,
+      id: slot.id,
+      day: slot.day,
+      lesson_id: slot.lesson_id,
+      subject: '',
+      teacher_id: null, // Изменено с '' на null
+      room_id: null,    // Изменено с '' на null
+    }));
+
+    setFormData(prev => ({
+      ...prev,
+      slots: clearedSlots,
+      isSubgroups: false
+    }));
+  };
+
   if (!formData) return null;
 
   return (
     <div className="space-y-4">
+      {/* Add subgroups toggle at the top */}
+      <div className="flex items-center space-x-2">
+        <Switch
+          id="is_subgroups"
+          checked={formData.isSubgroups}
+          onCheckedChange={toggleSubgroups}
+        />
+        <Label htmlFor="is_subgroups">Split into subgroups</Label>
+      </div>
+
       {formData.isSubgroups ? (
         <Tabs defaultValue="1">
           <TabsList>
@@ -208,12 +290,26 @@ export const TimeSlotForm: React.FC<TimeSlotFormProps> = ({
         <SubgroupForm subgroup={null} />
       )}
 
-      <div className="flex justify-end space-x-2 mt-4">
-        <Button type="button" variant="outline" onClick={onCancel}>
+      <div className="flex justify-end space-x-2">
+        <Button 
+          variant="outline" 
+          onClick={handleClear}
+          type="button"
+        >
+          Clear
+        </Button>
+        <Button 
+          variant="outline" 
+          onClick={onCancel}
+          type="button"
+        >
           Cancel
         </Button>
-        <Button type="button" onClick={handleSubmit}>
-          Save Changes
+        <Button 
+          onClick={handleSubmit}
+          type="submit"
+        >
+          Save
         </Button>
       </div>
     </div>

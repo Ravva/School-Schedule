@@ -14,6 +14,8 @@ export interface Subject {
 export interface Teacher {
   id: string;
   name: string;
+  subjects: string[];
+  rooms?: Room[];
 }
 
 export interface Class {
