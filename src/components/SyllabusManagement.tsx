@@ -470,13 +470,11 @@ const SyllabusManagement = () => {
 
   // Add this type definition near the other type definitions at the top
   type TeacherPreview = {
-    id: string;
+    syllabusId: string;
     teacherId: string;
     teacherName: string;
     className: string;
     subjectName: string;
-    classId: string;
-    subjectId: string;
     existing: boolean;
   };
 
@@ -516,10 +514,20 @@ const SyllabusManagement = () => {
       // Create a map of subject names to IDs
       const subjectMap = new Map(subjectsData.map(s => [s.name, s.id]));
 
-      // Create a map of existing syllabus entries
-      const existingSyllabusMap = new Set(
-        syllabuses.map(s => `${s.class_id}-${s.subject_id}-${s.teacher_id}`)
-      );
+      // Fetch existing syllabus entries
+      const { data: existingSyllabus, error: syllabusError } = await supabase
+        .from("syllabus")
+        .select("id, class_id, subject_id, teacher_id");
+
+      if (syllabusError) throw syllabusError;
+      if (!existingSyllabus) return;
+
+      // Create a map of existing syllabus entries by class and subject
+      const existingSyllabusMap = new Map();
+      existingSyllabus.forEach(s => {
+        const key = `${s.class_id}-${s.subject_id}`;
+        existingSyllabusMap.set(key, s);
+      });
 
       // Group time slots by unique class-subject-teacher combination
       const teacherAssignments = timeSlots.reduce((acc, slot) => {
@@ -534,19 +542,24 @@ const SyllabusManagement = () => {
           return acc;
         }
 
-        const key = `${slot.class_id}-${subjectId}-${slot.teacher_id}`;
+        const key = `${slot.class_id}-${subjectId}`;
+        const existingSyllabusEntry = existingSyllabusMap.get(key);
         
-        if (!acc.has(key)) {
-          acc.set(key, {
-            id: crypto.randomUUID(), // Generate unique ID for preview
-            teacherId: slot.teacher_id,
-            teacherName: slot.teachers.name,
-            className: slot.classes.name,
-            subjectName: slot.subject,
-            classId: slot.class_id,
-            subjectId: subjectId,
-            existing: existingSyllabusMap.has(key)
-          });
+        // Only include if there's an existing syllabus entry for this class-subject combination
+        if (existingSyllabusEntry) {
+          if (!acc.has(key)) {
+            acc.set(key, {
+              id: crypto.randomUUID(), // Generate unique ID for preview
+              syllabusId: existingSyllabusEntry.id,
+              teacherId: slot.teacher_id,
+              teacherName: slot.teachers.name,
+              className: slot.classes.name,
+              subjectName: slot.subject,
+              classId: slot.class_id,
+              subjectId: subjectId,
+              existing: existingSyllabusEntry.teacher_id === slot.teacher_id
+            });
+          }
         }
         return acc;
       }, new Map());
@@ -561,7 +574,7 @@ const SyllabusManagement = () => {
       // Log for debugging
       console.log("Total time slots:", timeSlots.length);
       console.log("Unique teacher assignments:", previews.length);
-      console.log("New assignments:", previews.filter(p => !p.existing).length);
+      console.log("New teacher assignments:", previews.filter(p => !p.existing).length);
 
       setTeacherPreviews(previews);
       setShowTeacherPreview(true);
@@ -576,53 +589,34 @@ const SyllabusManagement = () => {
   };
   const handleConfirmSync = async () => {
     try {
-      // First, get existing syllabus entries to preserve hours
-      const { data: existingSyllabus, error: syllabusError } = await supabase
-        .from("syllabus")
-        .select('*');
+      // Filter out previews that already have the correct teacher
+      const teacherUpdates = teacherPreviews.filter(preview => !preview.existing);
 
-      if (syllabusError) throw syllabusError;
+      if (teacherUpdates.length === 0) {
+        toast({
+          title: "No changes needed",
+          description: "All syllabus entries already have the correct teachers assigned",
+        });
+        setShowTeacherPreview(false);
+        return;
+      }
 
-      // Create a map of existing entries with their hours
-      const existingHoursMap = new Map(
-        existingSyllabus?.map(entry => [
-          `${entry.teacher_id}-${entry.class_id}-${entry.subject_id}`,
-          entry.amount_of_academic_hours_per_week
-        ])
-      );
-
-      // Filter out previews that already exist in syllabus
-      const newAssignments = teacherPreviews.filter(preview => !preview.existing);
-
-      // Prepare syllabus entries for new assignments
-      const syllabusEntries = newAssignments.map(preview => {
-        const key = `${preview.teacherId}-${preview.classId}-${preview.subjectId}`;
-        return {
-          teacher_id: preview.teacherId,
-          class_id: preview.classId,
-          subject_id: preview.subjectId,
-          // Use existing hours if available, otherwise default to the existing value
-          amount_of_academic_hours_per_week: existingHoursMap.get(key) || 0
-        };
-      });
-
-      // Insert new entries in batches
-      const BATCH_SIZE = 50;
-      for (let i = 0; i < syllabusEntries.length; i += BATCH_SIZE) {
-        const batch = syllabusEntries.slice(i, i + BATCH_SIZE);
-        const { error: insertError } = await supabase
+      // Update existing syllabus entries with new teachers
+      for (const update of teacherUpdates) {
+        const { error: updateError } = await supabase
           .from("syllabus")
-          .insert(batch);
+          .update({ teacher_id: update.teacherId })
+          .eq("id", update.syllabusId);
 
-        if (insertError) {
-          console.error("Syllabus insert error:", insertError);
-          throw insertError;
+        if (updateError) {
+          console.error("Syllabus update error:", updateError);
+          throw updateError;
         }
       }
 
       toast({
         title: "Success",
-        description: `Successfully synchronized ${syllabusEntries.length} new teacher assignments`,
+        description: `Successfully updated ${teacherUpdates.length} teacher assignments`,
       });
 
       await fetchData();
@@ -631,7 +625,7 @@ const SyllabusManagement = () => {
       console.error("Sync error:", error);
       toast({
         variant: "destructive",
-        title: "Error saving teachers",
+        title: "Error updating teachers",
         description: error.message || "Failed to sync teachers",
       });
     }
@@ -732,37 +726,47 @@ const SyllabusManagement = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Sync Teachers from Timetable</AlertDialogTitle>
             <AlertDialogDescription>
-              Review teacher assignments from the timetable:
-              <div className="mt-4 max-h-[400px] overflow-y-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Class</TableHead>
-                      <TableHead>Subject</TableHead>
-                      <TableHead>Teacher</TableHead>
-                      <TableHead>Status</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {teacherPreviews.map((preview, idx) => (
-                      <TableRow key={idx}>
-                        <TableCell>{preview.className}</TableCell>
-                        <TableCell>{preview.subjectName}</TableCell>
-                        <TableCell>{preview.teacherName}</TableCell>
-                        <TableCell className={preview.existing ? "text-gray-400" : "text-green-600"}>
-                          {preview.existing ? "Already exists" : "Importing"}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
+              Review teacher assignments from the timetable.
             </AlertDialogDescription>
           </AlertDialogHeader>
+          
+          <div className="mt-4 max-h-[400px] overflow-y-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Class</TableHead>
+                  <TableHead>Subject</TableHead>
+                  <TableHead>Teacher</TableHead>
+                  <TableHead>Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {teacherPreviews.map((preview, idx) => (
+                  <TableRow key={idx}>
+                    <TableCell>{preview.className}</TableCell>
+                    <TableCell>{preview.subjectName}</TableCell>
+                    <TableCell>{preview.teacherName}</TableCell>
+                    <TableCell>
+                      {preview.existing ? (
+                        <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                          No change
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center rounded-md bg-amber-50 px-2 py-1 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-600/20">
+                          Will update
+                        </span>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+          
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleConfirmSync}>
-              Confirm Sync
+              Confirm Updates
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
