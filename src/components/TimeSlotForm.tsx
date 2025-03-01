@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
@@ -13,6 +13,8 @@ interface Subject {
 interface Teacher {
   id: string;
   name: string;
+  subjects: string[];
+  rooms?: Room[]; // Add optional rooms array to Teacher interface
 }
 
 interface Room {
@@ -76,13 +78,41 @@ export const TimeSlotForm: React.FC<TimeSlotFormProps> = ({
     
     if (!slot) return null;
 
+    // Get filtered teachers based on selected subject
+    const availableTeachers = teachers.filter(teacher => 
+      teacher.subjects?.includes(slot.subject || '')
+    );
+
+    // Get filtered rooms based on selected teacher
+    const availableRooms = useMemo(() => {
+      const selectedTeacher = teachers.find(t => t.id === slot.teacher_id);
+      
+      if (!selectedTeacher || !slot.teacher_id) {
+        return rooms; // Return all rooms if no teacher selected
+      }
+
+      // If teacher has assigned rooms, filter by them
+      if (selectedTeacher.rooms && selectedTeacher.rooms.length > 0) {
+        const teacherRoomIds = selectedTeacher.rooms.map(room => room.id);
+        return rooms.filter(room => teacherRoomIds.includes(room.id));
+      }
+
+      return rooms; // Return all rooms if teacher has no specific room assignments
+    }, [slot.teacher_id, teachers, rooms]);
+
     return (
       <div className="space-y-4">
         <div>
           <Label>Subject</Label>
           <Select
             value={slot.subject || ''}
-            onValueChange={(value) => updateSlotData(subgroup, "subject", value)}
+            onValueChange={(value) => {
+              updateSlotData(subgroup, "subject", value);
+              // Clear teacher selection when subject changes
+              updateSlotData(subgroup, "teacher_id", '');
+              // Clear room selection when subject changes
+              updateSlotData(subgroup, "room_id", '');
+            }}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select subject" />
@@ -101,13 +131,17 @@ export const TimeSlotForm: React.FC<TimeSlotFormProps> = ({
           <Label>Teacher</Label>
           <Select
             value={slot.teacher_id}
-            onValueChange={(value) => updateSlotData(subgroup, "teacher_id", value)}
+            onValueChange={(value) => {
+              updateSlotData(subgroup, "teacher_id", value);
+              // Clear room selection when teacher changes
+              updateSlotData(subgroup, "room_id", '');
+            }}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select teacher" />
             </SelectTrigger>
             <SelectContent>
-              {teachers.map((teacher) => (
+              {availableTeachers.map((teacher) => (
                 <SelectItem key={teacher.id} value={teacher.id}>
                   {teacher.name}
                 </SelectItem>
@@ -119,14 +153,14 @@ export const TimeSlotForm: React.FC<TimeSlotFormProps> = ({
         <div>
           <Label>Room</Label>
           <Select
-            value={slot.room_id}
+            value={slot.room_id || ''}
             onValueChange={(value) => updateSlotData(subgroup, "room_id", value)}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select room" />
             </SelectTrigger>
             <SelectContent>
-              {rooms.map((room) => (
+              {availableRooms.map((room) => (
                 <SelectItem key={room.id} value={room.id}>
                   {room.name}
                 </SelectItem>

@@ -360,17 +360,12 @@ const fetchData = async () => {
     if (teacherRoomsData.error) throw teacherRoomsData.error;
 
     // Process teachers data to include their rooms from teacher_rooms
-    const teachersWithRooms = teachersData.data.map(teacher => {
-      const teacherRooms = teacherRoomsData.data
+    const teachersWithRooms = teachersData.data.map(teacher => ({
+      ...teacher,
+      rooms: teacherRoomsData.data
         .filter(tr => tr.teacher_id === teacher.id)
         .map(tr => tr.room)
-        .filter((room): room is Room => room !== null);
-
-      return {
-        ...teacher,
-        rooms: teacherRooms.length > 0 ? teacherRooms : null
-      };
-    });
+    }));
 
     setTeachers(teachersWithRooms);
     setSubjects(subjectsData.data || []);
@@ -385,30 +380,41 @@ const fetchData = async () => {
 
   const handleAddTeacher = async () => {
     try {
+      // First, insert the teacher without the rooms field
       const { data, error } = await supabase
         .from("teachers")
-        .insert([
-          {
-            name: newTeacher.name,
-            subjects: newTeacher.subjects,
-            supervised_classes: newTeacher.supervised_classes,
-            rooms: newTeacher.rooms,
-            is_part_time: newTeacher.is_part_time,
-            work_days: newTeacher.work_days,
-          },
-        ])
+        .insert([{
+          name: newTeacher.name,
+          subjects: newTeacher.subjects,
+          supervised_classes: newTeacher.supervised_classes,
+          is_part_time: newTeacher.is_part_time,
+          work_days: newTeacher.work_days,
+        }])
         .select();
 
       if (error) throw error;
 
-      // Construct the toast message
+      // If there are rooms, create the teacher_rooms relationships
+      if (newTeacher.rooms.length > 0 && data && data[0]) {
+        const teacherRoomsToInsert = newTeacher.rooms.map(room => ({
+          teacher_id: data[0].id,
+          room_id: room.id,
+        }));
+
+        const { error: roomsError } = await supabase
+          .from("teacher_rooms")
+          .insert(teacherRoomsToInsert);
+
+        if (roomsError) throw roomsError;
+      }
+
       const teacherName = data && data[0] ? data[0].name : "New Teacher";
       const toastMessage = `${teacherName} added successfully.`;
 
       toast({
         title: "Success",
         description: toastMessage,
-        duration: 5000, // 5 seconds
+        duration: 5000,
       });
 
       fetchData();
@@ -420,15 +426,15 @@ const fetchData = async () => {
         is_part_time: false,
         work_days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
       });
-            setDialogOpen(false);
+      setDialogOpen(false);
 
     } catch (error) {
       console.error("Error adding teacher:", error);
-        toast({
-          title: "Error",
-          description: "Failed to add teacher.",
-          variant: "destructive",
-        });
+      toast({
+        title: "Error",
+        description: "Failed to add teacher.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -494,12 +500,34 @@ const handleUpdateTeacher = async () => {
 
   const handleDeleteTeacher = async (id: string) => {
     try {
-      const { error } = await supabase.from("teachers").delete().eq("id", id);
+      // First, delete related entries in teacher_rooms
+      const { error: deleteRoomsError } = await supabase
+        .from("teacher_rooms")
+        .delete()
+        .eq("teacher_id", id);
+
+      if (deleteRoomsError) throw deleteRoomsError;
+
+      // Then delete the teacher
+      const { error } = await supabase
+        .from("teachers")
+        .delete()
+        .eq("id", id);
 
       if (error) throw error;
+      
       fetchData();
+      toast({
+        title: "Success",
+        description: "Teacher deleted successfully",
+      });
     } catch (error) {
       console.error("Error deleting teacher:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to delete teacher",
+      });
     }
   };
 

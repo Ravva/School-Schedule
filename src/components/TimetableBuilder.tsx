@@ -70,7 +70,7 @@ interface TimeSlot {
   subgroup?: number;
   academic_period_id: string;
   created_at?: string;
-  subjects?: {  // Add this
+  subjects?: {  // Added this
     is_extracurricular: boolean;
   };
 }
@@ -117,11 +117,16 @@ interface Subject {
 interface Teacher {
   id: string;
   name: string;
+  subjects?: string[];
+  rooms?: Room[];
 }
 
 interface Room {
   id: string;
-  name: string;
+  room_number: string;  // Changed from 'name' to 'room_number'
+  class_id?: string;
+  created_at?: string;
+  subject_id?: string;
 }
 
 const TimetableBuilder = () => {
@@ -260,34 +265,39 @@ const TimetableBuilder = () => {
       }
     };
 
-    const fetchSubjects = async () => {
-      const { data, error } = await supabase.from("subjects").select("*");
-      if (error) {
-        console.error("Error fetching subjects:", error);
-      } else {
-        setSubjects(data || []);
-      }
-    };
+    const fetchData = async () => {
+      try {
+        const [teachersData, subjectsData, roomsData] = await Promise.all([
+          supabase
+            .from("teachers")
+            .select(`
+              *,
+              subjects,
+              teacher_rooms(
+                rooms(*)
+              )
+            `),
+          supabase
+            .from("subjects")
+            .select("*"),
+          supabase
+            .from("rooms")
+            .select("*")
+        ]);
 
-    const fetchTeachers = async () => {
-      const { data, error } = await supabase.from("teachers").select("*");
-      if (error) {
-        console.error("Error fetching teachers:", error);
-      } else {
-        setTeachers(data || []);
-      }
-    };
-
-    const fetchRooms = async () => {
-      const { data, error } = await supabase.from("rooms").select("*");
-      if (error) {
-        console.error("Error fetching rooms:", error);
-      } else {
-        const formattedRooms = (data || []).map(room => ({
-          id: room.id,
-          name: room.room_number
+        // Transform the teachers data to include rooms
+        const transformedTeachers = teachersData.data?.map(teacher => ({
+          id: teacher.id,
+          name: teacher.name,
+          subjects: teacher.subjects || [],
+          rooms: teacher.teacher_rooms?.map(tr => tr.rooms) || []
         }));
-        setRooms(formattedRooms);
+
+        setTeachers(transformedTeachers || []);
+        setSubjects(subjectsData.data || []);
+        setRooms(roomsData.data || []);
+      } catch (error) {
+        console.error("Error fetching data:", error);
       }
     };
 
@@ -296,9 +306,7 @@ const TimetableBuilder = () => {
         fetchAcademicPeriods(),
         fetchClasses(),
         fetchLessons(),
-        fetchSubjects(),
-        fetchTeachers(),
-        fetchRooms()
+        fetchData()
       ]);
     };
 
@@ -538,6 +546,23 @@ useEffect(() => {
     });
   };
 
+  // Add these helper functions at component level
+  const getTeachersForSubject = (subjectName: string): Teacher[] => {
+    return teachers.filter(teacher => {
+      // Check if teacher has this subject in their subjects array
+      const teacherData = teachers.find(t => t.id === teacher.id);
+      return teacherData?.subjects?.includes(subjectName);
+    });
+  };
+
+  const getRoomsForTeacher = (teacherId: string): Room[] => {
+    const teacher = teachers.find(t => t.id === teacherId);
+    if (!teacher?.rooms) return rooms; // If no rooms specified, return all rooms
+    return rooms.filter(room => 
+      teacher.rooms.some(teacherRoom => teacherRoom.id === room.id)
+    );
+  };
+
   return (
     <div className="p-6 bg-slate-100 rounded-lg shadow-lg">
       {loading ? (
@@ -568,7 +593,7 @@ useEffect(() => {
               <ImportJSON
                 selectedClass={selectedClass}
                 teachers={teachers}
-                rooms={rooms}
+                rooms={rooms.map(room => ({ id: room.id, name: room.room_number }))}
                 classes={classes}
                 lessons={lessons}
                 weekdayMap={weekdayMap}
@@ -734,15 +759,15 @@ useEffect(() => {
                                           {timeSlotsForLesson.length > 1 ? (
                                             <div className={tableStyles.subgroupGrid}>
                                               <div className={`${tableStyles.subgroupCell} ${tableStyles.subgroupDivider}`}>
-                                                {rooms.find(r => r.id === timeSlotsForLesson.find(ts => ts.subgroup === 1)?.room_id)?.name || "-"}
+                                                {rooms.find(r => r.id === timeSlotsForLesson.find(ts => ts.subgroup === 1)?.room_id)?.room_number || "-"}
                                               </div>
                                               <div className={tableStyles.subgroupCell}>
-                                                {rooms.find(r => r.id === timeSlotsForLesson.find(ts => ts.subgroup === 2)?.room_id)?.name || "-"}
+                                                {rooms.find(r => r.id === timeSlotsForLesson.find(ts => ts.subgroup === 2)?.room_id)?.room_number || "-"}
                                               </div>
                                             </div>
                                           ) : (
                                             <div className="text-center">
-                                              {rooms.find(r => r.id === timeSlotsForLesson[0]?.room_id)?.name || "-"}
+                                              {rooms.find(r => r.id === timeSlotsForLesson[0]?.room_id)?.room_number || "-"}
                                             </div>
                                           )}
                                         </td>
@@ -776,9 +801,20 @@ useEffect(() => {
                                                 </DialogHeader>
                                                 <TimeSlotForm
                                                   timeSlot={editingTimeSlot}
-                                                  subjects={subjects}
-                                                  teachers={teachers}
-                                                  rooms={rooms}
+                                                  subjects={Array.from(subjects).sort((a, b) => a.name.localeCompare(b.name))}
+                                                  teachers={teachers.map(teacher => ({
+                                                    id: teacher.id,
+                                                    name: teacher.name,
+                                                    subjects: teacher.subjects || [],
+                                                    rooms: teacher.rooms?.map(room => ({
+                                                      id: room.id,
+                                                      name: room.room_number, // Convert room_number to name to match the expected interface
+                                                    })) || []
+                                                  }))}
+                                                  rooms={rooms.map(room => ({
+                                                    id: room.id,
+                                                    name: room.room_number
+                                                  }))}
                                                   onSubmit={handleUpdateTimeSlot}
                                                   onCancel={() => setEditingTimeSlot(null)}
                                                   selectedPeriod={selectedPeriod}
