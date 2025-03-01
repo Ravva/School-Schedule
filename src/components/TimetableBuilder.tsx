@@ -381,6 +381,21 @@ useEffect(() => {
     }
   };
 
+  // Add these styles at the top of your component or in a separate CSS file
+  const tableStyles = {
+    table: "w-full table-fixed", // Make table fixed width
+    cell: "py-3 px-2",
+    headerCell: "pb-2 font-medium text-center px-2",
+    numberCol: "w-[8%] text-center",  // Already centered
+    timeCol: "w-[15%] text-center",   // Added text-center here
+    subjectCol: "w-[32%]", 
+    teacherCol: "w-[25%]",
+    roomCol: "w-[20%]",
+    subgroupGrid: "grid grid-cols-2 gap-2 h-full",
+    subgroupCell: "h-full flex items-center justify-center",
+    subgroupDivider: "border-r"
+  };
+
   return (
     <div className="p-6 bg-slate-100 rounded-lg shadow-lg">
       {loading ? (
@@ -478,22 +493,22 @@ useEffect(() => {
                             {day}
                           </h4>
                           <div className="p-4">
-                            <table className="w-full">
+                            <table className={tableStyles.table}>
                               <thead>
                                 <tr className="text-left border-b">
-                                  <th className="pb-2 font-medium text-center pr-2 w-10">
+                                  <th className={`${tableStyles.headerCell} ${tableStyles.numberCol}`}>
                                     №
                                   </th>
-                                  <th className="pb-2 font-medium text-left px-2">
+                                  <th className={`${tableStyles.headerCell} ${tableStyles.timeCol}`}>
                                     Time
                                   </th>
-                                  <th className="pb-2 font-medium text-center px-2">
+                                  <th className={`${tableStyles.headerCell} ${tableStyles.subjectCol}`}>
                                     Subject
                                   </th>
-                                  <th className="pb-2 font-medium text-center px-2">
+                                  <th className={`${tableStyles.headerCell} ${tableStyles.teacherCol}`}>
                                     Teacher
                                   </th>
-                                  <th className="pb-2 font-medium text-center px-2">
+                                  <th className={`${tableStyles.headerCell} ${tableStyles.roomCol}`}>
                                     Room
                                   </th>
                                 </tr>
@@ -519,56 +534,64 @@ useEffect(() => {
         key={`${day}-${lesson.id}`}
         className={`border-b last:border-0 ${bgColor}`}
       >
-                                        <td className="py-3 text-center pr-2">
+                                        <td className={`${tableStyles.cell} text-center ${tableStyles.numberCol}`}>
                                           {lesson.lesson_number}
                                         </td>
-                                        <td className="py-3 text-left px-2">
-                                          {lesson.start_time.slice(0, 5)}-{lesson.end_time.slice(0, 5)}
+                                        <td className={`${tableStyles.cell} ${tableStyles.timeCol} text-center`}>
+                                          <div className="flex justify-center items-center">
+                                            {lesson.start_time.slice(0, 5)}-{lesson.end_time.slice(0, 5)}
+                                          </div>
                                         </td>
-                                          <td className="py-3 text-center px-2">
+                                          <td className={`${tableStyles.cell} ${tableStyles.subjectCol}`}>
                                           {timeSlotsForLesson.length > 0 ? (
                                             timeSlotsForLesson.length > 1 ? (
-                                              <div className="grid grid-cols-2 gap-2">
-                                                <div className="border-r pr-2 text-center">
+                                              <div className={tableStyles.subgroupGrid}>
+                                                <div className={`${tableStyles.subgroupCell} ${tableStyles.subgroupDivider}`}>
                                                   {timeSlotsForLesson.find(ts => ts.subgroup === 1)?.subject + "(1)" || "-"}
                                                 </div>
-                                                <div className="pl-2 text-center">
+                                                <div className={tableStyles.subgroupCell}>
                                                   {timeSlotsForLesson.find(ts => ts.subgroup === 2)?.subject + "(2)" || "-"}
                                                 </div>
                                               </div>
                                             ) : (
-                                              timeSlotsForLesson[0].subject + (timeSlotsForLesson[0].subgroup ? `(${timeSlotsForLesson[0].subgroup})` : "")
+                                              <div className="text-center">
+                                                {timeSlotsForLesson[0].subject + (timeSlotsForLesson[0].subgroup ? `(${timeSlotsForLesson[0].subgroup})` : "")}
+                                              </div>
                                             )
                                           ) : (
-                                            "-"
+                                            <div className="text-center">-</div>
                                           )}
                                         </td>
-                                        <td className="py-3 text-center px-2">
+                                        <td className={`${tableStyles.cell} ${tableStyles.teacherCol}`}>
                                           {timeSlotsForLesson.length > 1 ? (
-                                            <div className="grid grid-cols-2 gap-2">
-                                              <div className="border-r pr-2 text-center">
+                                            <div className={tableStyles.subgroupGrid}>
+                                              <div className={`${tableStyles.subgroupCell} ${tableStyles.subgroupDivider}`}>
                                                 {teachers.find(t => t.id === timeSlotsForLesson.find(ts => ts.subgroup === 1)?.teacher_id)?.name || "-"}
                                               </div>
-                                              <div className="pl-2 text-center">
+                                              <div className={tableStyles.subgroupCell}>
                                                 {teachers.find(t => t.id === timeSlotsForLesson.find(ts => ts.subgroup === 2)?.teacher_id)?.name || "-"}
                                               </div>
                                             </div>
                                           ) : (
-                                            teachers.find(t => t.id === timeSlotsForLesson[0]?.teacher_id)?.name || "-"
+                                            <div className="text-center">
+                                              {teachers.find(t => t.id === timeSlotsForLesson[0]?.teacher_id)?.name || "-"}
+                                            </div>
                                           )}
                                         </td>
-                                        <td className="py-3 text-center px-2">
+                                        <td className={`${tableStyles.cell} ${tableStyles.roomCol}`}>
                                           {timeSlotsForLesson.length > 1 ? (
-                                            <div className="grid grid-cols-2 gap-2">
-                                              <div className="border-r pr-2 text-center">
+                                            <div className={tableStyles.subgroupGrid}>
+                                              <div className={`${tableStyles.subgroupCell} ${tableStyles.subgroupDivider}`}>
                                                 {rooms.find(r => r.id === timeSlotsForLesson.find(ts => ts.subgroup === 1)?.room_id)?.name || "-"}
                                               </div>
-                                              <div className="pl-2 text-center">
+                                              <div className={tableStyles.subgroupCell}>
                                                 {rooms.find(r => r.id === timeSlotsForLesson.find(ts => ts.subgroup === 2)?.room_id)?.name || "-"}
                                               </div>
                                             </div>
                                           ) : (
-                                            rooms.find(r => r.id === timeSlotsForLesson[0]?.room_id)?.name || "-"
+                                            <div className="text-center">
+                                              {rooms.find(r => r.id === timeSlotsForLesson[0]?.room_id)?.name || "-"}
+                                            </div>
                                           )}
                                         </td>
                                       </tr>
